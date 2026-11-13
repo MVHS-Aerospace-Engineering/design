@@ -32,6 +32,7 @@ Usage: twin_rc_render [scene.json] [options]
   --screenshot FILE     render one frame to FILE (PNG) without opening a window, then exit
   --width N, --height N output / window size (default 1600 x 1000)
   --view NAME           iso | front | side | top | rear (default iso)
+  --zoom F              camera zoom factor (2 = twice as close), aimed at the CG
   --trim                pose the plane at the simulated cruise trim (alpha + stabilators)
   --stab DEG            collective stabilator deflection (+ = trailing edge down)
   --diff DEG            differential stabilator (+ = left TE down -> roll right)
@@ -40,13 +41,14 @@ Usage: twin_rc_render [scene.json] [options]
   --alpha DEG           pitch the whole plane nose-up by DEG about the CG
   --spin                show props spinning
   --hinges              show hinge lines / stabilator pivot axes
+  --xray                see-through fuselage and nacelles (shows Pi 5, FC, battery, motors)
   --no-markers          hide CG / neutral point markers
   --no-watch            don't reload the scene when the file changes
 
 Keys:
   mouse drag orbit, right/shift-drag pan, scroll zoom
   W/S stabilators (pitch)   A/D roll (ailerons + differential stabilators)   Q/E rudder
-  T trimmed-cruise pose     P props on/off   H hinge lines   M markers   G ground
+  T trimmed-cruise pose     P props on/off   H hinge lines   M markers   G ground   V x-ray
   1 iso 2 front 3 side 4 top 5 rear   F reframe   X screenshot   Esc quit
 Controls spring back to neutral when released, like RC sticks.
 )";
@@ -56,7 +58,8 @@ struct Options {
     std::string screenshot;
     int width = 1600, height = 1000;
     std::string view = "iso";
-    bool trim = false, spin = false, hinges = false, markers = true, watch = true;
+    float zoom = 1.0f;
+    bool trim = false, spin = false, hinges = false, markers = true, watch = true, xray = false;
     float stab = 0, diff = 0, aileron = 0, rudder = 0, alpha = 0;
 };
 
@@ -84,6 +87,7 @@ Options parse_args(int argc, char** argv) {
         else if (a == "--width") o.width = std::stoi(need(i));
         else if (a == "--height") o.height = std::stoi(need(i));
         else if (a == "--view") o.view = need(i);
+        else if (a == "--zoom") o.zoom = std::stof(need(i));
         else if (a == "--trim") o.trim = true;
         else if (a == "--stab") o.stab = std::stof(need(i));
         else if (a == "--diff") o.diff = std::stof(need(i));
@@ -92,6 +96,7 @@ Options parse_args(int argc, char** argv) {
         else if (a == "--alpha") o.alpha = std::stof(need(i));
         else if (a == "--spin") o.spin = true;
         else if (a == "--hinges") o.hinges = true;
+        else if (a == "--xray") o.xray = true;
         else if (a == "--no-markers") o.markers = false;
         else if (a == "--no-watch") o.watch = false;
         else if (!a.empty() && a[0] == '-') throw std::runtime_error("unknown option " + a + " (see --help)");
@@ -202,14 +207,16 @@ std::string title_for(const Scene& s, const FrameState& st, const Controls& c) {
 }
 
 void print_scene_info(const Scene& s) {
-    size_t tris = 0, controls = 0, cad = 0;
+    size_t tris = 0, controls = 0, cad = 0, internal = 0;
     for (const auto& p : s.parts) {
         tris += p.mesh.indices.size() / 3;
         controls += !p.control.empty();
         cad += p.source != "inline";
+        internal += p.internal;
     }
-    std::cout << "Loaded " << s.path << ": " << s.parts.size() << " parts (" << controls << " movable, " << cad
-              << " from mesh files), " << tris << " triangles, " << s.props.size() << " props\n";
+    std::cout << "Loaded " << s.path << ": " << s.parts.size() << " parts (" << controls << " movable, " << internal
+              << " internal, " << cad << " from mesh files), " << tris << " triangles, " << s.props.size()
+              << " props\n";
 }
 
 struct App {
@@ -275,6 +282,7 @@ void on_key(GLFWwindow* w, int key, int, int action, int) {
             break;
         case GLFW_KEY_P: st.props_spinning = !st.props_spinning; break;
         case GLFW_KEY_H: st.show_hinges = !st.show_hinges; break;
+        case GLFW_KEY_V: st.xray = !st.xray; break;
         case GLFW_KEY_M: st.show_markers = !st.show_markers; break;
         case GLFW_KEY_G: st.show_ground = !st.show_ground; break;
         case GLFW_KEY_F: frame_camera(st.camera, app->renderer); break;
@@ -396,6 +404,10 @@ int run_headless(App& app) {
     app.renderer.set_scene(scene);
     frame_camera(app.st.camera, app.renderer);
     app.st.camera.set_view(app.opt.view);
+    if (app.opt.zoom != 1.0f) {
+        app.st.camera.distance /= app.opt.zoom;
+        app.st.camera.target = app.renderer.pivot();
+    }
     app.ctl.apply(app.st, app.renderer.scene());
     if (!save_screenshot(app.renderer, app.st, app.opt.width, app.opt.height, app.opt.screenshot))
         throw std::runtime_error("could not write " + app.opt.screenshot);
@@ -417,6 +429,7 @@ int main(int argc, char** argv) {
     app.ctl = {o.stab, o.diff, o.aileron, o.rudder, o.trim};
     app.st.props_spinning = o.spin;
     app.st.show_hinges = o.hinges;
+    app.st.xray = o.xray;
     app.st.show_markers = o.markers;
     app.st.pitch_deg = o.alpha;
 

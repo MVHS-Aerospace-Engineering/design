@@ -32,6 +32,7 @@ struct FrameState {
     bool show_markers = true;
     bool show_hinges = false;
     bool show_ground = true;
+    bool xray = false;  // draw shell parts see-through to show the payload
 };
 
 class Renderer {

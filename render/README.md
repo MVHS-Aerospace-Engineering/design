@@ -13,7 +13,8 @@ cmake -S render -B render/build && cmake --build render/build -j
 
 Run `--help` for every option and key binding. W/S, A/D and Q/E move the
 stabilators, roll controls and rudder; T poses the plane at the simulated
-cruise trim.
+cruise trim. V (or `--xray`) makes the fuselage and nacelles see-through to show
+the Pi 5, flight controller, battery, motors and ESCs inside.
 
 **CAD:** a scene part can load a mesh file instead of inline geometry, e.g.
 `{"name": "Wing", "file": "cad/wing.stl", "scale": 0.001, "color": [1,1,1]}`.

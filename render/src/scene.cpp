@@ -52,6 +52,9 @@ static Part load_part(const json& j, const fs::path& base_dir) {
         p.source = "inline";
     }
 
+    p.shell = j.value("shell", false);
+    p.internal = j.value("internal", false);
+
     if (j.contains("control") && !j["control"].is_null()) {
         p.control = j["control"].value("id", "");
         p.gain = j["control"].value("gain", 1.0f);

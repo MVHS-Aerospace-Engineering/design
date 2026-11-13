@@ -38,7 +38,7 @@ float shadow_factor(vec4 lp) {
     float s = 0.0;
     for (int x = -2; x <= 2; ++x)
         for (int y = -2; y <= 2; ++y)
-            s += texture(uShadow, vec3(p.xy + vec2(x, y) * texel, p.z - 0.0008));
+            s += texture(uShadow, vec3(p.xy + vec2(x, y) * texel, p.z - 0.0018));
     return s / 25.0;
 }
 )";
@@ -405,8 +405,10 @@ void Renderer::draw_mesh(GLuint program, const GpuMesh& m, const Mat4& model, co
 }
 
 void Renderer::draw_scene_geometry(const FrameState& st, GLuint program, bool shadow_pass) {
-    for (size_t i = 0; i < scene_.parts.size(); ++i)
+    for (size_t i = 0; i < scene_.parts.size(); ++i) {
+        if (!shadow_pass && st.xray && scene_.parts[i].shell) continue;  // drawn translucent later
         draw_mesh(program, part_meshes_[i], part_transform(scene_.parts[i], st), scene_.parts[i].color);
+    }
 
     const Vec3 prop_color{0.12f, 0.12f, 0.13f}, spinner_color{0.85f, 0.85f, 0.88f};
     for (const auto& p : scene_.props) {
@@ -475,6 +477,19 @@ void Renderer::render(const FrameState& st, int width, int height, GLuint fbo) {
     set_i(mesh_prog_, "uShadow", 0);
     set_i(mesh_prog_, "uUseShadow", 1);
     draw_scene_geometry(st, mesh_prog_, false);
+
+    // X-ray: shells over the opaque scene, see-through so the payload shows.
+    if (st.xray) {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glDepthMask(GL_FALSE);
+        for (size_t i = 0; i < scene_.parts.size(); ++i)
+            if (scene_.parts[i].shell)
+                draw_mesh(mesh_prog_, part_meshes_[i], part_transform(scene_.parts[i], st), {0.85f, 0.88f, 0.92f},
+                          0.16f, 0.3f);
+        glDepthMask(GL_TRUE);
+        glDisable(GL_BLEND);
+    }
 
     // Markers drawn on top of the airframe (x-ray) so the CG is visible inside the fuselage.
     if (st.show_markers && !scene_.markers.empty()) {

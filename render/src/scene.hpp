@@ -24,6 +24,8 @@ struct Part {
     float gain = 1.0f;     // multiplies the control deflection (ailerons: +1 right, -1 left)
     Hinge hinge;
     std::string source;  // "inline" or the mesh file it came from (CAD)
+    bool shell = false;     // outer skin (fuselage, nacelles): see-through in x-ray mode
+    bool internal = false;  // payload / equipment inside a shell
 };
 
 struct Prop {

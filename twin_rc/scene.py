@@ -13,6 +13,9 @@ The scene is plain JSON:
 * `props`: hub position, thrust direction, radius, blade count and spin direction.
   The renderer builds the blades itself so it can spin them.
 * `markers`: CG and neutral point.
+* Parts marked `internal` are the payload and the motors/ESCs (boxes). Parts
+  marked `shell` (fuselage, nacelles) are drawn see-through in the renderer's
+  x-ray mode, so you can see the payload inside.
 * `sim`: trim and stability numbers read from `results/results.json`, if it exists.
   The renderer uses them for its "trimmed cruise" pose.
 
@@ -36,7 +39,7 @@ import numpy as np
 
 from .config import PlaneConfig
 from .geometry import fin, fuselage, main_wing, nacelle, stabilators
-from .mass import mass_properties
+from .layout import Layout, solve_layout
 
 COLORS = {
     "wing": [0.93, 0.93, 0.95],
@@ -218,11 +221,11 @@ def wing_parts(wing: asb.Wing, base_name: str, color, horizontal=True) -> list[d
     return out
 
 
-def stabilator_parts(cfg: PlaneConfig) -> list[dict]:
+def stabilator_parts(cfg: PlaneConfig, lay: Layout) -> list[dict]:
     """Each stabilator half is a single all-moving part, pivoting about its quarter chord."""
     s = cfg.stabilator
     out = []
-    for wing, side, cid in zip(stabilators(cfg), ("L", "R"), ("stab_L", "stab_R")):
+    for wing, side, cid in zip(stabilators(cfg, lay), ("L", "R"), ("stab_L", "stab_R")):
         loop = _airfoil_loop(wing.xsecs[0].airfoil)
         rings = [_section_points(wing, j, loop) for j in range(len(wing.xsecs))]
         v, t = _loft(rings)
@@ -233,26 +236,64 @@ def stabilator_parts(cfg: PlaneConfig) -> list[dict]:
     return out
 
 
-def body_part(fus: asb.Fuselage, color) -> dict:
+def body_part(fus: asb.Fuselage, color, shell=False) -> dict:
     pts, faces = fus.mesh_body(method="tri", tangential_resolution=36)
     pts, faces = np.asarray(pts), np.asarray(faces)
-    return _part(fus.name, pts, _orient(faces, pts), color)
+    p = _part(fus.name, pts, _orient(faces, pts), color)
+    if shell:
+        p["shell"] = True  # the renderer's x-ray mode draws this see-through
+    return p
+
+
+INTERNAL_COLORS = {"battery": [0.89, 0.34, 0.18], "pi5": [0.18, 0.53, 0.87],
+                   "flight_controller": [0.09, 0.73, 0.47], "bec": [0.6, 0.6, 0.6], "receiver": [0.53, 0.33, 0.82]}
+
+
+def cylinder_part(name, center, length, radius, color, n=24) -> dict:
+    """Cylinder along x (an outrunner motor)."""
+    t = np.linspace(0, 2 * np.pi, n, endpoint=False)
+    ring = np.column_stack([np.zeros(n), radius * np.cos(t), radius * np.sin(t)])
+    c = np.asarray(center, float)
+    rings = [ring + c - [length / 2, 0, 0], ring + c + [length / 2, 0, 0]]
+    v, tris = _loft(rings)
+    return _part(name, v, _orient(tris, v), color)
+
+
+def box_part(name, center, size, color) -> dict:
+    c, h = np.asarray(center, float), np.asarray(size, float) / 2
+    corners = np.array([[sx, sy, sz] for sx in (-1, 1) for sy in (-1, 1) for sz in (-1, 1)]) * h + c
+    quads = [(0, 1, 3, 2), (4, 6, 7, 5), (0, 4, 5, 1), (2, 3, 7, 6), (0, 2, 6, 4), (1, 5, 7, 3)]
+    tris = [t for a, b, cc, d in quads for t in ((a, b, cc), (a, cc, d))]
+    p = _part(name, corners, _orient(np.array(tris), corners), color)
+    p["internal"] = True
+    return p
 
 
 def build_scene(cfg: PlaneConfig | None = None, results_path: Path | None = None) -> dict:
     cfg = cfg or PlaneConfig()
+    lay = solve_layout(cfg)
     parts = []
-    parts += wing_parts(main_wing(cfg), "Main Wing", COLORS["wing"])
-    parts += stabilator_parts(cfg)
-    parts += wing_parts(fin(cfg), "Fin", COLORS["fin"], horizontal=False)
-    parts.append(body_part(fuselage(cfg), COLORS["fuselage"]))
-    parts += [body_part(nacelle(cfg, s), COLORS["nacelle"]) for s in (-1, 1)]
-
+    parts += wing_parts(main_wing(cfg, lay), "Main Wing", COLORS["wing"])
+    parts += stabilator_parts(cfg, lay)
+    parts += wing_parts(fin(cfg, lay), "Fin", COLORS["fin"], horizontal=False)
+    parts.append(body_part(fuselage(cfg, lay), COLORS["fuselage"], shell=True))
+    parts += [body_part(nacelle(cfg, lay, s), COLORS["nacelle"], shell=True) for s in (-1, 1)]
+    # Payload inside the fuselage, plus the motors and ESCs inside the nacelles.
+    for c in lay.components:
+        parts.append(box_part(c.name, c.center, (c.box.length, c.box.width, c.box.height),
+                              INTERNAL_COLORS.get(c.name, [0.7, 0.7, 0.7])))
     p = cfg.propulsion
+    for side, sgn in (("L", -1), ("R", 1)):
+        _, mx, my, mz = lay.mass_items[f"motor_{side}"]
+        parts.append(cylinder_part(f"motor_{side}", (mx, my, mz), p.motor_length, p.motor_diameter / 2,
+                                   [0.78, 0.58, 0.22]))
+        _, ex, ey, ez = lay.mass_items[f"esc_{side}"]
+        parts.append(box_part(f"esc_{side}", (ex, ey, ez), (0.050, 0.025, 0.010), [0.3, 0.3, 0.35]))
+
     props = [
         {
             "name": f"Prop {'L' if side < 0 else 'R'}",
-            "hub": [p.motor_x, side * p.motor_y, p.motor_z],
+            "hub": [lay.prop_x, side * lay.motor_y, lay.motor_z],
             "thrust_dir": [-1.0, 0.0, 0.0],
             "radius": p.prop_diameter_in * 0.0254 / 2,
             "blades": p.n_blades,
@@ -264,7 +305,7 @@ def build_scene(cfg: PlaneConfig | None = None, results_path: Path | None = None
         for side in (-1, 1)
     ]
 
-    m = mass_properties(cfg)
+    cg = [float(v) for v in lay.cg]
     scene = {
         "format": "twin_rc.scene/1",
         "units": "m",
@@ -272,7 +313,10 @@ def build_scene(cfg: PlaneConfig | None = None, results_path: Path | None = None
         "name": "MVHS Twin High-Wing",
         "parts": parts,
         "props": props,
-        "markers": [{"name": "CG", "position": [m.x_cg, m.y_cg, m.z_cg], "color": [1.0, 0.85, 0.1]}],
+        "markers": [
+            {"name": "CG", "position": cg, "color": [1.0, 0.85, 0.1]},
+            {"name": "Neutral point", "position": [float(lay.x_np), 0.0, cg[2]], "color": [0.2, 0.9, 0.4]},
+        ],
         "controls": {
             "aileron": {"max_deg": 20.0},
             "rudder": {"max_deg": cfg.fin.max_rudder_deg},
@@ -284,16 +328,13 @@ def build_scene(cfg: PlaneConfig | None = None, results_path: Path | None = None
     if results_path and results_path.exists():
         r = json.loads(results_path.read_text())
         cruise = r["cruise"]
-        x_np = r["vlm_check"]["x_np"]
-        scene["markers"].append({"name": "Neutral point (VLM)", "position": [x_np, 0.0, m.z_cg],
-                                 "color": [0.2, 0.9, 0.4]})
         scene["sim"] = {
             "source": str(results_path),
             "cruise_speed": cruise["V"],
             "trim_alpha_deg": cruise["alpha"],
             "trim_stab_deg": cruise["stab_deg"],
             "L_over_D": cruise["L_over_D"],
-            "static_margin": r["static_margin_vlm"],
+            "static_margin": r["static_margin"],
             "v_stall": r["v_stall"],
             "vmc": r["vmc"],
             "mass_kg": r["mass_kg"],
