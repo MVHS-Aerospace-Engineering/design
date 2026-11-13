@@ -1,0 +1,330 @@
+MVHS Twin High-Wing
+#Mach
+0        ! AeroSandbox note: This is overwritten later to match the current OperatingPoint Mach during the AVL run.
+#IYsym   IZsym   Zsym
+0       0   0
+#Sref    Cref    Bref
+0.4130516364915055 0.26067183388363624 1.6009753400654139
+#Xref    Yref    Zref
+0.39619631901840496 0.0 0.03460122699386503
+# CDp
+0
+#===============================================================================
+SURFACE
+Main Wing
+#Nchordwise  Cspace  [Nspanwise   Sspace]
+12   1   12   1
+
+YDUPLICATE
+0
+
+CDCL
+#CL1  CD1  CL2  CD2  CL3  CD3
+0 0 0 0 0 0
+
+#--------------------------------------------------
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  [Nspanwise   Sspace]
+0.3 0 0.1 0.28 0.5
+
+AFIL
+results/exports/twin_rc.avl.af0
+
+CLAF
+1.090144824  # Computed using rule from avl_doc.txt
+
+CDCL
+#CL1  CD1  CL2  CD2  CL3  CD3
+0 0 0 0 0 0
+
+#--------------------------------------------------
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  [Nspanwise   Sspace]
+0.3 0.18 0.10628574 0.28 0.5
+
+AFIL
+results/exports/twin_rc.avl.af1
+
+CLAF
+1.090144824  # Computed using rule from avl_doc.txt
+
+CDCL
+#CL1  CD1  CL2  CD2  CL3  CD3
+0 0 0 0 0 0
+
+#--------------------------------------------------
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  [Nspanwise   Sspace]
+0.3 0.36 0.11257148 0.28 0.5
+
+AFIL
+results/exports/twin_rc.avl.af2
+
+CLAF
+1.090144824  # Computed using rule from avl_doc.txt
+
+CDCL
+#CL1  CD1  CL2  CD2  CL3  CD3
+0 0 0 0 0 0
+
+#--------------------------------------------------
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  [Nspanwise   Sspace]
+0.30181818 0.4 0.11396831 0.27272727 0.5
+
+AFIL
+results/exports/twin_rc.avl.af3
+
+CLAF
+1.090144824  # Computed using rule from avl_doc.txt
+
+CDCL
+#CL1  CD1  CL2  CD2  CL3  CD3
+0 0 0 0 0 0
+
+#--------------------------------------------------
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  [Nspanwise   Sspace]
+0.30363636 0.44 0.11536514 0.26545455 0.5
+
+AFIL
+results/exports/twin_rc.avl.af4
+
+CLAF
+1.090144824  # Computed using rule from avl_doc.txt
+
+CDCL
+#CL1  CD1  CL2  CD2  CL3  CD3
+0 0 0 0 0 0
+
+CONTROL
+#name, gain, Xhinge, XYZhvec, SgnDup
+all_deflections 0 0.75 0 0 0 -1
+#--------------------------------------------------
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  [Nspanwise   Sspace]
+0.31090909 0.6 0.12095246 0.23636364 0.5
+
+AFIL
+results/exports/twin_rc.avl.af5
+
+CLAF
+1.090144824  # Computed using rule from avl_doc.txt
+
+CDCL
+#CL1  CD1  CL2  CD2  CL3  CD3
+0 0 0 0 0 0
+
+CONTROL
+#name, gain, Xhinge, XYZhvec, SgnDup
+all_deflections 0 0.75 0 0 0 -1
+CONTROL
+#name, gain, Xhinge, XYZhvec, SgnDup
+all_deflections 0 0.75 0 0 0 -1
+#--------------------------------------------------
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  [Nspanwise   Sspace]
+0.31818182 0.76 0.12653978 0.20727273 0.5
+
+AFIL
+results/exports/twin_rc.avl.af6
+
+CLAF
+1.090144824  # Computed using rule from avl_doc.txt
+
+CDCL
+#CL1  CD1  CL2  CD2  CL3  CD3
+0 0 0 0 0 0
+
+CONTROL
+#name, gain, Xhinge, XYZhvec, SgnDup
+all_deflections 0 0.75 0 0 0 -1
+#--------------------------------------------------
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  [Nspanwise   Sspace]
+0.31909091 0.78 0.1272382 0.20363636 0.5
+
+AFIL
+results/exports/twin_rc.avl.af7
+
+CLAF
+1.090144824  # Computed using rule from avl_doc.txt
+
+CDCL
+#CL1  CD1  CL2  CD2  CL3  CD3
+0 0 0 0 0 0
+
+#--------------------------------------------------
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  [Nspanwise   Sspace]
+0.32 0.8 0.12793662 0.2 0.5
+
+AFIL
+results/exports/twin_rc.avl.af8
+
+CLAF
+1.090144824  # Computed using rule from avl_doc.txt
+
+CDCL
+#CL1  CD1  CL2  CD2  CL3  CD3
+0 0 0 0 0 0
+
+#===============================================================================
+SURFACE
+Stabilator L
+#Nchordwise  Cspace  [Nspanwise   Sspace]
+12   1   12   1
+
+CDCL
+#CL1  CD1  CL2  CD2  CL3  CD3
+0 0 0 0 0 0
+
+#--------------------------------------------------
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  [Nspanwise   Sspace]
+1.0421623 -0.325 0.02 0.12 0
+
+AFIL
+results/exports/twin_rc.avl.af9
+
+CLAF
+1.0693165940916227  # Computed using rule from avl_doc.txt
+
+CDCL
+#CL1  CD1  CL2  CD2  CL3  CD3
+0 0 0 0 0 0
+
+#--------------------------------------------------
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  [Nspanwise   Sspace]
+1 -0.025 0.02 0.17 0
+
+AFIL
+results/exports/twin_rc.avl.af10
+
+CLAF
+1.0693165940916227  # Computed using rule from avl_doc.txt
+
+CDCL
+#CL1  CD1  CL2  CD2  CL3  CD3
+0 0 0 0 0 0
+
+#===============================================================================
+SURFACE
+Stabilator R
+#Nchordwise  Cspace  [Nspanwise   Sspace]
+12   1   12   1
+
+CDCL
+#CL1  CD1  CL2  CD2  CL3  CD3
+0 0 0 0 0 0
+
+#--------------------------------------------------
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  [Nspanwise   Sspace]
+1 0.025 0.02 0.17 0
+
+AFIL
+results/exports/twin_rc.avl.af11
+
+CLAF
+1.0693165940916227  # Computed using rule from avl_doc.txt
+
+CDCL
+#CL1  CD1  CL2  CD2  CL3  CD3
+0 0 0 0 0 0
+
+#--------------------------------------------------
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  [Nspanwise   Sspace]
+1.0421623 0.325 0.02 0.12 0
+
+AFIL
+results/exports/twin_rc.avl.af12
+
+CLAF
+1.0693165940916227  # Computed using rule from avl_doc.txt
+
+CDCL
+#CL1  CD1  CL2  CD2  CL3  CD3
+0 0 0 0 0 0
+
+#===============================================================================
+SURFACE
+Fin
+#Nchordwise  Cspace  [Nspanwise   Sspace]
+12   1   12   1
+
+CDCL
+#CL1  CD1  CL2  CD2  CL3  CD3
+0 0 0 0 0 0
+
+#--------------------------------------------------
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  [Nspanwise   Sspace]
+0.98 0 0.04 0.22 0
+
+AFIL
+results/exports/twin_rc.avl.af13
+
+CLAF
+1.0693165940916227  # Computed using rule from avl_doc.txt
+
+CDCL
+#CL1  CD1  CL2  CD2  CL3  CD3
+0 0 0 0 0 0
+
+CONTROL
+#name, gain, Xhinge, XYZhvec, SgnDup
+all_deflections 0 0.6 0 0 0 1
+#--------------------------------------------------
+SECTION
+#Xle    Yle    Zle     Chord   Ainc  [Nspanwise   Sspace]
+1.0919138 0 0.28 0.12 0
+
+AFIL
+results/exports/twin_rc.avl.af14
+
+CLAF
+1.0693165940916227  # Computed using rule from avl_doc.txt
+
+CDCL
+#CL1  CD1  CL2  CD2  CL3  CD3
+0 0 0 0 0 0
+
+CONTROL
+#name, gain, Xhinge, XYZhvec, SgnDup
+all_deflections 0 0.6 0 0 0 1
+#==================================================
+BODY
+Fuselage
+24 1
+
+BFIL
+results/exports/twin_rc.avl.fuse0
+
+TRANSLATE
+0 0 0
+
+#==================================================
+BODY
+Nacelle L
+24 1
+
+BFIL
+results/exports/twin_rc.avl.fuse1
+
+TRANSLATE
+0 -0.3 0
+
+#==================================================
+BODY
+Nacelle R
+24 1
+
+BFIL
+results/exports/twin_rc.avl.fuse2
+
+TRANSLATE
+0 0.3 0
+
