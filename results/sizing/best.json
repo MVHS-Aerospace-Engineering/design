@@ -1,0 +1,22 @@
+{
+  "span": 1.8,
+  "root_chord": 0.23,
+  "tail_arm_over_mac": 3.0,
+  "battery_mah": 5000,
+  "mass": 1.6377101578703737,
+  "wing_area": 0.379845,
+  "wing_loading_g_dm2": 43.11522220564635,
+  "aspect_ratio": 8.529795047980098,
+  "fus_length": 1.1092263770093929,
+  "fin_area": 0.059096122227472146,
+  "Vv": 0.055348739553580675,
+  "clmax_trim": 1.3149606983519064,
+  "v_stall": 7.264236228023718,
+  "endurance_min": 31.843637540900783,
+  "v_endurance": 9.443507096430833,
+  "power_W": 83.6587841630307,
+  "oei_level_ok": true,
+  "packaging_ok": true,
+  "fc_offset_mm": -0.0030008598815300935,
+  "feasible": true
+}

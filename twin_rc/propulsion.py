@@ -1,14 +1,13 @@
 """Motor + 2-blade propeller model for each of the two nacelles.
 
-The propeller uses quadratic fits of thrust and power coefficient against advance
-ratio J = V / (n D). They come from published wind-tunnel data for 2-blade
-10x6 electric props (UIUC propeller database, APC 10x6E). Other diameters and
-pitches are scaled by the pitch/diameter ratio. That is good enough for sizing,
-but swap in measured data for the prop you actually buy.
+Propeller: thrust and power coefficients as quadratics in advance ratio
+J = V / (n D), anchored to static values (`ct_static`, `cp_static`) and the J
+at which thrust reaches zero. The defaults are for a 10x4.7 slow-fly prop on the
+FT Radial 2218 and are calibrated against published 2218 bench data (see
+config.PropulsionConfig). Swap in thrust-stand numbers when you have them.
 
-The motor is a standard first-order brushed/brushless DC model
-(Kv, winding resistance, no-load current). Each operating point solves for the
-RPM where motor torque matches propeller torque.
+Motor: first-order DC model (Kv, winding resistance, no-load current). Each
+operating point solves for the RPM where motor torque equals prop torque.
 """
 
 from __future__ import annotations
@@ -21,11 +20,6 @@ from scipy.optimize import brentq
 from .config import PropulsionConfig
 
 INCH = 0.0254
-
-# Reference prop: 2-blade, pitch/diameter = 0.6
-_CT = (0.105, -0.030, -0.147)  # Ct = a + b J + c J^2, zero thrust at J ~ 0.75
-_CP = (0.045, 0.005, -0.045)
-_PD_REF = 0.6
 
 
 @dataclass
@@ -43,23 +37,20 @@ class Propulsion:
     def __init__(self, cfg: PropulsionConfig):
         self.cfg = cfg
         self.D = cfg.prop_diameter_in * INCH
-        pd = cfg.prop_pitch_in / cfg.prop_diameter_in
-        blade_scale = cfg.n_blades / 2.0
-        # Scale the zero-thrust advance ratio with pitch/diameter and the
-        # coefficient magnitudes with blade count.
-        self.j_scale = pd / _PD_REF
-        self.ct_scale = blade_scale * (pd / _PD_REF) ** 0.5
-        self.cp_scale = blade_scale * (pd / _PD_REF) ** 1.2
+        blade_scale = cfg.n_blades / 2.0  # coefficients are for 2 blades
+        self.ct0 = cfg.ct_static * blade_scale
+        self.cp0 = cfg.cp_static * blade_scale
+        self.j0 = cfg.j_zero_thrust
         self.v_batt = cfg.battery_cells * cfg.cell_voltage
         self.kt = 60.0 / (2 * np.pi * cfg.motor_kv)  # N*m / A
 
     def ct(self, J):
-        j = J / self.j_scale
-        return self.ct_scale * (_CT[0] + _CT[1] * j + _CT[2] * j**2)
+        j = J / self.j0
+        return self.ct0 * (1 - 0.3 * j - 0.7 * j**2)
 
     def cp(self, J):
-        j = J / self.j_scale
-        return max(self.cp_scale * (_CP[0] + _CP[1] * j + _CP[2] * j**2), 1e-4)
+        j = J / self.j0
+        return max(self.cp0 * (1 + 0.1 * j - 0.75 * j**2), 1e-4)
 
     def operating_point(self, V: float, rho: float, throttle: float = 1.0) -> PropPoint:
         c = self.cfg

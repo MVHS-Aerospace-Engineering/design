@@ -4,9 +4,9 @@ MVHS Twin High-Wing
 #IYsym   IZsym   Zsym
 0       0   0
 #Sref    Cref    Bref
-0.4130516364915055 0.26067183388363624 1.6009753400654139
+0.38007656812803897 0.21345503937297053 1.801097362724339
 #Xref    Yref    Zref
-0.39619631901840496 0.0 0.03460122699386503
+0.3245768089667274 -6.106643661990436e-05 0.017001748108807793
 # CDp
 0
 #===============================================================================
@@ -25,7 +25,7 @@ CDCL
 #--------------------------------------------------
 SECTION
 #Xle    Yle    Zle     Chord   Ainc  [Nspanwise   Sspace]
-0.3 0 0.1 0.28 0.5
+0.25776524 0 0.036351764 0.23 1
 
 AFIL
 results/exports/twin_rc.avl.af0
@@ -40,7 +40,7 @@ CDCL
 #--------------------------------------------------
 SECTION
 #Xle    Yle    Zle     Chord   Ainc  [Nspanwise   Sspace]
-0.3 0.18 0.10628574 0.28 0.5
+0.25776524 0.2025 0.043423219 0.23 1
 
 AFIL
 results/exports/twin_rc.avl.af1
@@ -55,7 +55,7 @@ CDCL
 #--------------------------------------------------
 SECTION
 #Xle    Yle    Zle     Chord   Ainc  [Nspanwise   Sspace]
-0.3 0.36 0.11257148 0.28 0.5
+0.25776524 0.405 0.050494675 0.23 1
 
 AFIL
 results/exports/twin_rc.avl.af2
@@ -70,7 +70,7 @@ CDCL
 #--------------------------------------------------
 SECTION
 #Xle    Yle    Zle     Chord   Ainc  [Nspanwise   Sspace]
-0.30181818 0.4 0.11396831 0.27272727 0.5
+0.25933343 0.45 0.05206611 0.22372727 1
 
 AFIL
 results/exports/twin_rc.avl.af3
@@ -85,7 +85,7 @@ CDCL
 #--------------------------------------------------
 SECTION
 #Xle    Yle    Zle     Chord   Ainc  [Nspanwise   Sspace]
-0.30363636 0.44 0.11536514 0.26545455 0.5
+0.26090161 0.495 0.053637545 0.21745455 1
 
 AFIL
 results/exports/twin_rc.avl.af4
@@ -103,7 +103,7 @@ all_deflections 0 0.75 0 0 0 -1
 #--------------------------------------------------
 SECTION
 #Xle    Yle    Zle     Chord   Ainc  [Nspanwise   Sspace]
-0.31090909 0.6 0.12095246 0.23636364 0.5
+0.26717434 0.675 0.059923283 0.19236364 1
 
 AFIL
 results/exports/twin_rc.avl.af5
@@ -124,7 +124,7 @@ all_deflections 0 0.75 0 0 0 -1
 #--------------------------------------------------
 SECTION
 #Xle    Yle    Zle     Chord   Ainc  [Nspanwise   Sspace]
-0.31818182 0.76 0.12653978 0.20727273 0.5
+0.27344706 0.855 0.066209022 0.16727273 1
 
 AFIL
 results/exports/twin_rc.avl.af6
@@ -142,7 +142,7 @@ all_deflections 0 0.75 0 0 0 -1
 #--------------------------------------------------
 SECTION
 #Xle    Yle    Zle     Chord   Ainc  [Nspanwise   Sspace]
-0.31909091 0.78 0.1272382 0.20363636 0.5
+0.27423115 0.8775 0.066994739 0.16413636 1
 
 AFIL
 results/exports/twin_rc.avl.af7
@@ -157,7 +157,7 @@ CDCL
 #--------------------------------------------------
 SECTION
 #Xle    Yle    Zle     Chord   Ainc  [Nspanwise   Sspace]
-0.32 0.8 0.12793662 0.2 0.5
+0.27501524 0.9 0.067780456 0.161 1
 
 AFIL
 results/exports/twin_rc.avl.af8
@@ -182,7 +182,7 @@ CDCL
 #--------------------------------------------------
 SECTION
 #Xle    Yle    Zle     Chord   Ainc  [Nspanwise   Sspace]
-1.0421623 -0.325 0.02 0.12 0
+0.94230048 -0.2445927 0 0.095918705 0
 
 AFIL
 results/exports/twin_rc.avl.af9
@@ -197,7 +197,7 @@ CDCL
 #--------------------------------------------------
 SECTION
 #Xle    Yle    Zle     Chord   Ainc  [Nspanwise   Sspace]
-1 -0.025 0.02 0.17 0
+0.91003333 -0.015 0 0.13702672 0
 
 AFIL
 results/exports/twin_rc.avl.af10
@@ -222,7 +222,7 @@ CDCL
 #--------------------------------------------------
 SECTION
 #Xle    Yle    Zle     Chord   Ainc  [Nspanwise   Sspace]
-1 0.025 0.02 0.17 0
+0.91003333 0.015 0 0.13702672 0
 
 AFIL
 results/exports/twin_rc.avl.af11
@@ -237,7 +237,7 @@ CDCL
 #--------------------------------------------------
 SECTION
 #Xle    Yle    Zle     Chord   Ainc  [Nspanwise   Sspace]
-1.0421623 0.325 0.02 0.12 0
+0.94230048 0.2445927 0 0.095918705 0
 
 AFIL
 results/exports/twin_rc.avl.af12
@@ -262,7 +262,7 @@ CDCL
 #--------------------------------------------------
 SECTION
 #Xle    Yle    Zle     Chord   Ainc  [Nspanwise   Sspace]
-0.98 0 0.04 0.22 0
+0.84184486 0 0.017 0.25627074 0
 
 AFIL
 results/exports/twin_rc.avl.af13
@@ -280,7 +280,7 @@ all_deflections 0 0.6 0 0 0 1
 #--------------------------------------------------
 SECTION
 #Xle    Yle    Zle     Chord   Ainc  [Nspanwise   Sspace]
-1.0919138 0 0.28 0.12 0
+0.98076478 0 0.31491473 0.14094891 0
 
 AFIL
 results/exports/twin_rc.avl.af14
@@ -315,7 +315,7 @@ BFIL
 results/exports/twin_rc.avl.fuse1
 
 TRANSLATE
-0 -0.3 0
+0 -0.19505463 0
 
 #==================================================
 BODY
@@ -326,5 +326,5 @@ BFIL
 results/exports/twin_rc.avl.fuse2
 
 TRANSLATE
-0 0.3 0
+0 0.19505463 0
 
