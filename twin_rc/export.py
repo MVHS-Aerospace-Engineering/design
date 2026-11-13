@@ -21,16 +21,18 @@ from .geometry import fin, main_wing
 
 def symmetric_stabilator(plane: TwinPlane) -> asb.Wing:
     """Both stabilator halves as one symmetric wing, with the centre gap closed."""
-    s = plane.cfg.stabilator
+    s, lay = plane.cfg.stabilator, plane.layout
     af = asb.Airfoil(s.airfoil)
-    tip_x = s.x_le + s.semispan * np.tan(np.radians(s.sweep_le_deg))
+    tip_x = lay.stab_x_le + lay.stab_semispan * np.tan(np.radians(s.sweep_le_deg))
     return asb.Wing(
         name="Stabilators",
         symmetric=True,
         xsecs=[
-            asb.WingXSec(xyz_le=[s.x_le, 0, s.z], chord=s.root_chord, airfoil=af),
-            asb.WingXSec(xyz_le=[s.x_le, s.y_root, s.z], chord=s.root_chord, airfoil=af),
-            asb.WingXSec(xyz_le=[tip_x, s.y_root + s.semispan, s.z], chord=s.tip_chord, airfoil=af),
+            asb.WingXSec(xyz_le=[lay.stab_x_le, 0, lay.stab_z], chord=lay.stab_root_chord, airfoil=af),
+            asb.WingXSec(xyz_le=[lay.stab_x_le, lay.stab_y_root, lay.stab_z], chord=lay.stab_root_chord,
+                         airfoil=af),
+            asb.WingXSec(xyz_le=[tip_x, lay.stab_y_root + lay.stab_semispan, lay.stab_z],
+                         chord=lay.stab_tip_chord, airfoil=af),
         ],
     )
 
@@ -40,7 +42,7 @@ def export_all(plane: TwinPlane, out: Path) -> dict[str, Path]:
     cfg = plane.cfg
     files = {}
 
-    wing, tail, vfin = main_wing(cfg), symmetric_stabilator(plane), fin(cfg)
+    wing, tail, vfin = main_wing(cfg, plane.layout), symmetric_stabilator(plane), fin(cfg, plane.layout)
     xflr_plane = asb.Airplane(
         name=plane.clean.name, xyz_ref=plane.xyz_cg, wings=[wing, tail, vfin],
         s_ref=plane.clean.s_ref, c_ref=plane.clean.c_ref, b_ref=plane.clean.b_ref,

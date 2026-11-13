@@ -1,4 +1,4 @@
-"""AeroSandbox geometry for the twin-engine high-wing RC plane.
+"""AeroSandbox geometry for the twin-engine high-wing RC plane, built from a `Layout`.
 
 Axes follow AeroSandbox geometry axes: x aft from the nose, y out the right
 wing, z up.
@@ -20,186 +20,113 @@ import aerosandbox as asb
 import aerosandbox.numpy as np
 
 from .config import PlaneConfig
+from .layout import Layout
 
 INCH = 0.0254
 
 
-def _airfoil(name: str) -> asb.Airfoil:
-    return asb.Airfoil(name)
-
-
-def main_wing(cfg: PlaneConfig, aileron_deg: float = 0.0) -> asb.Wing:
+def main_wing(cfg: PlaneConfig, lay: Layout, aileron_deg: float = 0.0) -> asb.Wing:
     w = cfg.wing
-    semi = w.span / 2
-    y_break = semi * w.taper_start_frac
+    semi = lay.span / 2
     dih = np.radians(w.dihedral_deg)
-    af = _airfoil(w.airfoil)
-
-    def xsec(y, chord, ailerons):
-        # Keep the quarter chord line straight (unswept) so taper sits on both edges.
-        x_le = w.x_le + 0.25 * (w.root_chord - chord)
-        surfaces = []
-        if ailerons:
-            surfaces.append(
-                asb.ControlSurface(
-                    name="aileron",
-                    symmetric=False,
-                    hinge_point=w.aileron_hinge,
-                    deflection=aileron_deg,
-                )
-            )
-        return asb.WingXSec(
-            xyz_le=[x_le, y, w.z + y * np.tan(dih)],
-            chord=chord,
-            twist=w.incidence_deg,
-            airfoil=af,
-            control_surfaces=surfaces,
-        )
-
+    af = asb.Airfoil(w.airfoil)
     a0, a1 = (semi * f for f in w.aileron_span_frac)
 
     def chord_at(y):
-        if y <= y_break:
-            return w.root_chord
-        frac = (y - y_break) / (semi - y_break)
-        return w.root_chord + frac * (w.tip_chord - w.root_chord)
+        if y <= lay.y_break:
+            return lay.root_chord
+        frac = (y - lay.y_break) / (semi - lay.y_break)
+        return lay.root_chord + frac * (lay.tip_chord - lay.root_chord)
 
-    stations = sorted({0.0, y_break, a0, a1, semi})
     xsecs = []
-    for i, y in enumerate(stations):
-        # A control surface on xsec i spans to xsec i+1.
-        has_aileron = (a0 - 1e-9) <= y < (a1 - 1e-9)
-        xsecs.append(xsec(y, chord_at(y), has_aileron))
-
+    for y in sorted({0.0, lay.y_break, a0, a1, semi}):
+        chord = chord_at(y)
+        surfaces = []
+        if (a0 - 1e-9) <= y < (a1 - 1e-9):  # control surface spans xsec i -> i+1
+            surfaces.append(asb.ControlSurface(name="aileron", symmetric=False,
+                                               hinge_point=w.aileron_hinge, deflection=aileron_deg))
+        xsecs.append(asb.WingXSec(
+            # straight quarter-chord line: taper on both edges
+            xyz_le=[lay.wing_x_le + 0.25 * (lay.root_chord - chord), y, lay.wing_z + y * np.tan(dih)],
+            chord=chord, twist=w.incidence_deg, airfoil=af, control_surfaces=surfaces,
+        ))
     return asb.Wing(name="Main Wing", symmetric=True, xsecs=xsecs).subdivide_sections(2)
 
 
-def _stabilator_half(cfg: PlaneConfig, side: int, deflection_deg: float) -> asb.Wing:
+def _stabilator_half(cfg: PlaneConfig, lay: Layout, side: int, deflection_deg: float) -> asb.Wing:
     """One all-moving tail half. side = +1 right, -1 left."""
     s = cfg.stabilator
-    af = _airfoil(s.airfoil)
+    af = asb.Airfoil(s.airfoil)
     d = np.radians(deflection_deg)
 
     def xsec(y_abs, chord, x_le_undeflected):
-        # Rotate the section about its pivot point. Positive deflection is
-        # leading edge up (twist up), as for an elevator with TE down.
+        # Rotate the section about its pivot; positive = leading edge up.
         px = x_le_undeflected + s.pivot_frac * chord
-        pz = s.z
-        x_le = px - s.pivot_frac * chord * np.cos(d)
-        z_le = pz + s.pivot_frac * chord * np.sin(d)
         return asb.WingXSec(
-            xyz_le=[x_le, side * y_abs, z_le],
-            chord=chord,
-            twist=deflection_deg,
-            airfoil=af,
+            xyz_le=[px - s.pivot_frac * chord * np.cos(d), side * y_abs,
+                    lay.stab_z + s.pivot_frac * chord * np.sin(d)],
+            chord=chord, twist=deflection_deg, airfoil=af,
         )
 
-    root = xsec(s.y_root, s.root_chord, s.x_le)
-    tip_y = s.y_root + s.semispan
-    tip = xsec(tip_y, s.tip_chord, s.x_le + s.semispan * np.tan(np.radians(s.sweep_le_deg)))
-    # Section order must run root -> tip in +y (right) so the surface normal points up.
-    # For the left half that means tip first.
-    xsecs = [root, tip] if side > 0 else [tip, root]
-    name = "Stabilator R" if side > 0 else "Stabilator L"
-    return asb.Wing(name=name, symmetric=False, xsecs=xsecs)
+    tip_y = lay.stab_y_root + lay.stab_semispan
+    root = xsec(lay.stab_y_root, lay.stab_root_chord, lay.stab_x_le)
+    tip = xsec(tip_y, lay.stab_tip_chord,
+               lay.stab_x_le + lay.stab_semispan * np.tan(np.radians(s.sweep_le_deg)))
+    # Sections must run in +y so the normal points up: tip first on the left half.
+    return asb.Wing(name="Stabilator R" if side > 0 else "Stabilator L", symmetric=False,
+                    xsecs=[root, tip] if side > 0 else [tip, root])
 
 
-def stabilators(cfg: PlaneConfig, left_deg: float = 0.0, right_deg: float = 0.0):
-    return _stabilator_half(cfg, -1, left_deg), _stabilator_half(cfg, +1, right_deg)
+def stabilators(cfg: PlaneConfig, lay: Layout, left_deg: float = 0.0, right_deg: float = 0.0):
+    return _stabilator_half(cfg, lay, -1, left_deg), _stabilator_half(cfg, lay, +1, right_deg)
 
 
-def fin(cfg: PlaneConfig, rudder_deg: float = 0.0) -> asb.Wing:
+def fin(cfg: PlaneConfig, lay: Layout, rudder_deg: float = 0.0) -> asb.Wing:
     f = cfg.fin
-    af = _airfoil(f.airfoil)
-    rudder = asb.ControlSurface(
-        name="rudder", symmetric=True, hinge_point=f.rudder_hinge, deflection=rudder_deg
-    )
-    return asb.Wing(
-        name="Fin",
-        symmetric=False,
-        xsecs=[
-            asb.WingXSec(
-                xyz_le=[f.x_le, 0, f.z_root],
-                chord=f.root_chord,
-                airfoil=af,
-                control_surfaces=[rudder],
-            ),
-            asb.WingXSec(
-                xyz_le=[f.x_le + f.height * np.tan(np.radians(f.sweep_le_deg)), 0, f.z_root + f.height],
-                chord=f.tip_chord,
-                airfoil=af,
-            ),
-        ],
-    )
+    af = asb.Airfoil(f.airfoil)
+    rudder = asb.ControlSurface(name="rudder", symmetric=True, hinge_point=f.rudder_hinge, deflection=rudder_deg)
+    return asb.Wing(name="Fin", symmetric=False, xsecs=[
+        asb.WingXSec(xyz_le=[lay.fin_x_le, 0, lay.fin_z_root], chord=lay.fin_root_chord, airfoil=af,
+                     control_surfaces=[rudder]),
+        asb.WingXSec(xyz_le=[lay.fin_x_le + lay.fin_height * np.tan(np.radians(f.sweep_le_deg)), 0,
+                             lay.fin_z_root + lay.fin_height], chord=lay.fin_tip_chord, airfoil=af),
+    ])
 
 
-def fuselage(cfg: PlaneConfig) -> asb.Fuselage:
-    fz = cfg.fuselage
-    # (x/L, width fraction, height fraction, z centre)
-    profile = [
-        (0.00, 0.30, 0.30, 0.02),
-        (0.04, 0.70, 0.70, 0.02),
-        (0.12, 0.95, 0.95, 0.03),
-        (0.30, 1.00, 1.00, 0.03),
-        (0.50, 0.85, 0.80, 0.03),
-        (0.75, 0.50, 0.45, 0.03),
-        (0.92, 0.32, 0.30, 0.04),
-        (1.00, 0.22, 0.22, 0.04),
-    ]
-    xsecs = [
-        asb.FuselageXSec(
-            xyz_c=[xf * fz.length, 0, zc],
-            width=wf * fz.max_width,
-            height=hf * fz.max_height,
-            shape=3.0,
-        )
-        for xf, wf, hf, zc in profile
-    ]
-    return asb.Fuselage(name="Fuselage", xsecs=xsecs)
+def fuselage(cfg: PlaneConfig, lay: Layout) -> asb.Fuselage:
+    return asb.Fuselage(name="Fuselage", xsecs=[
+        asb.FuselageXSec(xyz_c=[x, 0, zc], width=w, height=h, shape=cfg.fuselage.section_exponent)
+        for x, w, h, zc in lay.fus_stations
+    ])
 
 
-def nacelle(cfg: PlaneConfig, side: int) -> asb.Fuselage:
+def nacelle(cfg: PlaneConfig, lay: Layout, side: int) -> asb.Fuselage:
+    y, r, x0, L = side * lay.motor_y, lay.nacelle_radius, lay.prop_x + 0.008, lay.nacelle_length
+    pts = [(0.0, 0.55 * r), (0.15 * L, r), (0.65 * L, r), (L, 0.15 * r)]
+    return asb.Fuselage(name=f"Nacelle {'R' if side > 0 else 'L'}",
+                        xsecs=[asb.FuselageXSec(xyz_c=[x0 + dx, y, lay.motor_z], radius=rr) for dx, rr in pts])
+
+
+def propulsors(cfg: PlaneConfig, lay: Layout) -> list[asb.Propulsor]:
     p = cfg.propulsion
-    y = side * p.motor_y
-    x0 = p.motor_x + 0.01
-    pts = [(0.00, 0.012), (0.03, 0.022), (0.10, 0.022), (0.20, 0.014), (0.26, 0.004)]
-    return asb.Fuselage(
-        name=f"Nacelle {'R' if side > 0 else 'L'}",
-        xsecs=[asb.FuselageXSec(xyz_c=[x0 + dx, y, p.motor_z], radius=r) for dx, r in pts],
-    )
-
-
-def propulsors(cfg: PlaneConfig) -> list[asb.Propulsor]:
-    p = cfg.propulsion
-    r = p.prop_diameter_in * INCH / 2
     return [
-        asb.Propulsor(
-            name=f"Prop {'R' if side > 0 else 'L'} ({p.n_blades}-blade)",
-            xyz_c=[p.motor_x, side * p.motor_y, p.motor_z],
-            xyz_normal=[-1, 0, 0],
-            radius=r,
-        )
+        asb.Propulsor(name=f"Prop {'R' if side > 0 else 'L'} ({p.n_blades}-blade)",
+                      xyz_c=[lay.prop_x, side * lay.motor_y, lay.motor_z], xyz_normal=[-1, 0, 0],
+                      radius=p.prop_diameter_in * INCH / 2)
         for side in (-1, +1)
     ]
 
 
-def build_airplane(
-    cfg: PlaneConfig,
-    stab_left_deg: float = 0.0,
-    stab_right_deg: float = 0.0,
-    rudder_deg: float = 0.0,
-    aileron_deg: float = 0.0,
-    xyz_ref=None,
-) -> asb.Airplane:
-    stab_l, stab_r = stabilators(cfg, stab_left_deg, stab_right_deg)
-    wing = main_wing(cfg, aileron_deg)
+def build_airplane(cfg: PlaneConfig, lay: Layout, stab_left_deg: float = 0.0, stab_right_deg: float = 0.0,
+                   rudder_deg: float = 0.0, aileron_deg: float = 0.0, xyz_ref=None,
+                   lifting_only: bool = False) -> asb.Airplane:
+    wing = main_wing(cfg, lay, aileron_deg)
+    stab_l, stab_r = stabilators(cfg, lay, stab_left_deg, stab_right_deg)
     return asb.Airplane(
         name="MVHS Twin High-Wing",
         xyz_ref=xyz_ref if xyz_ref is not None else [0, 0, 0],
-        wings=[wing, stab_l, stab_r, fin(cfg, rudder_deg)],
-        fuselages=[fuselage(cfg), nacelle(cfg, -1), nacelle(cfg, +1)],
-        propulsors=propulsors(cfg),
-        s_ref=wing.area(),
-        c_ref=wing.mean_aerodynamic_chord(),
-        b_ref=wing.span(),
+        wings=[wing, stab_l, stab_r, fin(cfg, lay, rudder_deg)],
+        fuselages=[] if lifting_only else [fuselage(cfg, lay), nacelle(cfg, lay, -1), nacelle(cfg, lay, +1)],
+        propulsors=propulsors(cfg, lay),
+        s_ref=wing.area(), c_ref=wing.mean_aerodynamic_chord(), b_ref=wing.span(),
     )
