@@ -1,5 +1,5 @@
 PARTS LIST (bill of materials)
-Source: conceptual-design/outputs/design_point.json   (generated 2026-11-24 12:45)
+Source: conceptual-design/outputs/design_point.json   (generated 2026-11-24 12:59)
 Design takeoff mass 0.839 kg   Cobra C-2204/40 + APC 6x6E   Gens Ace Soaring 3S 2200 20C
 Masses: datasheet where tagged DATASHEET, otherwise estimates to WEIGH. No prices (catalogs carry none).
 Sizes of stock (spar, strap, wire) are the computed minimums; dimensions for CAD: outputs/dimensions.txt

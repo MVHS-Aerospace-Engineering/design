@@ -51,6 +51,7 @@ Run `.venv/bin/python conceptual-design/conceptual.py` from `design/`. It search
 - `outputs/design_point.json`: the hand-off to preliminary design (geometry, parts, aero, masses, margins)
 - `outputs/constraint_diagram.png`: power loading vs. wing loading with every requirement line
 - `outputs/dimensions.txt` + `outputs/airfoils/*.dat`: every dimension for CAD (mm/deg) and the exact airfoil sections
+- `outputs/performance.txt`: what the aircraft does - speeds (stall, V_mc, loiter, V_y, glide, max), endurance, climb/glide, field lengths, roll rate and turns, stability and handling, one-motor-out, power system, watch-outs, and what the model does not compute. Regenerate with `.venv/bin/python conceptual-design/print_performance.py`
 - `outputs/parts_list.txt` / `.csv`: bill of materials - every purchased part, stock size (spar, gear strap, nose wire, wire), laminate/foam and printed-part masses, with sources; the masses add up to the takeoff mass. Regenerate with `.venv/bin/python conceptual-design/print_parts.py`
 
 ### The sizing loop (one design)

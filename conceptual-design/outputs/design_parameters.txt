@@ -1,4 +1,4 @@
-CONCEPTUAL DESIGN PARAMETERS   (generated 2026-11-24 12:45)
+CONCEPTUAL DESIGN PARAMETERS   (generated 2026-11-24 12:59)
 Source: conceptual-design/outputs/design_point.json
 
 ======================================================================================
@@ -555,6 +555,9 @@ Source: conceptual-design/outputs/design_point.json
   landing_roll_m                                          47.01          
   landing_roll_pavement_m                                  39.3          
   stall_speed_landing_ms                                   8.66          
+  stall_onset_semispan_clean                              0.458          
+  stall_onset_semispan_landing                            0.042          
+  CLmax_trimmed_clean                                    1.2027          
   static_thrust_N                                         3.411          
   max_motor_current_A                                     4.742          
   max_battery_current_A                                   6.429          

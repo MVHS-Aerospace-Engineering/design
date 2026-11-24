@@ -1,5 +1,5 @@
 AIRCRAFT DIMENSIONS FOR CAD
-Source: conceptual-design/outputs/design_point.json   (generated 2026-11-24 12:45)
+Source: conceptual-design/outputs/design_point.json   (generated 2026-11-24 12:59)
 Takeoff mass 0.839 kg   motor Cobra C-2204/40   prop APC 6x6E   battery Gens Ace Soaring 3S 2200 20C
 
 ======================================================================================

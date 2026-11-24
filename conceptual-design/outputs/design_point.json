@@ -1,5 +1,5 @@
 {
-  "generated": "2026-11-24 12:45",
+  "generated": "2026-11-24 12:59",
   "takeoff_mass_kg": 0.8387,
   "wing_loading_N_m2": 58.16,
   "power_loading_W_N": 4.92,
@@ -110,6 +110,11 @@
     }
   },
   "throttle_cap": 0.5856,
+  "loads": {
+    "n_limit": 3.956,
+    "n_ultimate": 5.934,
+    "V_C_ms": 18.127
+  },
   "controls": {
     "configuration": "flaperons",
     "ailerons": {
@@ -1754,6 +1759,9 @@
     "landing_roll_m": 47.01,
     "landing_roll_pavement_m": 39.3,
     "stall_speed_landing_ms": 8.66,
+    "stall_onset_semispan_clean": 0.458,
+    "stall_onset_semispan_landing": 0.042,
+    "CLmax_trimmed_clean": 1.2027,
     "static_thrust_N": 3.411,
     "max_motor_current_A": 4.742,
     "max_battery_current_A": 6.429

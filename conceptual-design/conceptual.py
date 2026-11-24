@@ -670,6 +670,8 @@ def to_json(best, alts, cdiag, sens, twist=None, wheels_=None, stall=None):
                  "climb": {k: conv(v) for k, v in perf["climb"].items()},
                  "best_glide": {k: conv(v) for k, v in perf["glide"].items()}},
         "throttle_cap": _f(d["throttle_cap"], 4),
+        "loads": {"n_limit": _f(d["winfo"]["n_limit"], 3), "n_ultimate": _f(d["winfo"]["n_ult"], 3),
+                  "V_C_ms": _f(d["V_C"], 3)},
         "controls": controls_json(best),
         "twist_study": twist if twist else None,
         "thrust_in_flight": flight_thrust_table(best),
@@ -694,6 +696,9 @@ def to_json(best, alts, cdiag, sens, twist=None, wheels_=None, stall=None):
                         "landing_roll_m": _f(perf["s_landing"], 2),
                         "landing_roll_pavement_m": _f(perf["s_landing_pavement"], 2),
                         "stall_speed_landing_ms": _f(perf["V_s_landing"], 3),
+                        "stall_onset_semispan_clean": _f(perf["stall_eta"], 3),
+                        "stall_onset_semispan_landing": _f(perf["stall_eta_landing"], 3),
+                        "CLmax_trimmed_clean": _f(perf["CLmax_trimmed"], 4),
                         "static_thrust_N": _f(perf["static"]["T"]),
                         "max_motor_current_A": _f(perf["I_motor_max"]),
                         "max_battery_current_A": _f(perf["I_batt_max"])},
@@ -755,6 +760,13 @@ def main(argv):
                 break
     runtime = time.time() - t0
     twist = stall = None
+    if "--evaluate" in argv:              # keep the previous run's trade studies unless recomputed
+        try:
+            with open(os.path.join(OUT, "design_point.json")) as f:
+                prev = json.load(f)
+            twist, stall = prev.get("twist_study"), prev.get("stall_study")
+        except (OSError, ValueError):
+            pass
     if "--evaluate" not in argv or "--twist" in argv:
         print("[F ] twist trade study (tip airfoil x washout, each re-optimized) ...")
         twist = sizing.twist_study(best)
@@ -774,13 +786,15 @@ def main(argv):
     import print_design
     import print_dimensions
     import print_parts
+    import print_performance
     jp = os.path.join(OUT, "design_point.json")
     print_design.write(jp, os.path.join(OUT, "design_parameters.txt"))
     print_dimensions.write(jp, os.path.join(OUT, "dimensions.txt"))
     print_dimensions.write_airfoils(jp, os.path.join(OUT, "airfoils"))
     print_parts.write(jp, os.path.join(OUT, "parts_list.txt"), os.path.join(OUT, "parts_list.csv"))
+    print_performance.write(jp, os.path.join(OUT, "performance.txt"))
     print(f" wrote {os.path.relpath(OUT)}/design_point.json, design_parameters.txt, dimensions.txt, "
-          f"parts_list.txt/.csv, airfoils/*.dat, constraint_diagram.png")
+          f"parts_list.txt/.csv, performance.txt, airfoils/*.dat, constraint_diagram.png")
 
 
 if __name__ == "__main__":
