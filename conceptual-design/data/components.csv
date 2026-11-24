@@ -1,0 +1,13 @@
+name,qty,mass_g,power_w,l_mm,w_mm,h_mm,in_fuselage,tag,source
+Raspberry Pi 5 board,1,46,6.0,85,56,17,1,ESTIMATE,mass ESTIMATE (weigh); power: RPi white paper RP-010139 gives 4-5 W min / ~12 W peak - 6 W typical workload ESTIMATE
+Raspberry Pi 5 Active Cooler,1,29,0.0,85,56,10,1,DATASHEET,waveshare.com Raspberry-Pi-5-Official-Active-Cooler (0.029 kg)
+Raspberry Pi Camera Module 3,1,4,0.3,25,24,11.5,1,DATASHEET,"raspberrypi.com Camera Module 3 docs: 4 g, 25x24x11.5 mm; power ESTIMATE (measure)"
+Matek H743-WING V3 flight controller,1,30,0.75,54,36,13,1,DATASHEET,getfpv.com / banggood listing 30 g 54x36x13 mm; power ESTIMATE
+Matek M10Q-5883 GPS + compass,1,8,0.07,20,20,12.4,0,DATASHEET,mateksys listing 8 g; 13 mA at 5 V
+Matek ASPD-4525 airspeed + pitot,1,10,0.05,30,20,10,1,ESTIMATE,ESTIMATE (weigh)
+ExpressLRS receiver,1,2,0.35,20,13,4,1,ESTIMATE,ESTIMATE
+SiK 915 MHz telemetry radio (100 mW),1,25,0.8,55,28,11,1,ESTIMATE,ESTIMATE (weigh)
+5 V / 5 A UBEC for Pi 5,1,10,0.0,40,20,10,1,ESTIMATE,ESTIMATE (efficiency in parameters.eta_bec)
+Micro servo (12 g class),5,12,0.06,23,12,25,0,ESTIMATE,2 aileron + elevator + rudder + nose steering; ESTIMATE - size from hinge moments in preliminary design
+Signal wiring harness + connectors,1,15,0.0,0,0,0,0,ESTIMATE,ESTIMATE
+Hinges / horns / pushrods / fasteners,1,25,0.0,0,0,0,0,ESTIMATE,ESTIMATE

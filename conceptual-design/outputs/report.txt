@@ -1,0 +1,14 @@
+[B0] 1173 motor/prop/battery-family combinations pass the static check   [    1 s]
+[A ] airframe technology ranking (best screened W_TO, kg):   [   55 s]
+       sd7062    foam_glass       0.884
+       e387      foam_glass       0.911
+       s4083     foam_glass       0.913
+       clarky    foam_glass       0.927
+       naca4412  foam_glass       0.928
+       sd7037    foam_glass       0.928
+       sd7062    printed_lwpla    0.935
+       naca4412  printed_lwpla    0.992
+       clarky    printed_lwpla    0.998
+       e387      printed_lwpla    1.066
+       sd7037    printed_lwpla    1.067
+       s4083     printed_lwpla    1.067

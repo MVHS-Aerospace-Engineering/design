@@ -1,0 +1,4 @@
+name,capacity_mah,v_nom,mass_g,imax_a,r_dc_mohm,diameter_mm,length_mm,source
+Molicel P45B (21700),4500,3.6,70.0,45,13.8,21.55,70.15,Molicel INR21700-P45B datasheet via imrbatteries.com; DCIR 13.8 mOhm from About:Energy (emobility-engineering.com)
+Molicel P50B (21700),5000,3.6,71.0,60,13.8,21.55,70.15,18650batterystore.com Molicel P50B listing; DCIR not published - P45B value used (VERIFY)
+Molicel P28A (18650),2800,3.6,46.65,35,18.0,18.5,65.15,Molicel INR18650-P28A datasheet via vaping360/rosebatteries; DCIR not published - ESTIMATE (VERIFY)

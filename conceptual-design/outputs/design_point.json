@@ -1,0 +1,2415 @@
+{
+  "generated": "2026-11-23 22:44",
+  "takeoff_mass_kg": 0.8547,
+  "wing_loading_N_m2": 84.26,
+  "power_loading_W_N": 5.118,
+  "selection": {
+    "wing_airfoil": "sd7062",
+    "wing_tip_airfoil": "sd7062",
+    "wing_washout_deg": 4.104,
+    "control_config": "none",
+    "tail_airfoil": "naca0009",
+    "wing_construction": "foam_glass",
+    "motor": "Cobra C-2204/32",
+    "prop": "APC 6x6E",
+    "esc": "Hobbywing Skywalker 20A V2",
+    "battery": "3S1P Molicel P45B (21700)"
+  },
+  "geometry": {
+    "wing": {
+      "S": 0.09947,
+      "b": 0.82041,
+      "taper": 0.6,
+      "c_root": 0.15155,
+      "c_tip": 0.09093,
+      "mac": 0.12377,
+      "t_c": 0.13977,
+      "S_wet": 0.20387
+    },
+    "htail": {
+      "S": 0.02326,
+      "b": 0.30499,
+      "taper": 0.6,
+      "c_root": 0.09531,
+      "c_tip": 0.05719,
+      "mac": 0.07784,
+      "t_c": 0.09002,
+      "S_wet": 0.04706
+    },
+    "vtail": {
+      "S": 0.01233,
+      "b": 0.14047,
+      "taper": 0.5,
+      "c_root": 0.11706,
+      "c_tip": 0.05853,
+      "mac": 0.09104,
+      "t_c": 0.09002,
+      "S_wet": 0.02496
+    },
+    "tail_arm_m": 0.2647,
+    "fuselage_length_m": 0.4277,
+    "fuselage_width_m": 0.0759,
+    "fuselage_height_m": 0.0628,
+    "motor_station_m": 0.1391,
+    "prop_diameter_m": 0.1524,
+    "nacelle_diameter_m": 0.035,
+    "nacelle_length_m": 0.1024,
+    "gear_height_m": 0.0543,
+    "gear_track_m": 0.1844,
+    "spar_od_m": 0.006,
+    "spar_wall_m": 0.0005
+  },
+  "aero": {
+    "CD0": 0.04685,
+    "K": 0.05433,
+    "e_inviscid": 0.9622,
+    "CLmax": 1.3769,
+    "CL_alpha_per_rad": 4.8289,
+    "V_stall_ms": 10.252,
+    "V_max_ms": 21.38,
+    "loiter": {
+      "V": 12.302949,
+      "CL": 0.956408,
+      "CD": 0.095793,
+      "D": 0.839425,
+      "P_chem": 30.45317,
+      "P_chem_prop": 20.770734,
+      "P_chem_av": 9.682435,
+      "P_shaft": 14.242428,
+      "eta_prop": 0.725093,
+      "eta_b2s": 0.685696,
+      "rpm": 6017.97647,
+      "I_batt": 2.819738,
+      "duty": 0.331667,
+      "LD": 9.98414,
+      "eta_total": 0.497194
+    },
+    "loiter_drag_breakdown": {
+      "wing_profile": 0.022966,
+      "htail": 0.003687,
+      "vtail": 0.001814,
+      "fuselage": 0.002178,
+      "nacelles": 0.001439,
+      "gear": 0.017003,
+      "leakage": 0.002454,
+      "induced": 0.044251
+    },
+    "climb": {
+      "V": 13.081841,
+      "roc": 2.688643,
+      "grad_max": 0.213865,
+      "LD": 10.162419,
+      "eta_total": 0.497656,
+      "P_chem": 76.804262,
+      "I_batt": 7.111506
+    },
+    "best_glide": {
+      "V": 13.5,
+      "LD": 10.185557,
+      "t": 90.538281
+    }
+  },
+  "throttle_cap": 0.5004,
+  "controls": {
+    "configuration": "none",
+    "ailerons": {
+      "y_inboard_m": 0.2918,
+      "y_outboard_m": 0.3897,
+      "eta_inboard": 0.711,
+      "eta_outboard": 0.95,
+      "chord_fraction": 0.25,
+      "throw_deg": 20.0,
+      "roll_helix_pb_2V": 0.07,
+      "requirement": 0.07,
+      "is_flaperon": false
+    },
+    "flaps": null,
+    "elevator": {
+      "chord_fraction": 0.25,
+      "throw_deg": 25.0,
+      "span_fraction": 0.95,
+      "authority_ratio": 1.146,
+      "ratio_landing_trim": 1.534,
+      "ratio_takeoff": 1.146
+    },
+    "rudder": {
+      "chord_fraction": 0.45,
+      "throw_usable_deg": 24.03,
+      "span_fraction": 0.9
+    },
+    "stability": {
+      "neutral_point_frac_mac": 0.43,
+      "cg_forward_frac_mac": 0.23,
+      "cg_aft_frac_mac": 0.38,
+      "static_margin_range": [
+        0.05,
+        0.2
+      ],
+      "tail_volume_V_H": 0.5,
+      "downwash_gradient": 0.4543,
+      "wing_incidence_deg": 9.33,
+      "tail_incidence_deg": 4.02,
+      "decalage_deg": 5.31,
+      "takeoff_technique": "stance",
+      "ground_stance_deg": 2.15,
+      "stabilizer_area_m2": 0.02326,
+      "stabilizer_area_tail_volume_m2": 0.02326
+    }
+  },
+  "twist_study": [
+    {
+      "tip": "sd7062",
+      "washout": 0.0,
+      "ok": true,
+      "feasible": true,
+      "misses": [],
+      "m": 0.8586704649172856,
+      "span": 0.7862089899967297,
+      "S": 0.10224547054079043,
+      "AR": 6.045495929377913,
+      "loiter_min": 77.46841247404078,
+      "landing_m": 76.20130674433,
+      "takeoff_m": 37.61175098763255,
+      "CLmax": 1.3848284775809399,
+      "CLmax_landing": 1.3848284775809399,
+      "stall_eta": 0.625,
+      "stall_eta_landing": 0.625,
+      "e": 0.9634906035799136,
+      "LD_loiter": 9.620062689900374,
+      "pb2v": 0.07000000000011697,
+      "x": [
+        0.10224547054079043,
+        6.045495929377912,
+        2.179846820578553
+      ]
+    },
+    {
+      "tip": "sd7062",
+      "washout": 2.0,
+      "ok": true,
+      "feasible": true,
+      "misses": [],
+      "m": 0.8561722213543048,
+      "span": 0.8044462747347587,
+      "S": 0.10054903746595059,
+      "AR": 6.436002026909238,
+      "loiter_min": 78.39487725812066,
+      "landing_m": 76.20694205645974,
+      "takeoff_m": 38.74220901616446,
+      "CLmax": 1.3833099876520705,
+      "CLmax_landing": 1.3833099876520705,
+      "stall_eta": 0.5416666666666667,
+      "stall_eta_landing": 0.5416666666666667,
+      "e": 0.9626878352342285,
+      "LD_loiter": 9.850634071149386,
+      "pb2v": 0.07000000000002937,
+      "x": [
+        0.10054903746595059,
+        6.436002026909238,
+        2.209680353177541
+      ]
+    },
+    {
+      "tip": "sd7062",
+      "washout": 4.0,
+      "ok": true,
+      "feasible": true,
+      "misses": [],
+      "m": 0.854675154611551,
+      "span": 0.8204374329054634,
+      "S": 0.09947117835653443,
+      "AR": 6.766960967325151,
+      "loiter_min": 78.80531779182039,
+      "landing_m": 76.20512156595947,
+      "takeoff_m": 39.68579999311949,
+      "CLmax": 1.3769402558137775,
+      "CLmax_landing": 1.3769402558137775,
+      "stall_eta": 0.4583333333333333,
+      "stall_eta_landing": 0.4583333333333333,
+      "e": 0.962156049905055,
+      "LD_loiter": 9.984523236295807,
+      "pb2v": 0.0700000000001322,
+      "x": [
+        0.09947117835653443,
+        6.76696096732515,
+        2.132875368372398
+      ]
+    },
+    {
+      "tip": "sd7062",
+      "washout": 6.0,
+      "ok": true,
+      "feasible": true,
+      "misses": [],
+      "m": 0.8558549868281514,
+      "span": 0.8295920563473276,
+      "S": 0.10083966034742507,
+      "AR": 6.8249236221486465,
+      "loiter_min": 79.00996432749162,
+      "landing_m": 76.20627038761437,
+      "takeoff_m": 39.368963596269694,
+      "CLmax": 1.3671105677216824,
+      "CLmax_landing": 1.3671105677216824,
+      "stall_eta": 0.2916666666666667,
+      "stall_eta_landing": 0.2916666666666667,
+      "e": 0.9622845400425122,
+      "LD_loiter": 10.019822562779833,
+      "pb2v": 0.07000000000009722,
+      "x": [
+        0.10083966034742507,
+        6.8249236221486465,
+        2.140275468166726
+      ]
+    },
+    {
+      "tip": "sd7037",
+      "washout": 0.0,
+      "ok": true,
+      "feasible": true,
+      "misses": [],
+      "m": 0.8892411084287848,
+      "span": 1.010979802283411,
+      "S": 0.14291239575694775,
+      "AR": 7.15179502247842,
+      "loiter_min": 89.5978392653926,
+      "landing_m": 76.20516669798127,
+      "takeoff_m": 29.458338084298656,
+      "CLmax": 1.2814408052271977,
+      "CLmax_landing": 1.2814408052271977,
+      "stall_eta": 0.625,
+      "stall_eta_landing": 0.625,
+      "e": 0.9528846474773932,
+      "LD_loiter": 11.569049221102896,
+      "pb2v": 0.07000000000004454,
+      "x": [
+        0.14291239575694775,
+        7.15179502247842,
+        2.2654105287559942
+      ]
+    },
+    {
+      "tip": "sd7037",
+      "washout": 2.0,
+      "ok": true,
+      "feasible": true,
+      "misses": [],
+      "m": 0.8847960812458381,
+      "span": 0.9953598843948378,
+      "S": 0.1382432816457634,
+      "AR": 7.16665061526241,
+      "loiter_min": 89.14526725520803,
+      "landing_m": 76.20541034301168,
+      "takeoff_m": 29.95999739796354,
+      "CLmax": 1.298511043443393,
+      "CLmax_landing": 1.298511043443393,
+      "stall_eta": 0.5416666666666667,
+      "stall_eta_landing": 0.5416666666666667,
+      "e": 0.9521632227929963,
+      "LD_loiter": 11.483051633178448,
+      "pb2v": 0.0700000000000218,
+      "x": [
+        0.1382432816457634,
+        7.166650615262409,
+        2.2722511095113616
+      ]
+    },
+    {
+      "tip": "sd7037",
+      "washout": 4.0,
+      "ok": true,
+      "feasible": true,
+      "misses": [],
+      "m": 0.8788192058135379,
+      "span": 0.6938793704411754,
+      "S": 0.12036714518096048,
+      "AR": 4.000000000000001,
+      "loiter_min": 71.46213125537587,
+      "landing_m": 76.20582730125956,
+      "takeoff_m": 30.792394612586797,
+      "CLmax": 1.3558429926021893,
+      "CLmax_landing": 1.3558429926021893,
+      "stall_eta": 0.45833333333333337,
+      "stall_eta_landing": 0.45833333333333337,
+      "e": 0.9612832606864808,
+      "LD_loiter": 8.454441874079297,
+      "pb2v": 0.07000000000014767,
+      "x": [
+        0.12036714518096048,
+        4.0,
+        1.8623644609624996
+      ]
+    },
+    {
+      "tip": "sd7037",
+      "washout": 6.0,
+      "ok": true,
+      "feasible": true,
+      "misses": [],
+      "m": 0.8796375434708432,
+      "span": 0.9898007386964364,
+      "S": 0.1331988736842448,
+      "AR": 7.355208608193314,
+      "loiter_min": 88.20024854911571,
+      "landing_m": 76.20524523270721,
+      "takeoff_m": 30.897206461128086,
+      "CLmax": 1.3038241108837283,
+      "CLmax_landing": 1.3038241108837283,
+      "stall_eta": 0.375,
+      "stall_eta_landing": 0.375,
+      "e": 0.95036559928123,
+      "LD_loiter": 11.34401666208015,
+      "pb2v": 0.07000000000000363,
+      "x": [
+        0.1331988736842448,
+        7.355208608193314,
+        2.2954582937250914
+      ]
+    },
+    {
+      "tip": "e387",
+      "washout": 0.0,
+      "ok": true,
+      "feasible": true,
+      "misses": [],
+      "m": 0.881856094321136,
+      "span": 1.0142382606514717,
+      "S": 0.1366444299490424,
+      "AR": 7.528146224130313,
+      "loiter_min": 87.43606652986676,
+      "landing_m": 76.20497089617757,
+      "takeoff_m": 30.392322268969167,
+      "CLmax": 1.2770814407793238,
+      "CLmax_landing": 1.2770814407793238,
+      "stall_eta": 0.625,
+      "stall_eta_landing": 0.625,
+      "e": 0.9673734956434913,
+      "LD_loiter": 11.1760586510375,
+      "pb2v": 0.0700000000001837,
+      "x": [
+        0.1366444299490424,
+        7.528146224130313,
+        2.3425876932771796
+      ]
+    },
+    {
+      "tip": "e387",
+      "washout": 2.0,
+      "ok": true,
+      "feasible": true,
+      "misses": [],
+      "m": 0.8779982777103074,
+      "span": 0.9874876513887243,
+      "S": 0.13222719121768725,
+      "AR": 7.374669707986515,
+      "loiter_min": 86.78552632216602,
+      "landing_m": 76.20739164018097,
+      "takeoff_m": 30.893051365240577,
+      "CLmax": 1.2978661103464098,
+      "CLmax_landing": 1.2978661103464098,
+      "stall_eta": 0.5416666666666667,
+      "stall_eta_landing": 0.5416666666666667,
+      "e": 0.9672757090095665,
+      "LD_loiter": 11.041062786475619,
+      "pb2v": 0.07000000000018405,
+      "x": [
+        0.13222719121768725,
+        7.374669707986515,
+        2.3144110420444712
+      ]
+    },
+    {
+      "tip": "e387",
+      "washout": 4.0,
+      "ok": true,
+      "feasible": true,
+      "misses": [],
+      "m": 0.8760228696810172,
+      "span": 0.9761432918536866,
+      "S": 0.13004250304603943,
+      "AR": 7.3272638092301925,
+      "loiter_min": 86.34742408494198,
+      "landing_m": 76.20499092446465,
+      "takeoff_m": 31.2906191679145,
+      "CLmax": 1.3034184053938207,
+      "CLmax_landing": 1.3034184053938207,
+      "stall_eta": 0.45833333333333337,
+      "stall_eta_landing": 0.45833333333333337,
+      "e": 0.9671403218900134,
+      "LD_loiter": 10.968457480551358,
+      "pb2v": 0.07000000000000688,
+      "x": [
+        0.13004250304603943,
+        7.3272638092301925,
+        2.2896481652139262
+      ]
+    },
+    {
+      "tip": "e387",
+      "washout": 6.0,
+      "ok": true,
+      "feasible": true,
+      "misses": [],
+      "m": 0.8756937785119046,
+      "span": 0.9771529572682733,
+      "S": 0.12984169394962455,
+      "AR": 7.353785004288239,
+      "loiter_min": 86.14558936750618,
+      "landing_m": 76.20518737588274,
+      "takeoff_m": 31.502266042096448,
+      "CLmax": 1.2982201742394206,
+      "CLmax_landing": 1.2982201742394206,
+      "stall_eta": 0.375,
+      "stall_eta_landing": 0.375,
+      "e": 0.9670571795576244,
+      "LD_loiter": 10.946012820280052,
+      "pb2v": 0.07000000000016733,
+      "x": [
+        0.12984169394962455,
+        7.3537850042882384,
+        2.2913138551601193
+      ]
+    },
+    {
+      "tip": "s4083",
+      "washout": 0.0,
+      "ok": true,
+      "feasible": true,
+      "misses": [],
+      "m": 0.8813468856090982,
+      "span": 0.976651069798751,
+      "S": 0.13697600307590943,
+      "AR": 6.963608885641388,
+      "loiter_min": 88.24834950534952,
+      "landing_m": 76.20572828985581,
+      "takeoff_m": 29.95296364349662,
+      "CLmax": 1.302796729690958,
+      "CLmax_landing": 1.302796729690958,
+      "stall_eta": 0.6250000000000001,
+      "stall_eta_landing": 0.6250000000000001,
+      "e": 0.9589144055337515,
+      "LD_loiter": 11.2353507857404,
+      "pb2v": 0.07000000000011275,
+      "x": [
+        0.13697600307590943,
+        6.963608885641387,
+        2.257321888186912
+      ]
+    },
+    {
+      "tip": "s4083",
+      "washout": 2.0,
+      "ok": true,
+      "feasible": true,
+      "misses": [],
+      "m": 0.877582883872625,
+      "span": 0.9691767082774891,
+      "S": 0.1329811170839026,
+      "AR": 7.063435113685719,
+      "loiter_min": 88.18653374380617,
+      "landing_m": 76.2052046212475,
+      "takeoff_m": 30.520652961602465,
+      "CLmax": 1.3170596498278972,
+      "CLmax_landing": 1.3170596498278972,
+      "stall_eta": 0.5416666666666666,
+      "stall_eta_landing": 0.5416666666666666,
+      "e": 0.9579317675066322,
+      "LD_loiter": 11.245794090193483,
+      "pb2v": 0.07000000000009764,
+      "x": [
+        0.1329811170839026,
+        7.063435113685718,
+        2.262187708777436
+      ]
+    },
+    {
+      "tip": "s4083",
+      "washout": 4.0,
+      "ok": true,
+      "feasible": true,
+      "misses": [],
+      "m": 0.8748646104515381,
+      "span": 0.969089646800943,
+      "S": 0.13022089880183235,
+      "AR": 7.21185886580259,
+      "loiter_min": 88.12098556336272,
+      "landing_m": 76.2052317529596,
+      "takeoff_m": 31.046874741831843,
+      "CLmax": 1.322524416132532,
+      "CLmax_landing": 1.322524416132532,
+      "stall_eta": 0.4583333333333333,
+      "stall_eta_landing": 0.4583333333333333,
+      "e": 0.9568893610478102,
+      "LD_loiter": 11.264416930570608,
+      "pb2v": 0.07000000000003616,
+      "x": [
+        0.13022089880183235,
+        7.211858865802589,
+        2.2694815771788277
+      ]
+    },
+    {
+      "tip": "s4083",
+      "washout": 6.0,
+      "ok": true,
+      "feasible": true,
+      "misses": [],
+      "m": 0.8743353752569767,
+      "span": 0.9680181331369117,
+      "S": 0.12974146850642387,
+      "AR": 7.222510403722423,
+      "loiter_min": 87.78660920173648,
+      "landing_m": 76.20666444680646,
+      "takeoff_m": 31.20371901419596,
+      "CLmax": 1.3197451171126506,
+      "CLmax_landing": 1.3197451171126506,
+      "stall_eta": 0.37499999999999994,
+      "stall_eta_landing": 0.37499999999999994,
+      "e": 0.9567736953102156,
+      "LD_loiter": 11.21181003110064,
+      "pb2v": 0.07000000000012933,
+      "x": [
+        0.12974146850642387,
+        7.222510403722424,
+        2.2643446652392734
+      ]
+    },
+    {
+      "tip": "clarky",
+      "washout": 0.0,
+      "ok": true,
+      "feasible": true,
+      "misses": [],
+      "m": 0.8775788411198344,
+      "span": 0.9232417505956345,
+      "S": 0.12557404962859506,
+      "AR": 6.787830228967891,
+      "loiter_min": 85.12812129230628,
+      "landing_m": 76.20496122675192,
+      "takeoff_m": 31.5470098245344,
+      "CLmax": 1.3414551543881401,
+      "CLmax_landing": 1.3414551543881401,
+      "stall_eta": 0.5416666666666666,
+      "stall_eta_landing": 0.5416666666666666,
+      "e": 0.9568538399556974,
+      "LD_loiter": 10.762614462828271,
+      "pb2v": 0.07000000000009213,
+      "x": [
+        0.12557404962859506,
+        6.787830228967892,
+        2.193285206702879
+      ]
+    },
+    {
+      "tip": "clarky",
+      "washout": 2.0,
+      "ok": true,
+      "feasible": true,
+      "misses": [],
+      "m": 0.874350008956206,
+      "span": 0.9287317102737952,
+      "S": 0.12236666477797889,
+      "AR": 7.048836308753525,
+      "loiter_min": 85.18620085400457,
+      "landing_m": 76.20438822198709,
+      "takeoff_m": 32.312554476400834,
+      "CLmax": 1.3476258191334656,
+      "CLmax_landing": 1.3476258191334656,
+      "stall_eta": 0.5416666666666667,
+      "stall_eta_landing": 0.5416666666666667,
+      "e": 0.9550070257601055,
+      "LD_loiter": 10.82282434854759,
+      "pb2v": 0.07000000000001162,
+      "x": [
+        0.12236666477797889,
+        7.0488363087535255,
+        2.1124576668747106
+      ]
+    },
+    {
+      "tip": "clarky",
+      "washout": 4.0,
+      "ok": true,
+      "feasible": true,
+      "misses": [],
+      "m": 0.8732137050724997,
+      "span": 0.9266226310763949,
+      "S": 0.12148827335769444,
+      "AR": 7.067591601165509,
+      "loiter_min": 85.0228291215278,
+      "landing_m": 76.20521010406594,
+      "takeoff_m": 32.553187731310196,
+      "CLmax": 1.3469740793900418,
+      "CLmax_landing": 1.3469740793900418,
+      "stall_eta": 0.4583333333333333,
+      "stall_eta_landing": 0.4583333333333333,
+      "e": 0.9547603749271919,
+      "LD_loiter": 10.804221587650472,
+      "pb2v": 0.07000000000005989,
+      "x": [
+        0.12148827335769444,
+        7.067591601165509,
+        2.229495117879311
+      ]
+    },
+    {
+      "tip": "clarky",
+      "washout": 6.0,
+      "ok": true,
+      "feasible": true,
+      "misses": [],
+      "m": 0.87374525317477,
+      "span": 0.9322027772228845,
+      "S": 0.12192870377124787,
+      "AR": 7.127132422340891,
+      "loiter_min": 84.63353647865833,
+      "landing_m": 76.20491159528957,
+      "takeoff_m": 32.66412377556259,
+      "CLmax": 1.3365492676933737,
+      "CLmax_landing": 1.3365492676933737,
+      "stall_eta": 0.37499999999999994,
+      "stall_eta_landing": 0.37499999999999994,
+      "e": 0.9545478468488924,
+      "LD_loiter": 10.750049987747339,
+      "pb2v": 0.07000000000001237,
+      "x": [
+        0.12192870377124787,
+        7.127132422340891,
+        2.1388709930764005
+      ]
+    },
+    {
+      "tip": "naca4412",
+      "washout": 0.0,
+      "ok": true,
+      "feasible": true,
+      "misses": [],
+      "m": 0.870714191486784,
+      "span": 0.9115691367748159,
+      "S": 0.1183480335784402,
+      "AR": 7.0213105025494995,
+      "loiter_min": 83.79195633744368,
+      "landing_m": 76.20504008113276,
+      "takeoff_m": 33.07878418655201,
+      "CLmax": 1.3519665506927585,
+      "CLmax_landing": 1.3519665506927585,
+      "stall_eta": 0.625,
+      "stall_eta_landing": 0.625,
+      "e": 0.9589229523954815,
+      "LD_loiter": 10.593871005338404,
+      "pb2v": 0.0700000000000798,
+      "x": [
+        0.1183480335784402,
+        7.0213105025494995,
+        2.210968331604095
+      ]
+    },
+    {
+      "tip": "naca4412",
+      "washout": 2.0,
+      "ok": true,
+      "feasible": true,
+      "misses": [],
+      "m": 0.8686594840646273,
+      "span": 0.8974847892226796,
+      "S": 0.1159595136463189,
+      "AR": 6.946208392550009,
+      "loiter_min": 83.32528616402566,
+      "landing_m": 76.20519461269811,
+      "takeoff_m": 33.464256394525684,
+      "CLmax": 1.3633616460413749,
+      "CLmax_landing": 1.3633616460413749,
+      "stall_eta": 0.4583333333333333,
+      "stall_eta_landing": 0.4583333333333333,
+      "e": 0.9588419547569956,
+      "LD_loiter": 10.513467599827221,
+      "pb2v": 0.07000000000010681,
+      "x": [
+        0.1159595136463189,
+        6.946208392550008,
+        2.196168876796855
+      ]
+    },
+    {
+      "tip": "naca4412",
+      "washout": 4.0,
+      "ok": true,
+      "feasible": true,
+      "misses": [],
+      "m": 0.868015296962954,
+      "span": 0.8944941639027997,
+      "S": 0.11524477852901216,
+      "AR": 6.9427857770991634,
+      "loiter_min": 83.08390707816423,
+      "landing_m": 76.20502169955662,
+      "takeoff_m": 33.682982880900354,
+      "CLmax": 1.3630239799677366,
+      "CLmax_landing": 1.3630239799677366,
+      "stall_eta": 0.37499999999999994,
+      "stall_eta_landing": 0.37499999999999994,
+      "e": 0.9587583942800868,
+      "LD_loiter": 10.480973297491902,
+      "pb2v": 0.07000000000003782,
+      "x": [
+        0.11524477852901216,
+        6.9427857770991634,
+        2.1909352454155195
+      ]
+    },
+    {
+      "tip": "naca4412",
+      "washout": 6.0,
+      "ok": true,
+      "feasible": true,
+      "misses": [],
+      "m": 0.8686337045675663,
+      "span": 0.9014200425788428,
+      "S": 0.11604393881331085,
+      "AR": 7.002158850106509,
+      "loiter_min": 83.04463634528108,
+      "landing_m": 76.2052094387438,
+      "takeoff_m": 33.733890271441325,
+      "CLmax": 1.35241403926572,
+      "CLmax_landing": 1.35241403926572,
+      "stall_eta": 0.37500000000000006,
+      "stall_eta_landing": 0.37500000000000006,
+      "e": 0.9586881373587973,
+      "LD_loiter": 10.488645430428251,
+      "pb2v": 0.07000000000005079,
+      "x": [
+        0.11604393881331085,
+        7.002158850106508,
+        2.2056976548877447
+      ]
+    }
+  ],
+  "thrust_in_flight": [
+    {
+      "point": "static (V=0)",
+      "V_ms": 0.0,
+      "thrust_avail_N": 3.551,
+      "thrust_per_weight": 0.424,
+      "drag_level_N": null,
+      "excess_N": null,
+      "eta_prop": 0.0,
+      "rpm": 8751.0,
+      "I_motor_A": 5.38,
+      "I_batt_A": 6.3
+    },
+    {
+      "point": "liftoff 1.1 Vs",
+      "V_ms": 11.28,
+      "thrust_avail_N": 2.784,
+      "thrust_per_weight": 0.332,
+      "drag_level_N": 0.911,
+      "excess_N": 1.873,
+      "eta_prop": 0.632,
+      "rpm": 8537.0,
+      "I_motor_A": 6.28,
+      "I_batt_A": 7.2
+    },
+    {
+      "point": "V_mc engine-out 1.2 Vs",
+      "V_ms": 12.3,
+      "thrust_avail_N": 2.653,
+      "thrust_per_weight": 0.317,
+      "drag_level_N": 0.839,
+      "excess_N": 1.813,
+      "eta_prop": 0.66,
+      "rpm": 8545.0,
+      "I_motor_A": 6.25,
+      "I_batt_A": 7.17
+    },
+    {
+      "point": "loiter",
+      "V_ms": 12.3,
+      "thrust_avail_N": 2.653,
+      "thrust_per_weight": 0.317,
+      "drag_level_N": 0.839,
+      "excess_N": 1.813,
+      "eta_prop": 0.66,
+      "rpm": 8545.0,
+      "I_motor_A": 6.25,
+      "I_batt_A": 7.17
+    },
+    {
+      "point": "best climb V_y",
+      "V_ms": 13.08,
+      "thrust_avail_N": 2.547,
+      "thrust_per_weight": 0.304,
+      "drag_level_N": 0.825,
+      "excess_N": 1.723,
+      "eta_prop": 0.68,
+      "rpm": 8558.0,
+      "I_motor_A": 6.2,
+      "I_batt_A": 7.11
+    },
+    {
+      "point": "max level speed",
+      "V_ms": 21.38,
+      "thrust_avail_N": 1.191,
+      "thrust_per_weight": 0.142,
+      "drag_level_N": 1.191,
+      "excess_N": -0.0,
+      "eta_prop": 0.73,
+      "rpm": 8989.0,
+      "I_motor_A": 4.38,
+      "I_batt_A": 5.29
+    },
+    {
+      "point": "loiter (thrust REQUIRED, part throttle)",
+      "V_ms": 12.3,
+      "thrust_avail_N": 0.839,
+      "thrust_per_weight": 0.1,
+      "drag_level_N": 0.839,
+      "excess_N": 0.0,
+      "eta_prop": 0.725,
+      "rpm": 6018.0,
+      "I_motor_A": null,
+      "I_batt_A": 2.82,
+      "duty": 0.332
+    }
+  ],
+  "parts": {
+    "motor": {
+      "name": "Cobra C-2204/32",
+      "kv_rpm_per_V": 1960.0,
+      "io_A": 0.58,
+      "rm_ohm": 0.102,
+      "imax_A": 12.0,
+      "mass_kg": 0.0225,
+      "od_m": 0.027,
+      "source": "gravesrc.com/indc-2204-32-cobra-c-2204/32-brushless-motor-kv-1960 (spec table; Kv from product title)"
+    },
+    "prop": {
+      "name": "APC 6x6E",
+      "diameter_in": 6.0,
+      "pitch_in": 6.0,
+      "mass_kg_estimate": 0.0078,
+      "source": "APC PER3 performance data"
+    },
+    "esc": {
+      "name": "Hobbywing Skywalker 20A V2",
+      "i_cont_A": 20.0,
+      "mass_kg": 0.019
+    },
+    "battery": {
+      "name": "3S1P Molicel P45B (21700)",
+      "chemistry": "Li-ion",
+      "cells_series": 3,
+      "parallel": 1,
+      "v_nom": 10.8,
+      "energy_Wh": 48.6,
+      "mass_kg": 0.236,
+      "specific_energy_Wh_kg": 205.9,
+      "r_int_ohm": 0.0414,
+      "i_max_A": 27.0,
+      "dims_m": [
+        0.0702,
+        0.0646,
+        0.0215
+      ],
+      "usable_fraction_K": 0.85
+    }
+  },
+  "engine_out": {
+    "V_mc": 12.3029,
+    "T_one": 1.3264,
+    "yaw_moment": 0.1845,
+    "rudder_cf": 0.45,
+    "rudder_cl2d": 1.5206,
+    "rudder_defl_usable": 24.0268,
+    "dCL_fin": 0.6669
+  },
+  "performance": {
+    "takeoff_roll_m": 39.69,
+    "landing_roll_m": 76.21,
+    "static_thrust_N": 3.551,
+    "max_motor_current_A": 6.237,
+    "max_battery_current_A": 7.153
+  },
+  "mission_bmf": {
+    "takeoff": 0.000693,
+    "climb": 0.005549,
+    "loiter": 0.069426,
+    "avionics": 0.034894,
+    "total": 0.110562,
+    "t_climb_s": 44.63218,
+    "t_total_s": 1940.923942,
+    "eta_b2s_takeoff": 0.733531,
+    "battery_mass_required": 0.094494,
+    "energy_required_wh": 19.459274,
+    "endurance_margin": 2.497524,
+    "loiter_max_min": 78.803352,
+    "airborne_max_min": 81.152085
+  },
+  "mass_breakdown_kg": {
+    "wing_shell": 0.0319,
+    "wing_spar": 0.00989,
+    "htail": 0.01487,
+    "vtail": 0.00788,
+    "fuselage": 0.02991,
+    "nacelles": 0.02184,
+    "landing_gear": 0.05719,
+    "motors": 0.045,
+    "props_spinners": 0.0276,
+    "escs": 0.038,
+    "power_wiring": 0.01435,
+    "avionics_servos": 0.264,
+    "flap_servos": 0.0,
+    "growth_allowance": 0.05624,
+    "battery": 0.236,
+    "payload": 0.0
+  },
+  "constraint_margins": {
+    "takeoff_roll": 0.4792,
+    "landing_roll": -0.0001,
+    "span": 0.4531,
+    "climb_rate": 0.0755,
+    "climb_gradient": 1.5664,
+    "motor_current": 0.4803,
+    "battery_current": 0.7351,
+    "esc_available": 0.0,
+    "motor_station": 0.6232,
+    "spar_fits": 0.9849,
+    "tip_reynolds": -0.0,
+    "roll_helix": 0.0,
+    "elevator_authority": 0.146,
+    "prop_data_range": 0.0,
+    "converged": 0.0,
+    "endurance": 1.4975
+  },
+  "layout": {
+    "frame": "x aft from nose tip, y right, z up, fuselage centerline z=0 [m]",
+    "fuselage": {
+      "nose_length": 0.0414,
+      "bay_length": 0.1264,
+      "length": 0.4277,
+      "width": 0.0759,
+      "height": 0.0628,
+      "tail_end_width": 0.0228,
+      "tail_end_height": 0.0251
+    },
+    "wing": {
+      "x_quarter_chord": 0.1046,
+      "z_root_chord_line": 0.0314,
+      "incidence_deg": 9.33,
+      "washout_deg": 4.1,
+      "root_airfoil": "sd7062",
+      "tip_airfoil": "sd7062",
+      "note": "unswept quarter-chord line; incidence puts the fuselage level at loiter; washout linear root->tip, airfoil lofted linearly root->tip"
+    },
+    "htail": {
+      "x_quarter_chord": 0.3693,
+      "z": 0.0,
+      "incidence_deg": 4.02
+    },
+    "vtail": {
+      "x_quarter_chord": 0.3693,
+      "z_root": 0.0126
+    },
+    "nacelles": {
+      "y": 0.1391,
+      "z_axis": 0.0405,
+      "x_front": 0.0155,
+      "x_rear": 0.1179,
+      "diameter": 0.035
+    },
+    "props": {
+      "x": 0.0055,
+      "y": 0.1391,
+      "z": 0.0405,
+      "diameter": 0.1524
+    },
+    "cg": {
+      "x_forward_limit": 0.1021,
+      "x_aft_limit": 0.1207,
+      "x_neutral_point": 0.1269,
+      "note": "place the battery so the CG falls inside this range"
+    },
+    "gear": {
+      "z_ground": -0.0857,
+      "x_main": 0.1436,
+      "y_main": 0.0922,
+      "main_wheel_d": 0.051,
+      "main_wheel_w": 0.018,
+      "x_nose": 0.0331,
+      "nose_wheel_d": 0.051,
+      "nose_wheel_w": 0.018,
+      "ground_stance_deg": 2.15,
+      "nose_gear_extra_length": 0.0042,
+      "note": "takeoff technique: stance"
+    }
+  },
+  "design_variables": {
+    "S_m2": 0.09947,
+    "AR": 6.76684,
+    "tail_arm_over_mac": 2.13858,
+    "washout_deg": 4.10377
+  },
+  "design_variable_bounds": {
+    "S_m2": [
+      0.04,
+      0.6
+    ],
+    "AR": [
+      4.0,
+      20.0
+    ],
+    "tail_arm_over_mac": [
+      1.8,
+      5.0
+    ],
+    "washout_deg": [
+      0.0,
+      6.0
+    ]
+  },
+  "alternatives": [
+    {
+      "mass_kg": 0.8564,
+      "label": "Cobra C-2204/40 + APC 6x5.5E | 3S1P Molicel P45B (21700) | sd7062 foam_glass | none"
+    },
+    {
+      "mass_kg": 0.8567,
+      "label": "Cobra C-2204/40 + APC 6x6E | 3S1P Molicel P45B (21700) | sd7062 foam_glass | none"
+    },
+    {
+      "mass_kg": 0.8597,
+      "label": "Cobra C-2204/32 + APC 6x6E | 3S1P Molicel P50B (21700) | sd7062 foam_glass | flaperons"
+    },
+    {
+      "mass_kg": 0.8598,
+      "label": "Cobra C-2204/40 + APC 6x5.5E | 3S1P Molicel P50B (21700) | sd7062 foam_glass | flaperons"
+    },
+    {
+      "mass_kg": 0.8608,
+      "label": "Cobra C-2204/40 + APC 6x6E | 3S1P Molicel P50B (21700) | sd7062 foam_glass | flaperons"
+    }
+  ],
+  "sensitivity": [
+    {
+      "param": "avionics_power_factor",
+      "base": 1.0,
+      "cases": [
+        {
+          "value": 0.7,
+          "ok": true,
+          "feasible": true,
+          "misses": [],
+          "d_loiter_min": 8.651616,
+          "takeoff_m": 39.686055,
+          "landing_m": 76.205181,
+          "m": 0.854665
+        },
+        {
+          "value": 1.5,
+          "ok": true,
+          "feasible": true,
+          "misses": [],
+          "d_loiter_min": -11.255135,
+          "takeoff_m": 39.685483,
+          "landing_m": 76.205181,
+          "m": 0.854665
+        }
+      ]
+    },
+    {
+      "param": "field_elevation_m",
+      "base": 0.0,
+      "cases": [
+        {
+          "value": 0.0,
+          "ok": true,
+          "feasible": true,
+          "misses": [],
+          "d_loiter_min": 0.0,
+          "takeoff_m": 39.685842,
+          "landing_m": 76.205181,
+          "m": 0.854665
+        },
+        {
+          "value": 1500.0,
+          "ok": true,
+          "feasible": false,
+          "misses": [
+            "landing_roll",
+            "tip_reynolds"
+          ],
+          "d_loiter_min": -4.410129,
+          "takeoff_m": 48.919404,
+          "landing_m": 87.850515,
+          "m": 0.854665
+        }
+      ]
+    },
+    {
+      "param": "mu_roll_landing",
+      "base": 0.05,
+      "cases": [
+        {
+          "value": 0.03,
+          "ok": true,
+          "feasible": false,
+          "misses": [
+            "landing_roll"
+          ],
+          "d_loiter_min": 0.0,
+          "takeoff_m": 39.685842,
+          "landing_m": 87.361106,
+          "m": 0.854665
+        },
+        {
+          "value": 0.08,
+          "ok": true,
+          "feasible": true,
+          "misses": [],
+          "d_loiter_min": 0.0,
+          "takeoff_m": 39.685842,
+          "landing_m": 65.621965,
+          "m": 0.854665
+        }
+      ]
+    },
+    {
+      "param": "weight_growth_allowance",
+      "base": 0.1,
+      "cases": [
+        {
+          "value": 0.0,
+          "ok": true,
+          "feasible": false,
+          "misses": [
+            "tip_reynolds"
+          ],
+          "d_loiter_min": 4.183434,
+          "takeoff_m": 37.369274,
+          "landing_m": 70.648944,
+          "m": 0.798005
+        },
+        {
+          "value": 0.2,
+          "ok": true,
+          "feasible": false,
+          "misses": [
+            "landing_roll"
+          ],
+          "d_loiter_min": -4.049049,
+          "takeoff_m": 42.008572,
+          "landing_m": 82.463752,
+          "m": 0.911393
+        }
+      ]
+    },
+    {
+      "param": "eta_esc",
+      "base": 0.95,
+      "cases": [
+        {
+          "value": 0.9,
+          "ok": true,
+          "feasible": true,
+          "misses": [],
+          "d_loiter_min": -3.010074,
+          "takeoff_m": 39.683232,
+          "landing_m": 76.205181,
+          "m": 0.854665
+        },
+        {
+          "value": 0.97,
+          "ok": true,
+          "feasible": true,
+          "misses": [],
+          "d_loiter_min": 1.175951,
+          "takeoff_m": 39.686808,
+          "landing_m": 76.205181,
+          "m": 0.854665
+        }
+      ]
+    },
+    {
+      "param": "q_gear",
+      "base": 1.2,
+      "cases": [
+        {
+          "value": 1.0,
+          "ok": true,
+          "feasible": false,
+          "misses": [
+            "landing_roll"
+          ],
+          "d_loiter_min": 1.512264,
+          "takeoff_m": 39.989017,
+          "landing_m": 77.425223,
+          "m": 0.854665
+        },
+        {
+          "value": 1.5,
+          "ok": true,
+          "feasible": true,
+          "misses": [],
+          "d_loiter_min": -2.169228,
+          "takeoff_m": 39.243858,
+          "landing_m": 74.476515,
+          "m": 0.854665
+        }
+      ]
+    },
+    {
+      "param": "isa_temp_offset_K",
+      "base": 15.0,
+      "cases": [
+        {
+          "value": 0.0,
+          "ok": true,
+          "feasible": true,
+          "misses": [],
+          "d_loiter_min": 2.167454,
+          "takeoff_m": 36.075465,
+          "landing_m": 74.398006,
+          "m": 0.854705
+        },
+        {
+          "value": 25.0,
+          "ok": true,
+          "feasible": false,
+          "misses": [
+            "landing_roll",
+            "tip_reynolds"
+          ],
+          "d_loiter_min": -1.663596,
+          "takeoff_m": 42.299938,
+          "landing_m": 78.270548,
+          "m": 0.854665
+        }
+      ]
+    },
+    {
+      "param": "mu_roll_takeoff",
+      "base": 0.1,
+      "cases": [
+        {
+          "value": 0.07,
+          "ok": true,
+          "feasible": true,
+          "misses": [],
+          "d_loiter_min": 0.013941,
+          "takeoff_m": 37.926358,
+          "landing_m": 76.205181,
+          "m": 0.854665
+        },
+        {
+          "value": 0.15,
+          "ok": true,
+          "feasible": true,
+          "misses": [],
+          "d_loiter_min": -0.030038,
+          "takeoff_m": 43.422027,
+          "landing_m": 76.205181,
+          "m": 0.854665
+        }
+      ]
+    },
+    {
+      "param": "leak_protub_frac",
+      "base": 0.05,
+      "cases": [
+        {
+          "value": 0.02,
+          "ok": true,
+          "feasible": false,
+          "misses": [
+            "landing_roll"
+          ],
+          "d_loiter_min": 0.738012,
+          "takeoff_m": 39.614934,
+          "landing_m": 77.39803,
+          "m": 0.854665
+        },
+        {
+          "value": 0.1,
+          "ok": true,
+          "feasible": true,
+          "misses": [],
+          "d_loiter_min": -1.202088,
+          "takeoff_m": 39.80726,
+          "landing_m": 74.302112,
+          "m": 0.854665
+        }
+      ]
+    },
+    {
+      "param": "fus_frames_ratio",
+      "base": 0.25,
+      "cases": [
+        {
+          "value": 0.1,
+          "ok": true,
+          "feasible": false,
+          "misses": [
+            "tip_reynolds"
+          ],
+          "d_loiter_min": 0.300971,
+          "takeoff_m": 39.523552,
+          "landing_m": 75.768141,
+          "m": 0.850686
+        },
+        {
+          "value": 0.4,
+          "ok": true,
+          "feasible": false,
+          "misses": [
+            "landing_roll"
+          ],
+          "d_loiter_min": -0.29733,
+          "takeoff_m": 39.847696,
+          "landing_m": 76.643417,
+          "m": 0.858645
+        }
+      ]
+    },
+    {
+      "param": "roughness_k_m",
+      "base": 3e-05,
+      "cases": [
+        {
+          "value": 1e-05,
+          "ok": true,
+          "feasible": true,
+          "misses": [],
+          "d_loiter_min": 0.0,
+          "takeoff_m": 39.685842,
+          "landing_m": 76.205181,
+          "m": 0.854665
+        },
+        {
+          "value": 0.0001,
+          "ok": true,
+          "feasible": true,
+          "misses": [],
+          "d_loiter_min": -0.299544,
+          "takeoff_m": 39.585038,
+          "landing_m": 76.116284,
+          "m": 0.854665
+        }
+      ]
+    },
+    {
+      "param": "wing_internal_ratio",
+      "base": 0.4,
+      "cases": [
+        {
+          "value": 0.2,
+          "ok": true,
+          "feasible": true,
+          "misses": [],
+          "d_loiter_min": 0.0,
+          "takeoff_m": 39.685842,
+          "landing_m": 76.205181,
+          "m": 0.854665
+        },
+        {
+          "value": 0.6,
+          "ok": true,
+          "feasible": true,
+          "misses": [],
+          "d_loiter_min": 0.0,
+          "takeoff_m": 39.685842,
+          "landing_m": 76.205181,
+          "m": 0.854665
+        }
+      ]
+    },
+    {
+      "param": "lipo_sag_at_rated_v",
+      "base": 0.4,
+      "cases": [
+        {
+          "value": 0.25,
+          "ok": true,
+          "feasible": true,
+          "misses": [],
+          "d_loiter_min": 0.0,
+          "takeoff_m": 39.685842,
+          "landing_m": 76.205181,
+          "m": 0.854665
+        },
+        {
+          "value": 0.6,
+          "ok": true,
+          "feasible": true,
+          "misses": [],
+          "d_loiter_min": 0.0,
+          "takeoff_m": 39.685842,
+          "landing_m": 76.205181,
+          "m": 0.854665
+        }
+      ]
+    },
+    {
+      "param": "prop_mass_10in_kg",
+      "base": 0.024,
+      "cases": [
+        {
+          "value": 0.018,
+          "ok": true,
+          "feasible": true,
+          "misses": [],
+          "d_loiter_min": 0.0,
+          "takeoff_m": 39.685842,
+          "landing_m": 76.205181,
+          "m": 0.854665
+        },
+        {
+          "value": 0.03,
+          "ok": true,
+          "feasible": true,
+          "misses": [],
+          "d_loiter_min": 0.0,
+          "takeoff_m": 39.685842,
+          "landing_m": 76.205181,
+          "m": 0.854665
+        }
+      ]
+    }
+  ],
+  "inputs": [
+    {
+      "name": "field_elevation_m",
+      "value": 0.0,
+      "units": "m",
+      "tag": "SITE",
+      "source": "Set to your flying field elevation (ISA)",
+      "measure": false
+    },
+    {
+      "name": "isa_temp_offset_K",
+      "value": 15.0,
+      "units": "K",
+      "tag": "DESIGN CHOICE",
+      "source": "Hot day ISA+15 K (30 C at sea level): lower density -> conservative takeoff/climb",
+      "measure": false
+    },
+    {
+      "name": "climb_altitude_m",
+      "value": 120.0,
+      "units": "m",
+      "tag": "DESIGN CHOICE",
+      "source": "400 ft AGL recreational ceiling",
+      "measure": false
+    },
+    {
+      "name": "min_roc_ms",
+      "value": 1.524,
+      "units": "m/s",
+      "tag": "STANDARD",
+      "source": "14 CFR 23.65 (pre-amdt 64): all-engine ROC >= 300 ft/min",
+      "measure": false
+    },
+    {
+      "name": "min_climb_gradient",
+      "value": 0.08333333333333333,
+      "units": "-",
+      "tag": "STANDARD",
+      "source": "14 CFR 23.65 (pre-amdt 64): climb gradient >= 1:12",
+      "measure": false
+    },
+    {
+      "name": "climb_rate_target_ms",
+      "value": 2.5,
+      "units": "m/s",
+      "tag": "DESIGN CHOICE",
+      "source": "Operational climb rate (~500 ft/min) for go-arounds, gusts and autopilot authority; stricter than the 300 ft/min regulatory minimum. Sizes the throttle cap",
+      "measure": false
+    },
+    {
+      "name": "throttle_cap_margin",
+      "value": 1.05,
+      "units": "-",
+      "tag": "DESIGN CHOICE",
+      "source": "Thrust margin over the binding takeoff/climb requirement when sizing the throttle cap",
+      "measure": false
+    },
+    {
+      "name": "v_min_ratio",
+      "value": 1.2,
+      "units": "-",
+      "tag": "STANDARD",
+      "source": "Loiter/climb speeds >= 1.2 V_stall (14 CFR 23 speed margins; Raymer Ch.17)",
+      "measure": false
+    },
+    {
+      "name": "v_liftoff_ratio",
+      "value": 1.1,
+      "units": "-",
+      "tag": "RAYMER",
+      "source": "Raymer Sec. 17.8: V_TO = 1.1 V_stall",
+      "measure": false
+    },
+    {
+      "name": "rotation_time_s",
+      "value": 1.0,
+      "units": "s",
+      "tag": "RAYMER",
+      "source": "Raymer Sec. 17.8: ~1 s rotation for small aircraft",
+      "measure": false
+    },
+    {
+      "name": "v_touchdown_ratio",
+      "value": 1.15,
+      "units": "-",
+      "tag": "RAYMER",
+      "source": "Raymer Sec. 17.9: V_TD = 1.15 V_stall",
+      "measure": false
+    },
+    {
+      "name": "k_lipo",
+      "value": 0.8,
+      "units": "-",
+      "tag": "DESIGN CHOICE",
+      "source": "Use 80% of LiPo capacity (cell health + reserve)",
+      "measure": false
+    },
+    {
+      "name": "k_liion",
+      "value": 0.85,
+      "units": "-",
+      "tag": "DESIGN CHOICE",
+      "source": "Use 85% of Li-ion capacity (cutoff ~3.0 V/cell + reserve)",
+      "measure": false
+    },
+    {
+      "name": "mu_roll_takeoff",
+      "value": 0.1,
+      "units": "-",
+      "tag": "ESTIMATE",
+      "source": "Raymer Table 17.1 grass 0.05-0.08, raised for small RC wheels. MEASURE: tow test (spring scale pull / weight on your field)",
+      "measure": true
+    },
+    {
+      "name": "mu_roll_landing",
+      "value": 0.05,
+      "units": "-",
+      "tag": "RAYMER",
+      "source": "Raymer Table 17.1 hard turf (low value is CONSERVATIVE for an unbraked rollout). MEASURE: the same tow test gives the real value",
+      "measure": true
+    },
+    {
+      "name": "n_crit",
+      "value": 9.0,
+      "units": "-",
+      "tag": "ESTIMATE",
+      "source": "XFOIL e^N transition, 9 = standard clean conditions; printed skins/turbulence may be lower",
+      "measure": true
+    },
+    {
+      "name": "roughness_k_m",
+      "value": 3e-05,
+      "units": "m",
+      "tag": "ESTIMATE",
+      "source": "Printed LW-PLA surface; cf. Raymer Table 12.4 (camouflage paint 1.0e-5 m)",
+      "measure": true
+    },
+    {
+      "name": "re_transition_A",
+      "value": 1700.0,
+      "units": "-",
+      "tag": "STANDARD",
+      "source": "Prandtl-Schlichting mixed laminar/turbulent Cf, transition Re_x = 5e5",
+      "measure": false
+    },
+    {
+      "name": "q_fuselage",
+      "value": 1.0,
+      "units": "-",
+      "tag": "RAYMER",
+      "source": "Raymer Sec. 12.5.5 interference factor, fuselage",
+      "measure": false
+    },
+    {
+      "name": "q_nacelle",
+      "value": 1.5,
+      "units": "-",
+      "tag": "RAYMER",
+      "source": "Raymer Sec. 12.5.5: nacelle mounted directly on wing",
+      "measure": false
+    },
+    {
+      "name": "q_tail",
+      "value": 1.04,
+      "units": "-",
+      "tag": "RAYMER",
+      "source": "Raymer Sec. 12.5.5: conventional tail 1.04-1.05",
+      "measure": false
+    },
+    {
+      "name": "q_gear",
+      "value": 1.2,
+      "units": "-",
+      "tag": "ESTIMATE",
+      "source": "Gear mutual/airframe interference",
+      "measure": false
+    },
+    {
+      "name": "dq_wheel",
+      "value": 0.25,
+      "units": "-",
+      "tag": "RAYMER",
+      "source": "Raymer Table 12.5: regular wheel and tire, D/q per frontal area",
+      "measure": false
+    },
+    {
+      "name": "dq_flat_leg",
+      "value": 1.4,
+      "units": "-",
+      "tag": "RAYMER",
+      "source": "Raymer Table 12.5: flat spring gear leg",
+      "measure": false
+    },
+    {
+      "name": "dq_round_strut",
+      "value": 0.3,
+      "units": "-",
+      "tag": "RAYMER",
+      "source": "Raymer Table 12.5: round strut or wire",
+      "measure": false
+    },
+    {
+      "name": "leak_protub_frac",
+      "value": 0.05,
+      "units": "-",
+      "tag": "ESTIMATE",
+      "source": "Leakage + protuberances (FPV camera, pitot, antennas), Raymer Sec. 12.5 few % of parasite",
+      "measure": false
+    },
+    {
+      "name": "re_tip_min",
+      "value": 70000.0,
+      "units": "-",
+      "tag": "DESIGN CHOICE",
+      "source": "Wing-tip chord Reynolds number at loiter >= 70k: below the ~7e4 critical Re, laminar separation stops reattaching and section data/stall become unreliable (Lissaman 1983, Annu. Rev. Fluid Mech. 15)",
+      "measure": false
+    },
+    {
+      "name": "wing_taper",
+      "value": 0.6,
+      "units": "-",
+      "tag": "DESIGN CHOICE",
+      "source": "Raymer Sec. 4.3.4: 0.45 is near-elliptic; 0.6 keeps tip Reynolds number up and tip stall benign",
+      "measure": false
+    },
+    {
+      "name": "tail_cht",
+      "value": 0.5,
+      "units": "-",
+      "tag": "RAYMER",
+      "source": "Raymer Table 6.4 homebuilt horizontal tail volume coefficient",
+      "measure": false
+    },
+    {
+      "name": "tail_cvt",
+      "value": 0.04,
+      "units": "-",
+      "tag": "RAYMER",
+      "source": "Raymer Table 6.4 homebuilt vertical tail volume coefficient",
+      "measure": false
+    },
+    {
+      "name": "ar_htail",
+      "value": 4.0,
+      "units": "-",
+      "tag": "RAYMER",
+      "source": "Raymer Table 4.3 horizontal tail aspect ratio 3-5",
+      "measure": false
+    },
+    {
+      "name": "taper_htail",
+      "value": 0.6,
+      "units": "-",
+      "tag": "RAYMER",
+      "source": "Raymer Table 4.3 tail taper 0.3-0.6",
+      "measure": false
+    },
+    {
+      "name": "ar_vtail",
+      "value": 1.6,
+      "units": "-",
+      "tag": "RAYMER",
+      "source": "Raymer Table 4.3 vertical tail aspect ratio 1.3-2.0",
+      "measure": false
+    },
+    {
+      "name": "taper_vtail",
+      "value": 0.5,
+      "units": "-",
+      "tag": "RAYMER",
+      "source": "Raymer Table 4.3 tail taper 0.3-0.6",
+      "measure": false
+    },
+    {
+      "name": "tail_airfoil",
+      "value": "naca0009",
+      "units": "-",
+      "tag": "DESIGN CHOICE",
+      "source": "Symmetric 9% section for tails",
+      "measure": false
+    },
+    {
+      "name": "engine_out_sizing",
+      "value": true,
+      "units": "-",
+      "tag": "DESIGN CHOICE",
+      "source": "Size the fin/rudder so one motor at full throttle can be held at V_mc",
+      "measure": false
+    },
+    {
+      "name": "vmc_ratio",
+      "value": 1.2,
+      "units": "-",
+      "tag": "STANDARD",
+      "source": "14 CFR 23.149: V_MC <= 1.2 V_stall",
+      "measure": false
+    },
+    {
+      "name": "rudder_max_deg",
+      "value": 25.0,
+      "units": "deg",
+      "tag": "DESIGN CHOICE",
+      "source": "Maximum rudder deflection (servo throw)",
+      "measure": false
+    },
+    {
+      "name": "rudder_span_frac",
+      "value": 0.9,
+      "units": "-",
+      "tag": "DESIGN CHOICE",
+      "source": "Rudder height / fin height",
+      "measure": false
+    },
+    {
+      "name": "foil_conf_min",
+      "value": 0.7,
+      "units": "-",
+      "tag": "ESTIMATE",
+      "source": "Minimum NeuralFoil analysis confidence trusted for the deflected-rudder section: beyond it the flow separates over the rudder and XFOIL-type methods over-predict side force",
+      "measure": false
+    },
+    {
+      "name": "roll_helix_min",
+      "value": 0.07,
+      "units": "-",
+      "tag": "STANDARD",
+      "source": "Roll performance pb/2V >= 0.07 with full aileron (Gilruth, NACA Report 755, 1943) - a non-dimensional criterion, so it scales correctly to a small UAV",
+      "measure": false
+    },
+    {
+      "name": "approach_speed_ratio",
+      "value": 1.3,
+      "units": "-",
+      "tag": "RAYMER",
+      "source": "Raymer Ch.17: approach speed = 1.3 V_stall (landing config)",
+      "measure": false
+    },
+    {
+      "name": "control_cf_grid",
+      "value": [
+        0.2,
+        0.25,
+        0.3,
+        0.35
+      ],
+      "units": "-",
+      "tag": "DESIGN CHOICE",
+      "source": "Aileron / flap chord fractions considered (hinge must stay ahead of the thin trailing edge)",
+      "measure": false
+    },
+    {
+      "name": "elevator_cf_grid",
+      "value": [
+        0.25,
+        0.3,
+        0.35,
+        0.4,
+        0.45,
+        0.5
+      ],
+      "units": "-",
+      "tag": "DESIGN CHOICE",
+      "source": "Elevator chord fractions considered",
+      "measure": false
+    },
+    {
+      "name": "rudder_cf_grid",
+      "value": [
+        0.3,
+        0.35,
+        0.4,
+        0.45,
+        0.5
+      ],
+      "units": "-",
+      "tag": "DESIGN CHOICE",
+      "source": "Rudder chord fractions considered",
+      "measure": false
+    },
+    {
+      "name": "aileron_max_deg",
+      "value": 20.0,
+      "units": "deg",
+      "tag": "DESIGN CHOICE",
+      "source": "Aileron throw (each direction)",
+      "measure": false
+    },
+    {
+      "name": "aileron_outboard_eta",
+      "value": 0.95,
+      "units": "-",
+      "tag": "DESIGN CHOICE",
+      "source": "Aileron/flaperon outboard edge (fraction of semispan)",
+      "measure": false
+    },
+    {
+      "name": "flap_aileron_gap_eta",
+      "value": 0.02,
+      "units": "-",
+      "tag": "DESIGN CHOICE",
+      "source": "Gap between flap and aileron (fraction of semispan)",
+      "measure": false
+    },
+    {
+      "name": "flap_max_deg",
+      "value": 40.0,
+      "units": "deg",
+      "tag": "DESIGN CHOICE",
+      "source": "Maximum landing flap deflection (further limited by analysis confidence)",
+      "measure": false
+    },
+    {
+      "name": "flaperon_max_droop_deg",
+      "value": 20.0,
+      "units": "deg",
+      "tag": "DESIGN CHOICE",
+      "source": "Maximum flaperon droop - leaves aileron travel about the drooped position",
+      "measure": false
+    },
+    {
+      "name": "elevator_max_deg",
+      "value": 25.0,
+      "units": "deg",
+      "tag": "DESIGN CHOICE",
+      "source": "Elevator throw (trailing edge up)",
+      "measure": false
+    },
+    {
+      "name": "elevator_span_frac",
+      "value": 0.95,
+      "units": "-",
+      "tag": "DESIGN CHOICE",
+      "source": "Elevator span / stabilizer span",
+      "measure": false
+    },
+    {
+      "name": "tail_efficiency",
+      "value": 0.9,
+      "units": "-",
+      "tag": "RAYMER",
+      "source": "Raymer Ch.16: tail dynamic-pressure ratio ~0.9 (conventional tail)",
+      "measure": false
+    },
+    {
+      "name": "static_margin_min",
+      "value": 0.05,
+      "units": "-",
+      "tag": "DESIGN CHOICE",
+      "source": "Aft CG limit: static margin >= 5% MAC",
+      "measure": false
+    },
+    {
+      "name": "static_margin_max",
+      "value": 0.2,
+      "units": "-",
+      "tag": "DESIGN CHOICE",
+      "source": "Forward CG limit: static margin <= 20% MAC (sizes the elevator)",
+      "measure": false
+    },
+    {
+      "name": "tipback_deg",
+      "value": 15.0,
+      "units": "deg",
+      "tag": "RAYMER",
+      "source": "Raymer Ch.11: main gear >= 15 deg behind the aft CG (tip-back angle)",
+      "measure": false
+    },
+    {
+      "name": "flap_servo_mass_kg",
+      "value": 0.015,
+      "units": "kg",
+      "tag": "ESTIMATE",
+      "source": "Extra flap servo + horn + hinges, each (2 per aircraft)",
+      "measure": false
+    },
+    {
+      "name": "washout_max_deg",
+      "value": 6.0,
+      "units": "deg",
+      "tag": "DESIGN CHOICE",
+      "source": "Upper bound on wing washout considered by the optimizer",
+      "measure": false
+    },
+    {
+      "name": "vtail_ar_eff_factor",
+      "value": 1.55,
+      "units": "-",
+      "tag": "RAYMER",
+      "source": "Raymer Ch.16: fin effective aspect ratio ~1.55 x geometric (fuselage/stabilizer end-plate)",
+      "measure": false
+    },
+    {
+      "name": "prop_fuselage_clearance_m",
+      "value": 0.025,
+      "units": "m",
+      "tag": "DESIGN CHOICE",
+      "source": "Prop tip to fuselage side (1 in)",
+      "measure": false
+    },
+    {
+      "name": "prop_ground_clearance_m",
+      "value": 0.05,
+      "units": "m",
+      "tag": "DESIGN CHOICE",
+      "source": "Prop tip to ground on grass (2 in)",
+      "measure": false
+    },
+    {
+      "name": "internal_clearance_m",
+      "value": 0.005,
+      "units": "m",
+      "tag": "DESIGN CHOICE",
+      "source": "Gap around the payload bay contents, per side",
+      "measure": false
+    },
+    {
+      "name": "fuselage_packing_factor",
+      "value": 2.0,
+      "units": "-",
+      "tag": "DESIGN CHOICE",
+      "source": "Bay volume / sum of component volumes (wiring, airflow, access)",
+      "measure": false
+    },
+    {
+      "name": "pi_stack_height_m",
+      "value": 0.03,
+      "units": "m",
+      "tag": "DESIGN CHOICE",
+      "source": "Pi 5 + cooler stacked above the battery tray",
+      "measure": false
+    },
+    {
+      "name": "nose_length_ratio",
+      "value": 0.6,
+      "units": "-",
+      "tag": "DESIGN CHOICE",
+      "source": "Nose fairing length / fuselage equivalent diameter",
+      "measure": false
+    },
+    {
+      "name": "nacelle_extra_len_m",
+      "value": 0.07,
+      "units": "m",
+      "tag": "DESIGN CHOICE",
+      "source": "Nacelle length beyond motor: ESC + fairing",
+      "measure": false
+    },
+    {
+      "name": "nacelle_wall_gap_m",
+      "value": 0.004,
+      "units": "m",
+      "tag": "DESIGN CHOICE",
+      "source": "Nacelle radial clearance around motor",
+      "measure": false
+    },
+    {
+      "name": "max_motor_station_frac",
+      "value": 0.45,
+      "units": "-",
+      "tag": "DESIGN CHOICE",
+      "source": "Motor station y_eng <= 0.45 b (90% semispan)",
+      "measure": false
+    },
+    {
+      "name": "wheel_d_main_m",
+      "value": 0.051,
+      "units": "m",
+      "tag": "DESIGN CHOICE",
+      "source": "2 in main wheels (mown turf field)",
+      "measure": false
+    },
+    {
+      "name": "wheel_w_main_m",
+      "value": 0.018,
+      "units": "m",
+      "tag": "DESIGN CHOICE",
+      "source": "Main wheel width",
+      "measure": false
+    },
+    {
+      "name": "wheel_d_nose_m",
+      "value": 0.051,
+      "units": "m",
+      "tag": "DESIGN CHOICE",
+      "source": "2 in nose wheel",
+      "measure": false
+    },
+    {
+      "name": "wheel_w_nose_m",
+      "value": 0.018,
+      "units": "m",
+      "tag": "DESIGN CHOICE",
+      "source": "Nose wheel width",
+      "measure": false
+    },
+    {
+      "name": "wing_skin_t_m",
+      "value": 0.00045,
+      "units": "m",
+      "tag": "DESIGN CHOICE",
+      "source": "Single-wall LW-PLA wing skin",
+      "measure": false
+    },
+    {
+      "name": "tail_skin_t_m",
+      "value": 0.00045,
+      "units": "m",
+      "tag": "DESIGN CHOICE",
+      "source": "Single-wall LW-PLA tail skin",
+      "measure": false
+    },
+    {
+      "name": "fus_skin_t_m",
+      "value": 0.0006,
+      "units": "m",
+      "tag": "DESIGN CHOICE",
+      "source": "LW-PLA fuselage wall",
+      "measure": false
+    },
+    {
+      "name": "nacelle_skin_t_m",
+      "value": 0.0006,
+      "units": "m",
+      "tag": "DESIGN CHOICE",
+      "source": "LW-PLA nacelle wall",
+      "measure": false
+    },
+    {
+      "name": "wing_internal_ratio",
+      "value": 0.4,
+      "units": "-",
+      "tag": "ESTIMATE",
+      "source": "Printed internal ribs/geodesic web area per wetted area. MEASURE on a printed section",
+      "measure": true
+    },
+    {
+      "name": "tail_internal_ratio",
+      "value": 0.3,
+      "units": "-",
+      "tag": "ESTIMATE",
+      "source": "Printed tail internal web area ratio",
+      "measure": true
+    },
+    {
+      "name": "fus_frames_ratio",
+      "value": 0.25,
+      "units": "-",
+      "tag": "ESTIMATE",
+      "source": "Fuselage frames/longerons mass / shell mass",
+      "measure": true
+    },
+    {
+      "name": "spar_span_frac",
+      "value": 0.9,
+      "units": "-",
+      "tag": "DESIGN CHOICE",
+      "source": "Main spar tube length / span",
+      "measure": false
+    },
+    {
+      "name": "spar_min_wall_m",
+      "value": 0.0005,
+      "units": "m",
+      "tag": "DESIGN CHOICE",
+      "source": "Thinnest practical carbon tube wall",
+      "measure": false
+    },
+    {
+      "name": "spar_min_od_m",
+      "value": 0.006,
+      "units": "m",
+      "tag": "DESIGN CHOICE",
+      "source": "Smallest spar tube OD (handling stiffness)",
+      "measure": false
+    },
+    {
+      "name": "spar_depth_frac",
+      "value": 0.85,
+      "units": "-",
+      "tag": "DESIGN CHOICE",
+      "source": "Spar OD <= 85% of root airfoil thickness",
+      "measure": false
+    },
+    {
+      "name": "n_limit_maneuver",
+      "value": 3.8,
+      "units": "-",
+      "tag": "STANDARD",
+      "source": "14 CFR 23.337 normal category limit load factor",
+      "measure": false
+    },
+    {
+      "name": "gust_ude_ms",
+      "value": 15.24,
+      "units": "m/s",
+      "tag": "STANDARD",
+      "source": "14 CFR 23.341: 50 ft/s derived gust at V_C",
+      "measure": false
+    },
+    {
+      "name": "factor_of_safety",
+      "value": 1.5,
+      "units": "-",
+      "tag": "STANDARD",
+      "source": "14 CFR 23.303 ultimate / limit",
+      "measure": false
+    },
+    {
+      "name": "n_landing_limit",
+      "value": 3.0,
+      "units": "-",
+      "tag": "ESTIMATE",
+      "source": "Landing limit load factor (14 CFR 23.473 >= 2.67)",
+      "measure": false
+    },
+    {
+      "name": "main_gear_load_frac",
+      "value": 0.9,
+      "units": "-",
+      "tag": "RAYMER",
+      "source": "Raymer Ch.11: nose gear carries 8-15% of weight",
+      "measure": false
+    },
+    {
+      "name": "gear_plate_width_m",
+      "value": 0.02,
+      "units": "m",
+      "tag": "DESIGN CHOICE",
+      "source": "Aluminum main-gear strap width",
+      "measure": false
+    },
+    {
+      "name": "wheel_mass_main_kg",
+      "value": 0.01,
+      "units": "kg",
+      "tag": "ESTIMATE",
+      "source": "2 in foam wheel",
+      "measure": true
+    },
+    {
+      "name": "wheel_mass_nose_kg",
+      "value": 0.01,
+      "units": "kg",
+      "tag": "ESTIMATE",
+      "source": "2 in foam wheel",
+      "measure": true
+    },
+    {
+      "name": "nose_steer_mass_kg",
+      "value": 0.01,
+      "units": "kg",
+      "tag": "ESTIMATE",
+      "source": "Nose gear steering block + collar",
+      "measure": false
+    },
+    {
+      "name": "motor_mount_mass_kg",
+      "value": 0.008,
+      "units": "kg",
+      "tag": "ESTIMATE",
+      "source": "Printed/ply motor mount, each",
+      "measure": false
+    },
+    {
+      "name": "spinner_mass_kg",
+      "value": 0.006,
+      "units": "kg",
+      "tag": "ESTIMATE",
+      "source": "Prop adapter + spinner, each",
+      "measure": false
+    },
+    {
+      "name": "power_wire_kg_m",
+      "value": 0.015,
+      "units": "kg/m",
+      "tag": "ESTIMATE",
+      "source": "16 AWG silicone wire, per conductor-metre",
+      "measure": false
+    },
+    {
+      "name": "prop_mass_10in_kg",
+      "value": 0.024,
+      "units": "kg",
+      "tag": "ESTIMATE",
+      "source": "APC E 10 in prop mass (APC site blocks scraping). WEIGH props",
+      "measure": true
+    },
+    {
+      "name": "prop_mass_exponent",
+      "value": 2.2,
+      "units": "-",
+      "tag": "ESTIMATE",
+      "source": "prop mass ~ D^2.2",
+      "measure": false
+    },
+    {
+      "name": "weight_growth_allowance",
+      "value": 0.1,
+      "units": "-",
+      "tag": "DESIGN CHOICE",
+      "source": "Mass growth allowance on everything except the battery (glue, paint, connectors, build variation) - standard conceptual-design practice; reduce as parts are weighed",
+      "measure": false
+    },
+    {
+      "name": "avionics_power_factor",
+      "value": 1.0,
+      "units": "-",
+      "tag": "ESTIMATE",
+      "source": "Multiplier on data/components.csv power draws (Pi 5 workload is the big unknown). MEASURE the avionics current on the bench",
+      "measure": true
+    },
+    {
+      "name": "eta_esc",
+      "value": 0.95,
+      "units": "-",
+      "tag": "ESTIMATE",
+      "source": "ESC efficiency. MEASURE on thrust stand",
+      "measure": true
+    },
+    {
+      "name": "eta_bec",
+      "value": 0.9,
+      "units": "-",
+      "tag": "ESTIMATE",
+      "source": "Switching BEC efficiency for avionics",
+      "measure": false
+    },
+    {
+      "name": "esc_margin",
+      "value": 1.1,
+      "units": "-",
+      "tag": "DESIGN CHOICE",
+      "source": "ESC rating >= 1.1 x static full-throttle current",
+      "measure": false
+    },
+    {
+      "name": "lipo_v_nom",
+      "value": 3.7,
+      "units": "V",
+      "tag": "DATASHEET",
+      "source": "LiPo nominal cell voltage",
+      "measure": false
+    },
+    {
+      "name": "liion_v_nom",
+      "value": 3.6,
+      "units": "V",
+      "tag": "DATASHEET",
+      "source": "Molicel nominal cell voltage",
+      "measure": false
+    },
+    {
+      "name": "lipo_sag_at_rated_v",
+      "value": 0.4,
+      "units": "V",
+      "tag": "ESTIMATE",
+      "source": "Cell sag at the rated C current -> R_cell = 0.4/(C*Ah). MEASURE with charger IR",
+      "measure": true
+    },
+    {
+      "name": "liion_pack_overhead_kg",
+      "value": 0.02,
+      "units": "kg",
+      "tag": "ESTIMATE",
+      "source": "Li-ion pack leads, XT60, wrap, balance lead",
+      "measure": false
+    },
+    {
+      "name": "liion_mass_per_cell_kg",
+      "value": 0.002,
+      "units": "kg",
+      "tag": "ESTIMATE",
+      "source": "Nickel strip + insulator per cell",
+      "measure": false
+    },
+    {
+      "name": "liion_current_derate",
+      "value": 0.6,
+      "units": "-",
+      "tag": "DESIGN CHOICE",
+      "source": "Use 60% of the cell's temperature-limited max current as continuous limit",
+      "measure": false
+    },
+    {
+      "name": "lipo_current_derate",
+      "value": 0.8,
+      "units": "-",
+      "tag": "DESIGN CHOICE",
+      "source": "Use 80% of the label C-rating as continuous limit",
+      "measure": false
+    },
+    {
+      "name": "endurance_min",
+      "value": 30.0,
+      "units": "min",
+      "tag": "REQUIREMENT",
+      "source": "Remain airborne >= 30 min with no payload (flown entirely as loiter; takeoff/climb/descent time NOT credited -> conservative)",
+      "measure": false
+    },
+    {
+      "name": "takeoff_roll_max_m",
+      "value": 76.2,
+      "units": "m",
+      "tag": "REQUIREMENT",
+      "source": "Takeoff ground roll < 250 ft on grass/turf (team: ground roll only)",
+      "measure": false
+    },
+    {
+      "name": "landing_roll_max_m",
+      "value": 76.2,
+      "units": "m",
+      "tag": "REQUIREMENT",
+      "source": "Landing ground roll < 250 ft on grass/turf, no brakes (team: ground roll only)",
+      "measure": false
+    },
+    {
+      "name": "span_max_m",
+      "value": 1.5,
+      "units": "m",
+      "tag": "REQUIREMENT",
+      "source": "Wingspan <= 1.5 m (team limit)",
+      "measure": false
+    },
+    {
+      "name": "payload_kg",
+      "value": 0.0,
+      "units": "kg",
+      "tag": "REQUIREMENT",
+      "source": "No payload for the endurance mission",
+      "measure": false
+    },
+    {
+      "name": "n_motors",
+      "value": 2,
+      "units": "-",
+      "tag": "REQUIREMENT",
+      "source": "Notional concept: twin wing-mounted props, fixed tricycle gear, high wing",
+      "measure": false
+    }
+  ]
+}

@@ -1,0 +1,139 @@
+[B0] 1176 motor/prop/battery-family combinations pass the static check   [    1 s]
+[A ] airframe technology ranking (best screened W_TO, kg):   [   57 s]
+       naca4412  foam_glass       0.708
+       sd7062    foam_glass       0.708
+       s4083     foam_glass       0.710
+       sd7037    foam_glass       0.713
+       e387      foam_glass       0.715
+       clarky    foam_glass       0.720
+       sd7062    printed_lwpla    0.741
+       clarky    printed_lwpla    0.762
+       naca4412  printed_lwpla    0.762
+       s4083     printed_lwpla    0.762
+       e387      printed_lwpla    0.764
+       sd7037    printed_lwpla    0.795
+[B ] screened 3528 designs, 3528 feasible   [  543 s]
+[C ] refined 24 candidates with multi-start SLSQP   [  617 s]
+[D ] 72 feasible designs with real catalog batteries   [  728 s]
+[E ] sensitivity study ...
+
+==============================================================================
+ CONCEPTUAL DESIGN POINT  (min takeoff mass meeting every requirement)
+==============================================================================
+ Takeoff mass 0.744 kg   W/S 88.1 N/m^2   P/W 5.6 W/N (installed shaft)   search 729 s
+ Atmosphere: 0 m, ISA+15 K, rho = 1.1644 kg/m^3
+
+ REQUIREMENTS / CONSTRAINTS                         value        limit    margin
+  Endurance (loiter only, not counting climb)       34.2 min      >= 30   +13.1%
+    total airborne time                             36.1 min             
+  Takeoff ground roll (grass)                         36.3 m    <= 80.0   +54.7%
+  Landing ground roll (no brakes)                    100.0 m   <= 100.0    -0.0%  ACTIVE
+  Wingspan                                           0.575 m     <= 1.5   +61.6%
+  Climb rate (at throttle cap)                      2.71 m/s    >= 2.50    +8.4%
+  Climb gradient                                       0.208   >= 0.083  +149.1%
+  Motor current (max)                                  4.7 A       <= 9   +47.8%
+  Battery current (max)                                6.4 A      <= 35   +81.8%
+  Spar fits in root airfoil                             0.03        < 1   +97.1%
+  Tip Reynolds number at loiter                          88k     >= 70k   +25.3%
+
+ CONFIGURATION
+  Wing   S=0.0828 m^2  b=0.575 m  AR=4.00  taper=0.6  c_root=180 mm  c_tip=108 mm  MAC=147 mm
+         airfoil s4083 (t/c 0.080)   construction: foam_glass
+         spar: carbon tube OD 6.0 mm x 0.50 mm wall  (n_limit 3.80, ultimate 5.70, V_C 19.3 m/s)
+  H-tail S=0.0229 m^2  span=303 mm  tail arm=265 mm
+  Fin    S=0.0103 m^2  height=128 mm  (sized by engine-out; volume-coeff value 0.0072)
+         engine-out: 1.23 N on one motor at V_mc 13.0 m/s; 40% rudder usable to 23.2 deg (section cl 1.39, fin dCL 0.62)
+  Fuselage L=422 mm  67 x 66 mm section  bay 118 mm
+  Motors at y=+/-135 mm   gear height 54 mm  track 176 mm
+
+ PROPULSION (selected from catalogs)
+  2 x Cobra C-2204/40   2 x APC 6x6E   2 x Hobbywing Skywalker 20A V2
+  Battery: Gens Ace Soaring 3S 2200 20C  24.4 Wh  146 g  U=167 Wh/kg  K=0.8
+  THROTTLE CAP 0.588 (max ESC duty) - set as the max output on BOTH motor channels in the flight controller so it applies in every mode, incl. manual
+  Static (capped): thrust 3.4 N (T/W 0.47)  4.1 A/motor  8610 rpm
+  Avionics load 8.6 W
+
+ IN-FLIGHT THRUST (at the throttle cap; APC data at each airspeed)
+  point                                   V m/s T avail N    T/W  drag N  excess  eta_p    rpm  I_mot  I_bat
+  static (V=0)                             0.00     3.437  0.471       -       -  0.000   8610   4.06   5.65
+  liftoff 1.1 Vs                          11.91     2.605  0.357   1.012   1.593  0.654   8421   4.75   6.47
+  V_mc engine-out 1.2 Vs                  13.00     2.460  0.337   0.945   1.515  0.681   8437   4.70   6.40
+  loiter                                  13.00     2.460  0.337   0.945   1.515  0.681   8437   4.70   6.40
+  best climb V_y                          13.53     2.384  0.327   0.923   1.461  0.693   8449   4.65   6.35
+  max level speed                         21.46     1.065  0.146   1.065   0.000  0.719   8859   3.15   4.57
+  loiter (thrust REQUIRED, part throttle)  13.00     0.945  0.130   0.945   0.000  0.729   6370      -   2.91
+
+ AERODYNAMICS
+  V_stall 10.83 m/s (CLmax 1.290)  V_loiter 13.00 m/s  V_max 21.5 m/s  best glide L/D 8.21
+  Polar fit CD0 0.0435  K 0.0901   inviscid e 0.962
+  Drag at loiter (counts): wing_profile 168, htail 43, vtail 19, fuselage 24, nacelles 17, gear 204, leakage 24, induced 664  = 1161
+
+ MISSION BMF  (image equations, calculated inputs)
+  takeoff  0.0008   t=4.8 s, eta_b2s=0.767
+  climb    0.0075   120 m at 13.5 m/s, V_v=2.71 m/s, L/D=7.90, eta_total=0.531
+  loiter   0.1137   30 min at 13.00 m/s, L/D=7.72, eta_prop=0.729 x eta_b2s=0.745 = 0.543
+  avionics 0.0515   8.6 W for 31.9 min
+  TOTAL    0.1735   -> needs 129 g of this chemistry; pack is 146 g (margin +13.1%)
+
+ PREVIOUSLY ASSUMED  ->  NOW CALCULATED
+  LD          10.000  ->     7.715 
+  V           15.000  ->    12.996 m/s
+  eta_prop     0.650  ->     0.729 
+  eta_b2s      0.800  ->     0.745 
+  U          150.000  ->   167.260 Wh/kg
+  roc          2.500  ->     2.710 m/s
+
+ MASS BREAKDOWN
+  avionics_servos      264.0 g   35.5%
+  battery              146.0 g   19.6%
+  landing_gear          55.9 g    7.5%
+  growth_allowance      54.3 g    7.3%
+  motors                45.0 g    6.1%
+  escs                  38.0 g    5.1%
+  fuselage              28.5 g    3.8%
+  props_spinners        27.6 g    3.7%
+  nacelles              21.8 g    2.9%
+  wing_shell            20.3 g    2.7%
+  htail                 14.7 g    2.0%
+  power_wiring          14.1 g    1.9%
+  wing_spar              6.9 g    0.9%
+  vtail                  6.6 g    0.9%
+
+ ALTERNATIVES (next-lightest feasible designs)
+  0.744 kg  Cobra C-2204/40 + APC 6x5.5E | Gens Ace Soaring 3S 2200 20C | s4083 foam_glass
+  0.751 kg  Cobra C-2204/32 + APC 6x5.5E | 3S1P Molicel P28A (18650) | sd7062 foam_glass
+  0.751 kg  Cobra C-2204/32 + APC 6x6E | 3S1P Molicel P28A (18650) | sd7062 foam_glass
+  0.763 kg  Cobra C-2204/40 + APC 6x6E | 3S1P Molicel P28A (18650) | naca4412 foam_glass
+  0.763 kg  Cobra C-2204/40 + APC 6x5.5E | 3S1P Molicel P28A (18650) | naca4412 foam_glass
+
+ SENSITIVITY (design frozen at the point above; ranked by worst impact on any requirement)
+   'MISSES' = the frozen design would miss a requirement -> margin needed / measure it
+  mu_roll_landing          (now 0.05)  0.03:  +0.0 min, TO 36 m, LDG 122 m MISSES landing_roll   0.08:  +0.0 min, TO 36 m, LDG 81 m
+  avionics_power_factor    (now 1)  0.7:  +3.6 min, TO 36 m, LDG 100 m   1.5:  -4.7 min, TO 36 m, LDG 100 m MISSES endurance
+  field_elevation_m        (now 0)  0:  +0.0 min, TO 36 m, LDG 100 m   1500:  -1.6 min, TO 43 m, LDG 115 m MISSES landing_roll
+  weight_growth_allowance  (now 0.1)  0:  +2.5 min, TO 33 m, LDG 92 m   0.2:  -2.3 min, TO 39 m, LDG 108 m MISSES landing_roll
+  eta_esc                  (now 0.95)  0.9:  -1.4 min, TO 36 m, LDG 100 m   0.97:  +0.5 min, TO 36 m, LDG 100 m
+  isa_temp_offset_K        (now 15)  0:  +0.7 min, TO 34 m, LDG 96 m   25:  -0.4 min, TO 38 m, LDG 103 m MISSES landing_roll
+  q_gear                   (now 1.2)  1:  +0.7 min, TO 36 m, LDG 102 m MISSES landing_roll   1.5:  -1.0 min, TO 36 m, LDG 97 m
+  mu_roll_takeoff          (now 0.1)  0.07:  +0.0 min, TO 35 m, LDG 100 m   0.15:  -0.0 min, TO 39 m, LDG 100 m
+  leak_protub_frac         (now 0.05)  0.02:  +0.3 min, TO 36 m, LDG 101 m MISSES landing_roll   0.1:  -0.5 min, TO 36 m, LDG 99 m
+  fus_frames_ratio         (now 0.25)  0.1:  +0.2 min, TO 36 m, LDG 99 m   0.4:  -0.2 min, TO 36 m, LDG 101 m MISSES landing_roll
+  roughness_k_m            (now 3e-05)  1e-05:  +0.0 min, TO 36 m, LDG 100 m   0.0001:  -0.2 min, TO 36 m, LDG 100 m
+  wing_internal_ratio      (now 0.4)  0.2:  +0.0 min, TO 36 m, LDG 100 m   0.6:  +0.0 min, TO 36 m, LDG 100 m
+
+ INPUTS TO MEASURE / VERIFY (they replace estimates in parameters.py and data/*.csv)
+  - mu_roll_takeoff = 0.1 -: Raymer Table 17.1 grass 0.05-0.08, raised for small RC wheels. MEASURE: tow test (spring scale pull / weight on your field)
+  - mu_roll_landing = 0.05 -: Raymer Table 17.1 hard turf (low value is CONSERVATIVE for an unbraked rollout). MEASURE: the same tow test gives the real value
+  - n_crit = 9.0 -: XFOIL e^N transition, 9 = standard clean conditions; printed skins/turbulence may be lower
+  - roughness_k_m = 3e-05 m: Printed LW-PLA surface; cf. Raymer Table 12.4 (camouflage paint 1.0e-5 m)
+  - wing_internal_ratio = 0.4 -: Printed internal ribs/geodesic web area per wetted area. MEASURE on a printed section
+  - tail_internal_ratio = 0.3 -: Printed tail internal web area ratio
+  - fus_frames_ratio = 0.25 -: Fuselage frames/longerons mass / shell mass
+  - wheel_mass_main_kg = 0.01 kg: 2 in foam wheel
+  - wheel_mass_nose_kg = 0.01 kg: 2 in foam wheel
+  - prop_mass_10in_kg = 0.024 kg: APC E 10 in prop mass (APC site blocks scraping). WEIGH props
+  - avionics_power_factor = 1.0 -: Multiplier on data/components.csv power draws (Pi 5 workload is the big unknown). MEASURE the avionics current on the bench
+  - eta_esc = 0.95 -: ESC efficiency. MEASURE on thrust stand
+  - lipo_sag_at_rated_v = 0.4 V: Cell sag at the rated C current -> R_cell = 0.4/(C*Ah). MEASURE with charger IR
+==============================================================================
+ wrote outputs/design_point.json, design_parameters.txt, constraint_diagram.png

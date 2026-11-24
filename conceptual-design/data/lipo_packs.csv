@@ -1,0 +1,12 @@
+name,cells_s,capacity_mah,c_rating,mass_g,l_mm,w_mm,h_mm,source
+Gens Ace Soaring 3S 1300 30C,3,1300,30,107,71.5,35,21,grepow.com/rc-battery/soaring-series-rc-air-battery-pack (manufacturer table)
+Gens Ace Soaring 3S 2200 20C,3,2200,20,146,74,33,25,grepow.com/rc-battery/soaring-series-rc-air-battery-pack (manufacturer table)
+Gens Ace Soaring 3S 2700 30C,3,2700,30,190,103,33.5,25,grepow.com/rc-battery/soaring-series-rc-air-battery-pack (manufacturer table)
+Gens Ace Soaring 3S 3300 30C,3,3300,30,252,131,42.5,19.5,grepow.com/rc-battery/soaring-series-rc-air-battery-pack (manufacturer table)
+Gens Ace Soaring 3S 4000 30C,3,4000,30,291,136,42.5,22.5,grepow.com/rc-battery/soaring-series-rc-air-battery-pack (manufacturer table)
+Gens Ace 3S 5000 45C,3,5000,45,373,154,46,23,readymaderc.com 86248 Gens Ace 5000mAh 3S 45C (retailer listing)
+Gens Ace Soaring 4S 2200 30C,4,2200,30,214,107,34,27,grepow.com/rc-battery/soaring-series-rc-air-battery-pack (manufacturer table)
+Gens Ace Soaring 4S 2700 30C,4,2700,30,247,106,34,32,gensace.de G-Tech Soaring 2700mAh 4S1P (manufacturer store)
+Gens Ace Soaring 4S 3300 30C,4,3300,30,328,137,42.5,26,grepow.com/rc-battery/soaring-series-rc-air-battery-pack (manufacturer table)
+Gens Ace Soaring 4S 4000 30C,4,4000,30,376,136,42,29.5,grepow.com/rc-battery/soaring-series-rc-air-battery-pack (manufacturer table)
+Gens Ace 4S 5000 45C,4,5000,45,468,156,47,30,horizonhobby.com GEA504S45E5GT (retailer listing)

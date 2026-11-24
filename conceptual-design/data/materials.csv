@@ -1,0 +1,7 @@
+name,density_kg_m3,areal_kg_m2,allowable_pa,tag,source
+lw_pla_foamed,540,,,ESTIMATE,ColorFabb LW-PLA: 1.24 g/cc unfoamed with up to ~65% reduction when foamed - 0.54 g/cc at moderate foaming. WEIGH a printed test panel
+eps_foam_core,20,,,ESTIMATE,typical EPS wing-core foam 1.0-1.5 lb/ft3 (16-24 kg/m3)
+glass_laminate_25gsm,,0.050,,ESTIMATE,25 g/m2 (0.75 oz) cloth + ~1:1 epoxy by weight - one layer per side
+cfrp_tube,1550,,500e6,ESTIMATE,roll-wrapped carbon tube density; 500 MPa ultimate bending allowable (conservative)
+aluminum_6061_t6,2700,,276e6,DATASHEET,6061-T6 yield strength 276 MPa (MMPDS / ASM handbook)
+music_wire,7850,,1400e6,ESTIMATE,ASTM A228 spring steel - bending yield ~1400 MPa

@@ -1,0 +1,7 @@
+numpy>=2.0
+scipy>=1.13
+matplotlib>=3.8
+pandas>=2.2
+neuralfoil>=0.3     # pulls in aerosandbox (used by preliminary design)
+plotly>=5.20       # interactive 3-D view (preliminary-design/visualize.py)
+pytest>=8.0

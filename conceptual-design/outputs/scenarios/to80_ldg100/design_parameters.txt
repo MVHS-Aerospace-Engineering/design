@@ -1,0 +1,382 @@
+CONCEPTUAL DESIGN PARAMETERS   (generated 2026-11-23 22:00)
+Source: conceptual-design/outputs/design_point.json
+
+======================================================================================
+ 1. SUMMARY
+======================================================================================
+  takeoff mass                                           0.7437 kg       
+  wing loading W/S                                         88.1 N/m^2    
+  installed shaft power / weight (capped)                  5.61 W/N      
+  throttle cap (max ESC duty)                            0.5881 -        set on both motor outputs in the FC
+
+======================================================================================
+ 2. DESIGN VARIABLES
+======================================================================================
+ -- chosen by the optimizer (SLSQP)
+  S_m2                                                  0.08279          bounds [0.04, 0.6]
+  AR                                                          4          bounds [4.0, 20.0]
+  tail_arm_over_mac                                      1.8064          bounds [1.8, 5.0]
+ -- sized inside the convergence loop
+  throttle cap                                           0.5881 -        smallest meeting takeoff + climb target x margin
+  fin area                                              0.01032 m^2      max(tail-volume, engine-out)
+  battery (snapped to a real pack)             Gens Ace Soaring 3S 2200 20C          
+  spar OD / wall                                    6.00 / 0.50 mm       
+ -- discrete choices (searched over the catalogs)
+  wing_airfoil                                            s4083          
+  tail_airfoil                                         naca0009          
+  wing_construction                                  foam_glass          
+  motor                                         Cobra C-2204/40          
+  prop                                                 APC 6x6E          
+  esc                                          Hobbywing Skywalker 20A V2          
+  battery                                      Gens Ace Soaring 3S 2200 20C          
+
+======================================================================================
+ 3. SELECTED PARTS (datasheet values)
+======================================================================================
+ -- motor
+  name                                          Cobra C-2204/40          
+  kv_rpm_per_V                                             1570          
+  io_A                                                     0.33          
+  rm_ohm                                                  0.156          
+  imax_A                                                      9          
+  mass_kg                                                0.0225          
+  od_m                                                    0.027          
+  source                                       gravesrc.com/indc-2204-40-cobra-c-2204-40-brushless-motor-kv-1570 (spec table; Kv from product title)          
+ -- prop
+  name                                                 APC 6x6E          
+  diameter_in                                                 6          
+  pitch_in                                                    6          
+  mass_kg_estimate                                       0.0078          
+  source                                       APC PER3 performance data          
+ -- esc
+  name                                         Hobbywing Skywalker 20A V2          
+  i_cont_A                                                   20          
+  mass_kg                                                 0.019          
+ -- battery
+  name                                         Gens Ace Soaring 3S 2200 20C          
+  chemistry                                                LiPo          
+  cells_series                                                3          
+  parallel                                                    1          
+  v_nom                                                    11.1          
+  energy_Wh                                               24.42          
+  mass_kg                                                 0.146          
+  specific_energy_Wh_kg                                   167.3          
+  r_int_ohm                                              0.0273          
+  i_max_A                                                  35.2          
+  dims_m                                       [0.074, 0.033, 0.025]          
+  usable_fraction_K                                         0.8          
+
+======================================================================================
+ 4. GEOMETRY
+======================================================================================
+ -- main wing
+  area (S)                                              0.08279 m^2      
+  span (fin: height) (b)                                0.57547 m        
+  taper ratio (taper)                                       0.6 -        
+  root chord (c_root)                                   0.17983 m        
+  tip chord (c_tip)                                      0.1079 m        
+  mean aerodynamic chord (mac)                          0.14686 m        
+  thickness/chord (t_c)                                 0.07999 -        
+  wetted area (S_wet)                                   0.16712 m^2      
+  aspect ratio                                          4.00007 -        
+ -- horizontal tail
+  area (S)                                              0.02292 m^2      
+  span (fin: height) (b)                                0.30276 m        
+  taper ratio (taper)                                       0.6 -        
+  root chord (c_root)                                   0.09461 m        
+  tip chord (c_tip)                                     0.05677 m        
+  mean aerodynamic chord (mac)                          0.07727 m        
+  thickness/chord (t_c)                                 0.09002 -        
+  wetted area (S_wet)                                   0.04638 m^2      
+ -- vertical tail (fin)
+  area (S)                                              0.01032 m^2      
+  span (fin: height) (b)                                0.12848 m        
+  taper ratio (taper)                                       0.5 -        
+  root chord (c_root)                                   0.10707 m        
+  tip chord (c_tip)                                     0.05353 m        
+  mean aerodynamic chord (mac)                          0.08327 m        
+  thickness/chord (t_c)                                 0.09002 -        
+  wetted area (S_wet)                                   0.02088 m^2      
+ -- fuselage, nacelles, props, gear, spar
+  tail_arm_m                                             0.2653          
+  fuselage_length_m                                      0.4224          
+  fuselage_width_m                                       0.0672          
+  fuselage_height_m                                      0.0662          
+  motor_station_m                                        0.1348          
+  prop_diameter_m                                        0.1524          
+  nacelle_diameter_m                                      0.035          
+  nacelle_length_m                                       0.1024          
+  gear_height_m                                          0.0542          
+  gear_track_m                                           0.1755          
+  spar_od_m                                               0.006          
+  spar_wall_m                                            0.0005          
+ -- layout (x aft from nose tip, y right, z up; metres)
+  fuselage.nose_length                                     0.04          
+  fuselage.bay_length                                    0.1183          
+  fuselage.length                                        0.4224          
+  fuselage.width                                         0.0672          
+  fuselage.height                                        0.0662          
+  fuselage.tail_end_width                                0.0202          
+  fuselage.tail_end_height                               0.0265          
+  wing.x_quarter_chord                                   0.0992          
+  wing.z_root_chord_line                                 0.0331          
+  wing.incidence_deg                                       9.43          
+  htail.x_quarter_chord                                  0.3645          
+  htail.z                                                     0          
+  vtail.x_quarter_chord                                  0.3645          
+  vtail.z_root                                           0.0132          
+  nacelles.y                                             0.1348          
+  nacelles.z_axis                                        0.0389          
+  nacelles.x_front                                       0.0063          
+  nacelles.x_rear                                        0.1087          
+  nacelles.diameter                                       0.035          
+  props.x                                               -0.0037          
+  props.y                                                0.1348          
+  props.z                                                0.0389          
+  props.diameter                                         0.1524          
+  gear.z_ground                                         -0.0873          
+  gear.x_main                                            0.1225          
+  gear.y_main                                            0.0878          
+  gear.main_wheel_d                                       0.051          
+  gear.main_wheel_w                                       0.018          
+  gear.x_nose                                             0.032          
+  gear.nose_wheel_d                                       0.051          
+  gear.nose_wheel_w                                       0.018          
+
+======================================================================================
+ 5. AERODYNAMICS
+======================================================================================
+ -- coefficients & speeds
+  CD0                                                   0.04352          
+  K                                                     0.09014          
+  e_inviscid                                             0.9625          
+  CLmax                                                  1.2901          
+  CL_alpha_per_rad                                       4.1496          
+  V_stall_ms                                              10.83          
+  V_max_ms                                                21.46          
+ -- loiter point
+  V                                                     12.9963          
+  CL                                                   0.895917          
+  CD                                                   0.116126          
+  D                                                    0.945377          
+  P_chem                                                32.2755          
+  P_chem_prop                                           22.6288          
+  P_chem_av                                              9.6467          
+  P_shaft                                               16.8576          
+  eta_prop                                             0.728832          
+  eta_b2s                                              0.744964          
+  rpm                                                   6369.54          
+  I_batt                                                 2.9077          
+  duty                                                 0.423377          
+  LD                                                    7.71504          
+  eta_total                                            0.542954          
+ -- loiter drag breakdown (CD, referenced to wing area)
+  wing_profile                                         0.016768          
+  htail                                                 0.00427          
+  vtail                                                0.001855          
+  fuselage                                             0.002414          
+  nacelles                                             0.001682          
+  gear                                                 0.020402          
+  leakage                                               0.00237          
+  induced                                              0.066366          
+ -- best-rate climb point (at throttle cap)
+  V                                                     13.5344          
+  roc                                                   2.71031          
+  grad_max                                             0.207613          
+  LD                                                     7.9019          
+  eta_total                                            0.531135          
+  P_chem                                                70.4667          
+  I_batt                                                6.34835          
+ -- best glide
+  V                                                        15.5          
+  LD                                                    8.20782          
+  t                                                     63.5444          
+
+======================================================================================
+ 6. PERFORMANCE
+======================================================================================
+ -- field / currents
+  takeoff_roll_m                                          36.27          
+  landing_roll_m                                         100.01          
+  static_thrust_N                                         3.437          
+  max_motor_current_A                                     4.695          
+  max_battery_current_A                                   6.398          
+ -- engine-out (one motor failed)
+  V_mc                                                  12.9963          
+  T_one                                                    1.23          
+  yaw_moment                                             0.1658          
+  rudder_cl2d                                            1.3942          
+  rudder_defl_usable                                    23.1809          
+  dCL_fin                                                0.6161          
+ -- in-flight thrust (thrust AVAILABLE at the throttle cap vs. level-flight drag)
+  point                                         V  T_avail    T/W    drag  excess  eta_p    rpm
+  static (V=0)                               0.00    3.437  0.471       -       -  0.000   8610
+  liftoff 1.1 Vs                            11.91    2.605  0.357   1.012   1.593  0.654   8421
+  V_mc engine-out 1.2 Vs                    13.00    2.460  0.337   0.945   1.515  0.681   8437
+  loiter                                    13.00    2.460  0.337   0.945   1.515  0.681   8437
+  best climb V_y                            13.53    2.384  0.327   0.923   1.461  0.693   8449
+  max level speed                           21.46    1.065  0.146   1.065   0.000  0.719   8859
+  loiter (thrust REQUIRED, part throttle)   13.00    0.945  0.130   0.945   0.000  0.729   6370
+
+======================================================================================
+ 7. MISSION BATTERY-MASS-FRACTION BUILD-UP
+======================================================================================
+ -- segments
+  takeoff                                              0.000806          
+  climb                                                0.007506          
+  loiter                                               0.113691          
+  avionics                                               0.0515          
+  total                                                0.173503          
+  t_climb_s                                             44.2754          
+  t_total_s                                             1912.66          
+  eta_b2s_takeoff                                      0.766706          
+  battery_mass_required                                0.129043          
+  energy_required_wh                                    21.5837          
+  endurance_margin                                      1.13141          
+  loiter_max_min                                        34.2181          
+  airborne_max_min                                      36.0958          
+
+======================================================================================
+ 8. MASS BREAKDOWN
+======================================================================================
+  avionics_servos                                         0.264 kg        35.5%
+  battery                                                 0.146 kg        19.6%
+  landing_gear                                          0.05588 kg         7.5%
+  growth_allowance                                      0.05434 kg         7.3%
+  motors                                                  0.045 kg         6.1%
+  escs                                                    0.038 kg         5.1%
+  fuselage                                              0.02853 kg         3.8%
+  props_spinners                                         0.0276 kg         3.7%
+  nacelles                                              0.02184 kg         2.9%
+  wing_shell                                            0.02029 kg         2.7%
+  htail                                                 0.01465 kg         2.0%
+  power_wiring                                          0.01409 kg         1.9%
+  wing_spar                                             0.00694 kg         0.9%
+  vtail                                                  0.0066 kg         0.9%
+  payload                                                     0 kg         0.0%
+
+======================================================================================
+ 9. CONSTRAINT MARGINS  (>= 0 satisfied; ~0 = ACTIVE, i.e. this requirement sizes the design)
+======================================================================================
+  takeoff_roll                                           0.5467          
+  landing_roll                                          -0.0001          ACTIVE
+  span                                                   0.6164          
+  climb_rate                                             0.0841          
+  climb_gradient                                         1.4914          
+  motor_current                                          0.4783          
+  battery_current                                        0.8182          
+  esc_available                                               0          ACTIVE
+  motor_station                                          0.4795          
+  spar_fits                                              0.9705          
+  tip_reynolds                                           0.2535          
+  prop_data_range                                             0          ACTIVE
+  converged                                                   0          ACTIVE
+  endurance                                              0.1314          
+
+======================================================================================
+ 10. INPUT RATIOS & COEFFICIENTS USED TO CALCULATE THE ABOVE (dimensionless)
+======================================================================================
+  min_climb_gradient                                  0.0833333 -        [STANDARD] 14 CFR 23.65 (pre-amdt 64): climb gradient >= 1:12
+  throttle_cap_margin                                      1.05 -        [DESIGN CHOICE] Thrust margin over the binding takeoff/climb requirement when sizing the throttle cap
+  v_min_ratio                                               1.2 -        [STANDARD] Loiter/climb speeds >= 1.2 V_stall (14 CFR 23 speed margins; Raymer Ch.17)
+  v_liftoff_ratio                                           1.1 -        [RAYMER] Raymer Sec. 17.8: V_TO = 1.1 V_stall
+  v_touchdown_ratio                                        1.15 -        [RAYMER] Raymer Sec. 17.9: V_TD = 1.15 V_stall
+  k_lipo                                                    0.8 -        [DESIGN CHOICE] Use 80% of LiPo capacity (cell health + reserve)
+  k_liion                                                  0.85 -        [DESIGN CHOICE] Use 85% of Li-ion capacity (cutoff ~3.0 V/cell + reserve)
+  mu_roll_takeoff                                           0.1 -        [ESTIMATE, MEASURE] Raymer Table 17.1 grass 0.05-0.08, raised for small RC wheels. MEASURE: tow test (spring scale pull / weight on your field)
+  mu_roll_landing                                          0.05 -        [RAYMER, MEASURE] Raymer Table 17.1 hard turf (low value is CONSERVATIVE for an unbraked rollout). MEASURE: the same tow test gives the real value
+  n_crit                                                      9 -        [ESTIMATE, MEASURE] XFOIL e^N transition, 9 = standard clean conditions; printed skins/turbulence may be lower
+  re_transition_A                                          1700 -        [STANDARD] Prandtl-Schlichting mixed laminar/turbulent Cf, transition Re_x = 5e5
+  q_fuselage                                                  1 -        [RAYMER] Raymer Sec. 12.5.5 interference factor, fuselage
+  q_nacelle                                                 1.5 -        [RAYMER] Raymer Sec. 12.5.5: nacelle mounted directly on wing
+  q_tail                                                   1.04 -        [RAYMER] Raymer Sec. 12.5.5: conventional tail 1.04-1.05
+  q_gear                                                    1.2 -        [ESTIMATE] Gear mutual/airframe interference
+  dq_wheel                                                 0.25 -        [RAYMER] Raymer Table 12.5: regular wheel and tire, D/q per frontal area
+  dq_flat_leg                                               1.4 -        [RAYMER] Raymer Table 12.5: flat spring gear leg
+  dq_round_strut                                            0.3 -        [RAYMER] Raymer Table 12.5: round strut or wire
+  leak_protub_frac                                         0.05 -        [ESTIMATE] Leakage + protuberances (FPV camera, pitot, antennas), Raymer Sec. 12.5 few % of parasite
+  re_tip_min                                              70000 -        [DESIGN CHOICE] Wing-tip chord Reynolds number at loiter >= 70k: below the ~7e4 critical Re, laminar separation stops reattaching and section data/stall become unreliable (Lissaman 1983, Annu. Rev. Fluid Mech. 15)
+  wing_taper                                                0.6 -        [DESIGN CHOICE] Raymer Sec. 4.3.4: 0.45 is near-elliptic; 0.6 keeps tip Reynolds number up and tip stall benign
+  tail_cht                                                  0.5 -        [RAYMER] Raymer Table 6.4 homebuilt horizontal tail volume coefficient
+  tail_cvt                                                 0.04 -        [RAYMER] Raymer Table 6.4 homebuilt vertical tail volume coefficient
+  ar_htail                                                    4 -        [RAYMER] Raymer Table 4.3 horizontal tail aspect ratio 3-5
+  taper_htail                                               0.6 -        [RAYMER] Raymer Table 4.3 tail taper 0.3-0.6
+  ar_vtail                                                  1.6 -        [RAYMER] Raymer Table 4.3 vertical tail aspect ratio 1.3-2.0
+  taper_vtail                                               0.5 -        [RAYMER] Raymer Table 4.3 tail taper 0.3-0.6
+  tail_airfoil                                         naca0009 -        [DESIGN CHOICE] Symmetric 9% section for tails
+  engine_out_sizing                                        True -        [DESIGN CHOICE] Size the fin/rudder so one motor at full throttle can be held at V_mc
+  vmc_ratio                                                 1.2 -        [STANDARD] 14 CFR 23.149: V_MC <= 1.2 V_stall
+  rudder_chord_frac                                         0.4 -        [DESIGN CHOICE] Rudder chord / fin chord (large rudder for engine-out)
+  rudder_span_frac                                          0.9 -        [DESIGN CHOICE] Rudder height / fin height
+  foil_conf_min                                             0.7 -        [ESTIMATE] Minimum NeuralFoil analysis confidence trusted for the deflected-rudder section: beyond it the flow separates over the rudder and XFOIL-type methods over-predict side force
+  vtail_ar_eff_factor                                      1.55 -        [RAYMER] Raymer Ch.16: fin effective aspect ratio ~1.55 x geometric (fuselage/stabilizer end-plate)
+  fuselage_packing_factor                                     2 -        [DESIGN CHOICE] Bay volume / sum of component volumes (wiring, airflow, access)
+  nose_length_ratio                                         0.6 -        [DESIGN CHOICE] Nose fairing length / fuselage equivalent diameter
+  max_motor_station_frac                                   0.45 -        [DESIGN CHOICE] Motor station y_eng <= 0.45 b (90% semispan)
+  wing_internal_ratio                                       0.4 -        [ESTIMATE, MEASURE] Printed internal ribs/geodesic web area per wetted area. MEASURE on a printed section
+  tail_internal_ratio                                       0.3 -        [ESTIMATE, MEASURE] Printed tail internal web area ratio
+  fus_frames_ratio                                         0.25 -        [ESTIMATE, MEASURE] Fuselage frames/longerons mass / shell mass
+  spar_span_frac                                            0.9 -        [DESIGN CHOICE] Main spar tube length / span
+  spar_depth_frac                                          0.85 -        [DESIGN CHOICE] Spar OD <= 85% of root airfoil thickness
+  n_limit_maneuver                                          3.8 -        [STANDARD] 14 CFR 23.337 normal category limit load factor
+  factor_of_safety                                          1.5 -        [STANDARD] 14 CFR 23.303 ultimate / limit
+  n_landing_limit                                             3 -        [ESTIMATE] Landing limit load factor (14 CFR 23.473 >= 2.67)
+  main_gear_load_frac                                       0.9 -        [RAYMER] Raymer Ch.11: nose gear carries 8-15% of weight
+  prop_mass_exponent                                        2.2 -        [ESTIMATE] prop mass ~ D^2.2
+  weight_growth_allowance                                   0.1 -        [DESIGN CHOICE] Mass growth allowance on everything except the battery (glue, paint, connectors, build variation) - standard conceptual-design practice; reduce as parts are weighed
+  avionics_power_factor                                       1 -        [ESTIMATE, MEASURE] Multiplier on data/components.csv power draws (Pi 5 workload is the big unknown). MEASURE the avionics current on the bench
+  eta_esc                                                  0.95 -        [ESTIMATE, MEASURE] ESC efficiency. MEASURE on thrust stand
+  eta_bec                                                   0.9 -        [ESTIMATE] Switching BEC efficiency for avionics
+  esc_margin                                                1.1 -        [DESIGN CHOICE] ESC rating >= 1.1 x static full-throttle current
+  liion_current_derate                                      0.6 -        [DESIGN CHOICE] Use 60% of the cell's temperature-limited max current as continuous limit
+  lipo_current_derate                                       0.8 -        [DESIGN CHOICE] Use 80% of the label C-rating as continuous limit
+  n_motors                                                    2 -        [REQUIREMENT] Notional concept: twin wing-mounted props, fixed tricycle gear, high wing
+
+======================================================================================
+ 11. OTHER INPUTS (dimensional)
+======================================================================================
+  field_elevation_m                                           0 m        [SITE] Set to your flying field elevation (ISA)
+  isa_temp_offset_K                                          15 K        [DESIGN CHOICE] Hot day ISA+15 K (30 C at sea level): lower density -> conservative takeoff/climb
+  climb_altitude_m                                          120 m        [DESIGN CHOICE] 400 ft AGL recreational ceiling
+  min_roc_ms                                              1.524 m/s      [STANDARD] 14 CFR 23.65 (pre-amdt 64): all-engine ROC >= 300 ft/min
+  climb_rate_target_ms                                      2.5 m/s      [DESIGN CHOICE] Operational climb rate (~500 ft/min) for go-arounds, gusts and autopilot authority; stricter than the 300 ft/min regulatory minimum. Sizes the throttle cap
+  rotation_time_s                                             1 s        [RAYMER] Raymer Sec. 17.8: ~1 s rotation for small aircraft
+  roughness_k_m                                           3e-05 m        [ESTIMATE, MEASURE] Printed LW-PLA surface; cf. Raymer Table 12.4 (camouflage paint 1.0e-5 m)
+  rudder_max_deg                                             25 deg      [DESIGN CHOICE] Maximum rudder deflection (servo throw)
+  prop_fuselage_clearance_m                               0.025 m        [DESIGN CHOICE] Prop tip to fuselage side (1 in)
+  prop_ground_clearance_m                                  0.05 m        [DESIGN CHOICE] Prop tip to ground on grass (2 in)
+  internal_clearance_m                                    0.005 m        [DESIGN CHOICE] Gap around the payload bay contents, per side
+  pi_stack_height_m                                        0.03 m        [DESIGN CHOICE] Pi 5 + cooler stacked above the battery tray
+  nacelle_extra_len_m                                      0.07 m        [DESIGN CHOICE] Nacelle length beyond motor: ESC + fairing
+  nacelle_wall_gap_m                                      0.004 m        [DESIGN CHOICE] Nacelle radial clearance around motor
+  wheel_d_main_m                                          0.051 m        [DESIGN CHOICE] 2 in main wheels (mown turf field)
+  wheel_w_main_m                                          0.018 m        [DESIGN CHOICE] Main wheel width
+  wheel_d_nose_m                                          0.051 m        [DESIGN CHOICE] 2 in nose wheel
+  wheel_w_nose_m                                          0.018 m        [DESIGN CHOICE] Nose wheel width
+  wing_skin_t_m                                         0.00045 m        [DESIGN CHOICE] Single-wall LW-PLA wing skin
+  tail_skin_t_m                                         0.00045 m        [DESIGN CHOICE] Single-wall LW-PLA tail skin
+  fus_skin_t_m                                           0.0006 m        [DESIGN CHOICE] LW-PLA fuselage wall
+  nacelle_skin_t_m                                       0.0006 m        [DESIGN CHOICE] LW-PLA nacelle wall
+  spar_min_wall_m                                        0.0005 m        [DESIGN CHOICE] Thinnest practical carbon tube wall
+  spar_min_od_m                                           0.006 m        [DESIGN CHOICE] Smallest spar tube OD (handling stiffness)
+  gust_ude_ms                                             15.24 m/s      [STANDARD] 14 CFR 23.341: 50 ft/s derived gust at V_C
+  gear_plate_width_m                                       0.02 m        [DESIGN CHOICE] Aluminum main-gear strap width
+  wheel_mass_main_kg                                       0.01 kg       [ESTIMATE, MEASURE] 2 in foam wheel
+  wheel_mass_nose_kg                                       0.01 kg       [ESTIMATE, MEASURE] 2 in foam wheel
+  nose_steer_mass_kg                                       0.01 kg       [ESTIMATE] Nose gear steering block + collar
+  motor_mount_mass_kg                                     0.008 kg       [ESTIMATE] Printed/ply motor mount, each
+  spinner_mass_kg                                         0.006 kg       [ESTIMATE] Prop adapter + spinner, each
+  power_wire_kg_m                                         0.015 kg/m     [ESTIMATE] 16 AWG silicone wire, per conductor-metre
+  prop_mass_10in_kg                                       0.024 kg       [ESTIMATE, MEASURE] APC E 10 in prop mass (APC site blocks scraping). WEIGH props
+  lipo_v_nom                                                3.7 V        [DATASHEET] LiPo nominal cell voltage
+  liion_v_nom                                               3.6 V        [DATASHEET] Molicel nominal cell voltage
+  lipo_sag_at_rated_v                                       0.4 V        [ESTIMATE, MEASURE] Cell sag at the rated C current -> R_cell = 0.4/(C*Ah). MEASURE with charger IR
+  liion_pack_overhead_kg                                   0.02 kg       [ESTIMATE] Li-ion pack leads, XT60, wrap, balance lead
+  liion_mass_per_cell_kg                                  0.002 kg       [ESTIMATE] Nickel strip + insulator per cell
+  endurance_min                                              30 min      [REQUIREMENT] Remain airborne >= 30 min with no payload (flown entirely as loiter; takeoff/climb/descent time NOT credited -> conservative)
+  takeoff_roll_max_m                                         80 m        [REQUIREMENT] SCENARIO: takeoff ground roll < 80 m on grass/turf (team: ground roll only)
+  landing_roll_max_m                                        100 m        [REQUIREMENT] SCENARIO: landing ground roll < 100 m on grass/turf, no brakes (team: ground roll only)
+  span_max_m                                                1.5 m        [REQUIREMENT] Wingspan <= 1.5 m (team limit)
+  payload_kg                                                  0 kg       [REQUIREMENT] No payload for the endurance mission
+
+Parts catalogs: conceptual-design/data/*.csv (motors, lipo_packs, liion_cells, escs, components, materials)
