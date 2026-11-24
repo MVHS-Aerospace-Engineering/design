@@ -6,8 +6,9 @@ Each line holds the converged design's aerodynamics (parabolic polar fit,
 CLmax, ground-roll CL) and the SHAPE of its real thrust-vs-speed curve fixed,
 and asks how much installed power (thrust curve scaled by k) a given wing
 loading needs to meet that requirement:
-  - takeoff ground roll <= 250 ft       (numerical integration, grass mu)
-  - landing ground roll <= 250 ft       (no brakes -> vertical line, needs no power)
+  - takeoff ground roll, soft grass and pavement (numerical integration; grass
+    rolling friction from the wheel size)
+  - braked landing ground roll, soft grass (vertical line, needs no power)
   - climb rate   >= 300 ft/min          (14 CFR 23.65)
   - climb gradient >= 1:12              (14 CFR 23.65)
   - loiter shaft power (reference, not a limit - endurance is an energy constraint)
@@ -30,8 +31,11 @@ def compute(res, n=60):
     rho = d["atm"].rho
     W = res.m * G0
     CD0, K = aero.polar_fit(perf["loiter"]["V"])          # reported only
-    CLmax = perf["CLmax"]
+    CLmax = perf["CLmax_trimmed"]
     CL_g = perf["CL_ground"]
+    mu_to = perf["mu_grass"]["roll"]
+    mu_ld = perf["mu_grass"]["brake"]
+    mu_pav = perf["mu_pavement"]["roll"]
     ft = pt.full_throttle()
     shape = ft["T"] / ft["T"][0]                     # thrust lapse with speed
     P0 = ft["P_shaft"][0]                             # installed static shaft power
@@ -42,13 +46,14 @@ def compute(res, n=60):
     def cd_ground(V):
         return aero.drag(np.full_like(V, CL_g), V, ground=True)[0]
 
-    def roll_to(k, ws_):
+    def roll_to(k, ws_, mu=None):
+        mu = mu_to if mu is None else mu
         S = W / ws_
         Vs = math.sqrt(2 * ws_ / (rho * CLmax))
         V = np.linspace(0, P.v_liftoff_ratio * Vs, 80)
         q = 0.5 * rho * V ** 2
         T = k * T0 * np.interp(V, V_GRID, shape)
-        a = G0 / W * (T - q * S * cd_ground(V) - P.mu_roll_takeoff * np.maximum(W - q * S * CL_g, 0))
+        a = G0 / W * (T - q * S * cd_ground(V) - mu * np.maximum(W - q * S * CL_g, 0))
         if np.any(a <= 0.05):
             return math.inf
         return np.trapezoid(V / a, V) + V[-1] * P.rotation_time_s
@@ -58,10 +63,10 @@ def compute(res, n=60):
         Vs = math.sqrt(2 * ws_ / (rho * CLmax))
         V = np.linspace(0, P.v_touchdown_ratio * Vs, 80)
         q = 0.5 * rho * V ** 2
-        a = G0 / W * (q * S * cd_ground(V) + P.mu_roll_landing * np.maximum(W - q * S * CL_g, 0))
-        return np.trapezoid(V / a, V)
+        a = G0 / W * (q * S * cd_ground(V) + mu_ld * np.maximum(W - q * S * CL_g, 0))
+        return np.trapezoid(V / a, V) + V[-1] * P.brake_delay_s
 
-    out = dict(ws=ws, takeoff=[], climb_rate=[], climb_grad=[], loiter=[])
+    out = dict(ws=ws, takeoff=[], takeoff_pav=[], climb_rate=[], climb_grad=[], loiter=[])
     eta_p = perf["loiter"]["eta_prop"]
     for w_s in ws:
         S = W / w_s
@@ -73,15 +78,17 @@ def compute(res, n=60):
         T1 = T0 * np.interp(V, V_GRID, shape)            # k = 1 thrust
         k_roc = np.min((W * P.min_roc_ms + D * V) / (T1 * V))
         k_grad = np.min((W * P.min_climb_gradient + D) / T1)
-        lo, hi = 0.01, 20.0
-        if roll_to(hi, w_s) > P.takeoff_roll_max_m:
-            k_to = math.inf
-        else:
-            for _ in range(40):
-                mid = math.sqrt(lo * hi)
-                lo, hi = (mid, hi) if roll_to(mid, w_s) > P.takeoff_roll_max_m else (lo, mid)
-            k_to = hi
-        out["takeoff"].append(k_to * P0 / W)
+        for key, mu, s_max in (("takeoff", mu_to, P.takeoff_roll_max_grass_m),
+                               ("takeoff_pav", mu_pav, P.takeoff_roll_max_pavement_m)):
+            lo, hi = 0.01, 20.0
+            if roll_to(hi, w_s, mu) > s_max:
+                k_to = math.inf
+            else:
+                for _ in range(40):
+                    mid = math.sqrt(lo * hi)
+                    lo, hi = (mid, hi) if roll_to(mid, w_s, mu) > s_max else (lo, mid)
+                k_to = hi
+            out[key].append(k_to * P0 / W)
         out["climb_rate"].append(k_roc * P0 / W)
         out["climb_grad"].append(k_grad * P0 / W)
         out["loiter"].append(np.min(D * V) / eta_p / W)
@@ -89,11 +96,11 @@ def compute(res, n=60):
     lo, hi = ws[0] * 0.2, ws[-1] * 3
     for _ in range(60):
         mid = 0.5 * (lo + hi)
-        lo, hi = (mid, hi) if roll_ldg(mid) <= P.landing_roll_max_m else (lo, mid)
+        lo, hi = (mid, hi) if roll_ldg(mid) <= P.landing_roll_max_grass_m else (lo, mid)
     out["landing_ws_max"] = lo
     out["design"] = (ws_design, P0 / W)
     out["CD0"], out["K"] = CD0, K
-    for k in ("takeoff", "climb_rate", "climb_grad", "loiter"):
+    for k in ("takeoff", "takeoff_pav", "climb_rate", "climb_grad", "loiter"):
         out[k] = np.array(out[k])
     return out
 
@@ -104,17 +111,18 @@ def plot(cd, path, title=""):
     import matplotlib.pyplot as plt
 
     ws = cd["ws"]
-    req = np.maximum.reduce([cd["takeoff"], cd["climb_rate"], cd["climb_grad"]])
+    req = np.maximum.reduce([cd["takeoff"], cd["takeoff_pav"], cd["climb_rate"], cd["climb_grad"]])
     top = max(np.nanmax(np.where(np.isfinite(req), req, np.nan)) * 1.3, cd["design"][1] * 1.4)
     fig, ax = plt.subplots(figsize=(8, 5.5), dpi=140)
     ax.fill_between(ws, np.where(np.isfinite(req), req, top), top,
                     where=ws <= cd["landing_ws_max"], color="#2a9d8f", alpha=0.12,
                     label="feasible region")
-    ax.plot(ws, cd["takeoff"], color="#e76f51", lw=2, label="takeoff roll limit")
+    ax.plot(ws, cd["takeoff"], color="#e76f51", lw=2, label="takeoff roll limit (soft grass)")
+    ax.plot(ws, cd["takeoff_pav"], color="#f4a261", lw=1.5, ls="--", label="takeoff roll limit (pavement)")
     ax.plot(ws, cd["climb_rate"], color="#264653", lw=2, label="climb rate >= 300 ft/min")
     ax.plot(ws, cd["climb_grad"], color="#8d99ae", lw=2, ls="-.", label="climb gradient >= 1:12")
     ax.plot(ws, cd["loiter"], color="#e9c46a", lw=2, ls=":", label="loiter shaft power (reference)")
-    ax.axvline(cd["landing_ws_max"], color="#6a4c93", lw=2, label="landing roll limit (no brakes)")
+    ax.axvline(cd["landing_ws_max"], color="#6a4c93", lw=2, label="landing roll limit (grass, braked)")
     ax.plot(*cd["design"], marker="*", ms=16, color="#d62828", mec="k", ls="none",
             label=f"design point ({cd['design'][0]:.0f} N/m², {cd['design'][1]:.1f} W/N)")
     ax.set_xlim(ws[0], ws[-1])

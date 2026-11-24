@@ -1,0 +1,6 @@
+name,diameter_mm,width_mm,mass_g,axle_mm,tag,source
+Du-Bro 200SL,50.8,17.5,6.3,3,DATASHEET,"Du-Bro 2 in Super Lite treaded EVA (2-pack 200SL): 50.8 x 17.5 mm, 3 mm axle (motionrc.com DUB200SL); 6.3 g/wheel (frontlinehobbies.com.au listing). WEIGH"
+Du-Bro 225SL,57.2,18.5,10.0,,ESTIMATE,"Du-Bro 2-1/4 in Super Lite (225SL): 10 g/wheel (frontlinehobbies.com.au listing); width ESTIMATE. WEIGH + measure width"
+Du-Bro 250SL,63.5,19.8,11.5,4,DATASHEET,"Du-Bro 2-1/2 in Super Lite treaded EVA (250SL): 63.5 x 19.8 mm, 4 mm axle (motionrc.com DUB250SL); 11.5 g/wheel (frontlinehobbies.com.au DBR250SL). WEIGH"
+Du-Bro 275SL,69.8,21.0,14.8,,ESTIMATE,"Du-Bro 2-3/4 in Super Lite (275SL): listings give 12.7 g (hobbyetc) and 14.8 g (frontlinehobbies) per wheel - heavier value used; width ESTIMATE. WEIGH"
+Du-Bro 300SL,76.2,23.0,16.8,4,DATASHEET,"Du-Bro 3 in Super Lite treaded EVA (300SL): 76.2 x 23.0 mm, 4 mm axle (motionrc.com DUB300SL); 16.8 g/wheel (frontlinehobbies.com.au listing). WEIGH"

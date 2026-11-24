@@ -3,7 +3,9 @@ Performance + mission battery-mass-fraction build-up.
 
 Segments (README mission):
   1. Takeoff  - ground roll integrated numerically (Raymer Ch.17) at full
-                throttle with the real thrust-vs-speed curve; BMF from the
+                throttle with the real thrust-vs-speed curve, on soft grass
+                (rolling friction from the wheel size, Bekker scaling) and on
+                pavement; BMF (grass, the longer one) from the
                 image's "specified endurance" equation with the computed time,
                 shaft power and eta_b2s.
   2. Climb    - image "Climb Time" equation at the best-rate-of-climb speed,
@@ -15,6 +17,11 @@ Segments (README mission):
   +  Avionics - image "specified endurance" equation on the avionics power
                 over the whole flight (Pi 5 + FPV are a real energy load).
 Batteries do not get lighter, so segment BMFs ADD.
+
+Landing: trimmed stall speed (forward CG), braked rollout on grass and on
+pavement after a free-roll delay, with crow (ailerons up) if P.rollout_crow.
+Balked landing: full-throttle climb gradient in landing configuration at the
+approach speed, including the elevator trim drag at the forward CG.
 """
 import math
 
@@ -71,18 +78,68 @@ def ground_roll_takeoff(aero, pt, W, CL_g, V_lo, mu):
                 V_lo=V_lo, T07=float(np.interp(0.7 * V_lo, V_GRID, ft["T"])))
 
 
-def ground_roll_landing(aero, W, CL_g, V_td, mu, config="clean"):
+def ground_roll_landing(aero, W, CL_g, V_td, mu, config="clean", t_free=0.0):
+    """Rollout from touchdown: free roll for t_free seconds (counted at V_td, no
+    deceleration - conservative), then D + mu (W - L) with mu the effective braking
+    (or rolling) coefficient. Idle thrust ~ 0."""
     rho, S = aero.atm.rho, aero.S
     V = np.linspace(0.0, V_td, 60)
     q = 0.5 * rho * V ** 2
     CD, _ = aero.drag(np.full_like(V, CL_g), V, ground=True, config=config)
     L, D = q * S * CL_g, q * S * CD
-    a = G0 / W * (D + mu * np.maximum(W - L, 0.0))      # no brakes, idle thrust ~ 0
-    return float(np.trapezoid(V / a, V))
+    a = G0 / W * (D + mu * np.maximum(W - L, 0.0))
+    return float(np.trapezoid(V / a, V)) + V_td * t_free
 
 
-def performance(geom, aero, pt, m, battery, ground_cl=None):
-    """ground_cl: wing CL in the ground stance (None = fuselage level = loiter CL)."""
+def grass_mu(wheel, load_n):
+    """Soft-grass rolling resistance of one wheel by Bekker compaction scaling from
+    the reference wheel:  mu ~ (W/W_ref)^(1/(2n+1)) (b_ref/b)^(1/(2n+1)) (D_ref/D)^((n+1)/(2n+1))."""
+    n = P.bekker_n
+    e1, e2 = 1 / (2 * n + 1), (n + 1) / (2 * n + 1)
+    return (P.mu_grass_ref * (max(load_n, 1e-6) / P.grass_ref_wheel_load_n) ** e1
+            * (P.grass_ref_wheel_w_m / wheel.w) ** e1 * (P.grass_ref_wheel_d_m / wheel.d) ** e2)
+
+
+def surface_mu(geom, W, surface):
+    """Effective rolling and braking coefficients (weight-share averaged over the
+    main and nose wheels; brakes on the mains only)."""
+    f = P.main_gear_load_frac
+    if surface == "grass":
+        m_main = grass_mu(geom.main_wheel, W * f / 2)
+        m_nose = grass_mu(geom.nose_wheel, W * (1 - f))
+        mb = P.mu_brake_grass
+    else:
+        m_main = m_nose = P.mu_roll_pavement
+        mb = P.mu_brake_pavement
+    roll = f * m_main + (1 - f) * m_nose
+    brk = geom.brake.active and geom.brake.fits(geom.main_wheel)
+    brake = f * max(mb, m_main) + (1 - f) * m_nose if brk else roll
+    return dict(roll=roll, brake=brake, main=m_main, nose=m_nose, braked=brk)
+
+
+def _crow(geom, aero, ctrl):
+    """Crow surfaces for the rollout: landing flaps (if any) + ailerons up by
+    crow_aileron_up_deg (limited to the largest trusted up-deflection)."""
+    from controls import CrowSection
+    a = ctrl["aileron"]
+    nu = aero.atm.mu / aero.atm.rho
+    re = 10.0 * float(geom.chord_at(0.5 * (a["y1"] + a["y2"]))) / nu
+    tip_af = aero.secs.tip.name
+    d = P.crow_aileron_up_deg
+    while d > 0 and not CrowSection(tip_af, a["cf"], -d).usable(re):
+        d -= 2.5
+    if d <= 0:
+        return None
+    surfs = [aero.flaps] if aero.flaps is not None else []
+    surfs.append(dict(y0=a["y1"], y1=a["y2"], section=CrowSection(tip_af, a["cf"], -d)))
+    aero.set_rollout(surfs)
+    return dict(deflection_up_deg=d, y0=a["y1"], y1=a["y2"], cf=a["cf"])
+
+
+def performance(geom, aero, pt, m, battery, ground_cl=None, ctrl=None, tail=None):
+    """ground_cl: wing CL in the ground stance (None = fuselage level = loiter CL).
+    ctrl: wing control layout (crow on the rollout); tail: previous tail/elevator
+    result (forward CG + elevator, for the trim drag on approach)."""
     atm, S = aero.atm, aero.S
     W = m * G0
     V_s = aero.stall_speed(W)
@@ -135,18 +192,51 @@ def performance(geom, aero, pt, m, battery, ground_cl=None):
                  P_chem=_at(V_y, V, ft["P_chem"]), I_batt=_at(V_y, V, ft["I_batt"]))
 
     # --- ground rolls (fuselage level on tricycle gear; wing incidence set for loiter
-    #     -> ground-roll CL = loiter CL)
+    #     -> ground-roll CL = loiter CL). Grass (wheel-size dependent) and pavement.
     CL_g = ground_cl if ground_cl is not None else min(loiter["CL"], 0.8 * float(aero.CLmax(V_s)))
-    to = ground_roll_takeoff(aero, pt, W, CL_g, P.v_liftoff_ratio * V_s, P.mu_roll_takeoff)
-    # landing: flaps down (if any). Same ground attitude as takeoff, so the flapped
-    # wing's CL on the ground comes from the lifting line at the same root angle.
+    mu_g, mu_p = surface_mu(geom, W, "grass"), surface_mu(geom, W, "pavement")
+    to = ground_roll_takeoff(aero, pt, W, CL_g, P.v_liftoff_ratio * V_s, mu_g["roll"])
+    to_pav = ground_roll_takeoff(aero, pt, W, CL_g, P.v_liftoff_ratio * V_s, mu_p["roll"])
+    # landing: flaps down (if any), stall speed trimmed at the forward CG. Same ground
+    # attitude as takeoff, so the wing's CL on the ground comes from the lifting line at
+    # the same root angle - in the ROLLOUT configuration (crow: ailerons up) if used.
     cfg_l = "landing" if aero.flaps is not None else "clean"
     V_sl = aero.stall_speed(W, cfg_l)
     CLmax_l = float(aero.CLmax(V_sl, cfg_l))
-    CL_gl = aero.landing.CL0 + aero.landing.CLa * aero.clean.alpha_root(CL_g)
+    CLmax_l_trim = float(aero.CLmax_trimmed(V_sl, cfg_l))
+    crow = None
+    cfg_r = cfg_l
+    if P.rollout_crow and ctrl is not None and ctrl.get("config") != "flaperons":
+        crow = _crow(geom, aero, ctrl)
+        if crow is not None:
+            cfg_r = "rollout"
+    wr = aero._cfg(cfg_r)
     V_td = P.v_touchdown_ratio * V_sl
+    CL_gl = wr.CL0 + wr.CLa * aero.clean.alpha_root(CL_g)
     CL_gl = min(CL_gl, 0.8 * CLmax_l, 0.98 * W / (0.5 * atm.rho * V_td ** 2 * S))   # L <= W on the ground
-    s_ldg = ground_roll_landing(aero, W, CL_gl, V_td, P.mu_roll_landing, cfg_l)
+    s_ldg = ground_roll_landing(aero, W, CL_gl, V_td, mu_g["brake"], cfg_r, P.brake_delay_s)
+    s_ldg_pav = ground_roll_landing(aero, W, CL_gl, V_td, mu_p["brake"], cfg_r, P.brake_delay_s)
+    s_ldg_nocrow = None
+    if crow is not None:
+        CL_gl0 = aero._cfg(cfg_l).CL0 + aero._cfg(cfg_l).CLa * aero.clean.alpha_root(CL_g)
+        CL_gl0 = min(CL_gl0, 0.8 * CLmax_l, 0.98 * W / (0.5 * atm.rho * V_td ** 2 * S))
+        s_ldg_nocrow = ground_roll_landing(aero, W, CL_gl0, V_td, mu_g["brake"], cfg_l, P.brake_delay_s)
+
+    # --- approach (motors idle) and balked landing (full throttle), landing config,
+    #     trimmed at the forward CG (elevator deflection + tail induced drag)
+    V_app = P.approach_speed_ratio * V_sl
+    q_app = 0.5 * atm.rho * V_app ** 2
+    CL_app = W / (q_app * S)
+    CD_app = float(aero.drag(CL_app, V_app, config=cfg_l)[0])
+    trim_app = None
+    if tail is not None:
+        from controls import elevator_trim_drag
+        trim_app = elevator_trim_drag(geom, aero, tail, CL_app, V_app, cfg_l)
+        CD_app += trim_app["dCD"]
+    D_app = q_app * S * CD_app
+    T_app = float(np.interp(V_app, V_GRID, ft["T"]))
+    approach = dict(V=V_app, CL=CL_app, CD=CD_app, D=D_app, glide_deg=math.degrees(math.atan(CD_app / CL_app)),
+                    balked_gradient=(T_app - D_app) / W, T=T_app, trim=trim_app)
 
     # --- glide (descent, motors off)
     ld = np.where(valid, CL / CD, 0.0)
@@ -156,11 +246,16 @@ def performance(geom, aero, pt, m, battery, ground_cl=None):
 
     static = dict(T=float(ft["T"][0]), I_motor=float(ft["I_motor"][0]), I_batt=float(ft["I_batt"][0]),
                   rpm=float(ft["rpm"][0]), rpm_limited=bool(ft["rpm_limited"][0]))
-    return dict(W=W, m=m, V_s=V_s, CLmax=float(aero.CLmax(V_s)), loiter=loiter, climb=climb,
+    return dict(W=W, m=m, V_s=V_s, CLmax=float(aero.CLmax(V_s)), CLmax_trimmed=float(aero.CLmax_trimmed(V_s)),
+                loiter=loiter, climb=climb,
                 D_curve=D, V_min=V_min, V_s_landing=V_sl, CLmax_landing=CLmax_l,
+                CLmax_landing_trimmed=CLmax_l_trim, V_td=V_td,
                 CL_ground_landing=CL_gl, stall_eta=aero.stall_station(V_s),
                 stall_eta_landing=aero.stall_station(V_sl, cfg_l),
-                takeoff=to, s_landing=s_ldg, CL_ground=CL_g, V_max=V_max, glide=glide, static=static,
+                takeoff=to, takeoff_pavement=to_pav, s_landing=s_ldg, s_landing_pavement=s_ldg_pav,
+                s_landing_nocrow=s_ldg_nocrow, crow=crow, mu_grass=mu_g, mu_pavement=mu_p,
+                approach=approach,
+                CL_ground=CL_g, V_max=V_max, glide=glide, static=static,
                 I_motor_max=float(np.max(ft["I_motor"][valid | (V == 0)])),
                 I_batt_max=float(np.max(ft["I_batt"][valid | (V == 0)])))
 

@@ -92,13 +92,30 @@ d("v_touchdown_ratio", 1.15, "-", "RAYMER", "Raymer Sec. 17.9: V_TD = 1.15 V_sta
 d("k_lipo", 0.80, "-", "DESIGN CHOICE", "Use 80% of LiPo capacity (cell health + reserve)")
 d("k_liion", 0.85, "-", "DESIGN CHOICE", "Use 85% of Li-ion capacity (cutoff ~3.0 V/cell + reserve)")
 
-# ---------------------------------------------------------------- ground
-d("mu_roll_takeoff", 0.10, "-", "ESTIMATE",
-  "Raymer Table 17.1 grass 0.05-0.08, raised for small RC wheels. MEASURE: tow test "
-  "(spring scale pull / weight on your field)", measure=True)
-d("mu_roll_landing", 0.05, "-", "RAYMER",
-  "Raymer Table 17.1 hard turf (low value is CONSERVATIVE for an unbraked rollout). "
-  "MEASURE: the same tow test gives the real value", measure=True)
+# ---------------------------------------------------------------- ground (field survey 2026-11-24)
+d("mu_roll_pavement", 0.04, "-", "RAYMER", "Raymer Table 17.1 dry concrete/asphalt rolling friction 0.03-0.05")
+d("mu_grass_ref", 0.10, "-", "ESTIMATE",
+  "Soft-grass rolling friction of the REFERENCE wheel below (Raymer Table 17.1 soft turf 0.07, "
+  "raised for small RC wheels). Other wheels scale by Bekker compaction resistance. MEASURE: tow "
+  "test (luggage-scale pull / weight) with TWO wheel sizes -> gives mu_grass_ref AND bekker_n",
+  measure=True)
+d("grass_ref_wheel_d_m", 0.0508, "m", "DESIGN CHOICE", "Reference wheel for mu_grass_ref: Du-Bro 200SL (2 in)")
+d("grass_ref_wheel_w_m", 0.0175, "m", "DESIGN CHOICE", "Reference wheel width (200SL)")
+d("grass_ref_wheel_load_n", 3.8, "N", "DESIGN CHOICE", "Reference wheel load (one main wheel of the v1 design)")
+d("bekker_n", 0.8, "-", "ESTIMATE",
+  "Bekker soil-deformation exponent n (Bekker 1962; Wong, Theory of Ground Vehicles, Table 2.3: "
+  "loams ~0.5-1.1). Rolling resistance ~ W^(1/(2n+1)) b^(-1/(2n+1)) D^(-(n+1)/(2n+1))",
+  measure=True)
+d("mu_brake_pavement", 0.30, "-", "RAYMER",
+  "Raymer Table 17.1 braking, dry concrete 0.3-0.5 (low end: small drag brakes may not reach "
+  "wheel lock). MEASURE: braked tow test", measure=True)
+d("mu_brake_grass", 0.20, "-", "RAYMER", "Raymer Table 17.1 braking, soft turf / wet grass 0.2. MEASURE", measure=True)
+d("brake_delay_s", 1.0, "s", "RAYMER", "Raymer Sec. 17.9: free roll before the brakes act (~1 s small aircraft, 3 s large)")
+d("rollout_crow", True, "-", "DESIGN CHOICE",
+  "Crow on the landing rollout: FC raises both ailerons (flaps stay down) - drag + lift dump "
+  "put more weight on the braked wheels")
+d("crow_aileron_up_deg", 20.0, "deg", "DESIGN CHOICE",
+  "Aileron up-deflection for crow (further limited by NeuralFoil confidence)")
 
 # ---------------------------------------------------------------- aerodynamics
 d("n_crit", 9.0, "-", "ESTIMATE",
@@ -164,6 +181,46 @@ d("flap_servo_mass_kg", 0.015, "kg", "ESTIMATE", "Extra flap servo + horn + hing
 d("washout_max_deg", 6.0, "deg", "DESIGN CHOICE", "Upper bound on wing washout considered by the optimizer")
 d("vtail_ar_eff_factor", 1.55, "-", "RAYMER",
   "Raymer Ch.16: fin effective aspect ratio ~1.55 x geometric (fuselage/stabilizer end-plate)")
+d("htail_sizing", "scissor", "-", "DESIGN CHOICE",
+  "'scissor': stabilizer area = smallest meeting static stability at the AFT CG and elevator "
+  "control at the FORWARD CG of the computed CG band (Torenbeek/Raymer scissor plot). "
+  "'tail_volume': Raymer Table 6.4 c_HT floor + elevator (old behaviour)")
+d("cg_coverage_sigma", 2.0, "-", "DESIGN CHOICE", "CG band covers +/- 2 sigma of the as-built CG scatter (95%)")
+d("battery_slide_m", 0.010, "m", "DESIGN CHOICE",
+  "Battery tray travel each way: re-balances the as-built aircraft on the bench")
+d("cg_balance_tol_m", 0.002, "m", "ESTIMATE",
+  "Accuracy of finding the CG on a balancer (each way). MEASURE: repeat the balance 5x", measure=True)
+d("component_position_tol_m", 0.003, "m", "ESTIMATE", "As-built component placement scatter (1 sigma)")
+d("mass_sigma_datasheet", 0.02, "-", "ESTIMATE", "1-sigma mass scatter of datasheet parts (motors, ESCs, cells)")
+d("mass_sigma_estimate", 0.20, "-", "ESTIMATE",
+  "1-sigma mass scatter of ESTIMATE-tagged parts (until weighed)", measure=True)
+d("mass_sigma_structure", 0.15, "-", "ESTIMATE",
+  "1-sigma mass scatter of printed/laminated structure (until test panels are weighed)", measure=True)
+d("crosswind_ratio", 0.2, "-", "STANDARD",
+  "14 CFR 23.233: demonstrated 90-deg crosswind of 0.2 V_SO for takeoff/landing")
+d("engine_out_bank_max_deg", 5.0, "deg", "STANDARD",
+  "14 CFR 23.149: V_MC with not more than 5 deg of bank toward the operating engine")
+d("trim_aileron_max_frac", 0.75, "-", "DESIGN CHOICE",
+  "Steady trim (engine-out, crosswind) may use at most 75% of aileron throw - the rest is kept "
+  "for maneuvering and gusts")
+d("prop_solidity", 0.10, "-", "ESTIMATE",
+  "Blade area / disk area of the APC E props (for stopped-prop drag). MEASURE from a blade outline",
+  measure=True)
+d("stopped_prop_dq_per_solidity", 0.8, "-", "RAYMER",
+  "Raymer Sec. 12.5: stopped (not feathered) propeller D/q = 0.8 * solidity * disk area. "
+  "Set the ESC to brake the motor (a free-windmilling prop has less drag, but less yaw too)")
+d("fus_ki_sideforce", 1.5, "-", "RAYMER",
+  "DATCOM/Raymer Ch.16 wing-body interference factor K_i for fuselage side force, high wing ~1.5")
+
+# ---------------------------------------------------------------- objective
+d("stall_speed_weight_g_per_ms", 30.0, "g/(m/s)", "DESIGN CHOICE",
+  "Team decision 2026-11-24: 1 m/s of (trimmed, landing-config) stall speed is worth 30 g. "
+  "The optimizer minimizes  mass + this x V_stall  instead of mass alone (mass alone always "
+  "shrinks the wing to the fastest stall speed any constraint allows). See the stall-speed trade study")
+d("stall_speed_max_ms", None, "m/s", "DESIGN CHOICE",
+  "Optional hard cap on stall speed - None in the main search; used by the stall-speed trade study")
+d("balked_landing_gradient_min", 0.033, "-", "STANDARD",
+  "14 CFR 23.77(a) (pre-amdt 64): balked-landing climb gradient >= 3.3% in landing configuration")
 
 # ---------------------------------------------------------------- geometry / layout
 d("prop_fuselage_clearance_m", 0.025, "m", "DESIGN CHOICE", "Prop tip to fuselage side (1 in)")
@@ -176,10 +233,14 @@ d("nose_length_ratio", 0.6, "-", "DESIGN CHOICE", "Nose fairing length / fuselag
 d("nacelle_extra_len_m", 0.07, "m", "DESIGN CHOICE", "Nacelle length beyond motor: ESC + fairing")
 d("nacelle_wall_gap_m", 0.004, "m", "DESIGN CHOICE", "Nacelle radial clearance around motor")
 d("max_motor_station_frac", 0.45, "-", "DESIGN CHOICE", "Motor station y_eng <= 0.45 b (90% semispan)")
-d("wheel_d_main_m", 0.051, "m", "DESIGN CHOICE", "2 in main wheels (mown turf field)")
-d("wheel_w_main_m", 0.018, "m", "DESIGN CHOICE", "Main wheel width")
-d("wheel_d_nose_m", 0.051, "m", "DESIGN CHOICE", "2 in nose wheel")
-d("wheel_w_nose_m", 0.018, "m", "DESIGN CHOICE", "Nose wheel width")
+d("main_wheel", "Du-Bro 300SL", "-", "DESIGN CHOICE",
+  "Main wheels (data/wheels.csv): 3 in for soft grass - lowest rolling resistance and sinkage, "
+  "~10 g/wheel more than 2 in, inside the E/Z brake fit range (see wheel trade table)")
+d("nose_wheel", "Du-Bro 300SL", "-", "DESIGN CHOICE",
+  "Nose wheel = main wheel size so it does not dig in on soft grass")
+d("wheel_brake", "Du-Bro E/Z Brake", "-", "DESIGN CHOICE",
+  "Main-wheel brakes (data/brakes.csv): cable brakes on one micro servo (~+28 g); JP Hobby "
+  "electric brakes rejected (~200 g)")
 
 # ---------------------------------------------------------------- structure / weights
 d("wing_skin_t_m", 0.00045, "m", "DESIGN CHOICE", "Single-wall LW-PLA wing skin")
@@ -201,8 +262,6 @@ d("factor_of_safety", 1.5, "-", "STANDARD", "14 CFR 23.303 ultimate / limit")
 d("n_landing_limit", 3.0, "-", "ESTIMATE", "Landing limit load factor (14 CFR 23.473 >= 2.67)")
 d("main_gear_load_frac", 0.9, "-", "RAYMER", "Raymer Ch.11: nose gear carries 8-15% of weight")
 d("gear_plate_width_m", 0.020, "m", "DESIGN CHOICE", "Aluminum main-gear strap width")
-d("wheel_mass_main_kg", 0.010, "kg", "ESTIMATE", "2 in foam wheel", measure=True)
-d("wheel_mass_nose_kg", 0.010, "kg", "ESTIMATE", "2 in foam wheel", measure=True)
 d("nose_steer_mass_kg", 0.010, "kg", "ESTIMATE", "Nose gear steering block + collar")
 d("motor_mount_mass_kg", 0.008, "kg", "ESTIMATE", "Printed/ply motor mount, each")
 d("spinner_mass_kg", 0.006, "kg", "ESTIMATE", "Prop adapter + spinner, each")

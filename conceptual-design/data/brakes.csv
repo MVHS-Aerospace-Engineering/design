@@ -1,0 +1,4 @@
+name,mass_per_wheel_g,actuator,actuator_mass_g,cable_mass_g,wheel_d_min_mm,wheel_d_max_mm,includes_wheels,tag,source
+none,0,none,0,0,0,1000,0,DESIGN CHOICE,No wheel brakes
+Du-Bro E/Z Brake,8,micro servo (one for both brakes),12,3,57,89,0,ESTIMATE,"dubro.com E/Z Brake System: cable-pulled mechanical brake, 8 g per assembly, fits Du-Bro wheels 57-89 mm (verify the exact wheel model); servo = same 12 g class as data/components.csv; cable/pushrod mass ESTIMATE. WEIGH"
+JP Hobby electric brakes 65 mm,98,controller,11,0,65,65,1,ESTIMATE,"motionrc.com JPH6001-103: 65 x 14 mm rubber wheels with electromagnetic brakes + controller, 207 g listed for the set (other listing: 170 g) - NOT selected: ~20% of takeoff mass"

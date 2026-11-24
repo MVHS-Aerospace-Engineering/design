@@ -58,6 +58,11 @@ def render(j):
     # 1 ---------------------------------------------------------------- summary
     head("1. SUMMARY")
     kv("takeoff mass", j["takeoff_mass_kg"], "kg")
+    if j.get("objective"):
+        o = j["objective"]
+        kv("objective = mass + w x V_stall", o["score_kg"], "kg",
+           f"w = {o['stall_speed_weight_g_per_ms']} g per m/s")
+        kv("stall speed (landing config, trimmed)", o["stall_speed_landing_ms"], "m/s")
     kv("wing loading W/S", j["wing_loading_N_m2"], "N/m^2")
     kv("installed shaft power / weight (capped)", j["power_loading_W_N"], "W/N")
     if "throttle_cap" in j:
@@ -74,7 +79,10 @@ def render(j):
     if "throttle_cap" in j:
         kv("throttle cap", j["throttle_cap"], "-", "smallest meeting takeoff + climb target x margin")
     g = j["geometry"]
-    kv("fin area", g["vtail"]["S"], "m^2", "max(tail-volume, engine-out)")
+    kv("fin area", g["vtail"]["S"], "m^2", "max(tail-volume, coupled engine-out trim)")
+    kv("stabilizer area", g["htail"]["S"], "m^2", "scissor plot: stability at aft CG, elevator at forward CG")
+    if j.get("balance"):
+        kv("wing station x_qc (CG mid-band)", j["balance"].get("x_qc"), "m")
     kv("battery (snapped to a real pack)", j["selection"]["battery"])
     kv("spar OD / wall", f"{g['spar_od_m'] * 1000:.2f} / {g['spar_wall_m'] * 1000:.2f}", "mm")
     w(" -- discrete choices (searched over the catalogs)")
@@ -103,8 +111,9 @@ def render(j):
         for part, d in j["layout"].items():
             if isinstance(d, dict):
                 for k, v in d.items():
-                    if k != "note":
+                    if k != "note" and not isinstance(v, (dict, list)):
                         kv(f"{part}.{k}", v)
+        w("  (full CAD dimensions in mm: outputs/dimensions.txt)")
 
     # 4b --------------------------------------------------------------- controls
     if j.get("controls"):
@@ -114,6 +123,51 @@ def render(j):
         for part in ("ailerons", "flaps", "elevator", "rudder", "stability"):
             if ct.get(part):
                 block(part, ct[part])
+    if j.get("balance"):
+        head("4d. BALANCE (CG budget -> CG band -> scissor plot)")
+        b = j["balance"]
+        for k in ("m", "x_cg", "h_cg", "sigma_x", "slide_authority", "residual", "band_m", "band_frac_mac",
+                  "x_qc", "x_qc_target", "h_mid", "clamped"):
+            kv(k, b.get(k))
+        w(f"  {'item':38s} {'mass kg':>9s} {'x m':>8s} {'sigma':>6s}  moves with wing")
+        for it in b.get("items", []):
+            w(f"  {it['name'][:38]:38s} {it['m']:9.4f} {it['x']:8.4f} {it['sigma']:6.2f}  {it['wing']}")
+    if j.get("lateral"):
+        head("4e. COUPLED LATERAL-DIRECTIONAL TRIM")
+        la = j["lateral"]
+        kv("rudder chord fraction", la.get("rudder_cf"))
+        kv("fin area needed by engine-out", la.get("sv_needed"), "m^2")
+        for part in ("engine_out", "crosswind", "derivatives"):
+            if la.get(part):
+                block(part, la[part])
+    if j.get("landing"):
+        head("4f. LANDING / APPROACH")
+        ld = j["landing"]
+        block("landing", ld)
+        if ld.get("approach"):
+            block("approach + balked landing", ld["approach"])
+            if ld["approach"].get("trim"):
+                block("approach trim (forward CG)", ld["approach"]["trim"])
+        for k in ("crow", "mu_grass", "mu_pavement"):
+            if ld.get(k):
+                block(k, ld[k])
+    if j.get("stall_study"):
+        head("4g. STALL-SPEED TRADE STUDY (lightest design at each stall-speed cap)")
+        w(f"  {'cap':>5s} {'V_s':>6s} {'mass':>7s} {'score':>7s} {'S':>7s} {'AR':>5s} {'span':>6s} status")
+        for r in j["stall_study"]:
+            if not r.get("ok"):
+                w(f"  {r['cap']:5.1f}  (did not converge)")
+                continue
+            st = "ok" if r["feasible"] else "misses " + "+".join(r["misses"])
+            w(f"  {r['cap']:5.1f} {r['V_s_landing']:6.2f} {r['m']:7.4f} {r['score']:7.4f} {r['S']:7.4f} "
+              f"{r['AR']:5.2f} {r['span']:6.3f} {st}")
+    if j.get("wheel_study"):
+        head("4h. WHEEL TRADE STUDY (design frozen)")
+        for r in j["wheel_study"]:
+            if r.get("ok"):
+                w(f"  {r['wheel']:14s} d {r['d_mm']:5.1f} mm  mass {r['m']:.4f} kg  grass mu {r['mu_grass']:.3f}  "
+                  f"TO {r['takeoff_grass_m']:.1f} m  LDG {r['landing_grass_m']:.1f} m  brake fits {r['brake_fits']}"
+                  + ("  <- chosen" if r["chosen"] else ""))
     if j.get("twist_study"):
         head("4c. TWIST TRADE STUDY (each row re-optimized)")
         w(f"  {'tip airfoil':11s} {'washout':>7s} {'mass':>7s} {'span':>6s} {'loiter':>7s} {'landing':>8s} "
@@ -175,7 +229,7 @@ def render(j):
     for p in others:
         kv(p["name"], p["value"], p["units"], f"[{p['tag']}{', MEASURE' if p['measure'] else ''}] {p['source']}")
     w("")
-    w("Parts catalogs: conceptual-design/data/*.csv (motors, lipo_packs, liion_cells, escs, components, materials)")
+    w("Parts catalogs: conceptual-design/data/*.csv (motors, lipo_packs, liion_cells, escs, components, materials, wheels, brakes)")
     return "\n".join(L)
 
 

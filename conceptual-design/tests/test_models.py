@@ -261,3 +261,108 @@ def test_continuous_liion_pack_never_below_one_string():
         one_p = fam.options()[0]
         assert small.mass_kg >= one_p.mass_kg - 1e-9
         assert small.energy_wh >= one_p.energy_wh - 1e-9
+
+
+# ---------------------------------------------------------------- coupled lateral trim, balance, scissor, landing
+@pytest.fixture(scope="module")
+def converged_design():
+    import sizing
+    b = {x.name: x for x in real_batteries()}["3S1P Molicel P45B (21700)"]
+    c = sizing.Combo("sd7062", "foam_glass", "Cobra C-2204/32", "APC 6x6E", battery=b, controls="none",
+                     washout=4.1)
+    r = sizing.evaluate((0.12, 6.8, 2.3, 4.1), c)
+    assert r.ok and r.cons["converged"] == 0.0
+    return r
+
+
+def test_lateral_no_crosswind_gives_zero_trim(converged_design):
+    import lateral
+    d = converged_design.detail
+    with P.override(crosswind_ratio=0.0):
+        xw = lateral.crosswind_trim(d["geom"], d["aero"], d["atm"], d["perf"]["V_s_landing"],
+                                    d["controls"]["aileron"], d["lateral"]["rudder_cf"],
+                                    converged_design.m * G0)
+    assert abs(xw["beta_deg"]) < 1e-9
+    assert abs(xw["phi_deg"]) < 1e-6 and abs(xw["aileron_frac"]) < 1e-6 and abs(xw["rudder_deg"]) < 1e-3
+
+
+def test_lateral_derivative_signs(converged_design):
+    dv = converged_design.detail["lateral"]["derivatives"]
+    assert dv["cn_beta"] > 0                # weathercock stable
+    assert dv["cn_beta_fus"] < 0            # the fuselage alone is destabilizing
+    assert dv["cl_beta"] < 0                # high wing + fin: positive effective dihedral
+    assert dv["cy_beta"] < 0
+    assert dv["cn_aileron_full"] < 0 < dv["cl_aileron_full"]   # adverse yaw
+
+
+def test_engine_out_rudder_grows_with_thrust_and_shrinks_with_fin(converged_design):
+    import lateral
+    d = converged_design.detail
+    g, W = d["geom"], converged_design.m * G0
+    a, cf = d["controls"]["aileron"], d["lateral"]["rudder_cf"]
+    base = lateral.engine_out_trim(g, d["aero"], d["pt"], d["atm"], d["perf"]["V_s"], a, cf, W)
+    big_fin = lateral.engine_out_trim(g, d["aero"], d["pt"], d["atm"], d["perf"]["V_s"], a, cf, W,
+                                      S_v=1.5 * g.vtail.S)
+    assert big_fin["ratio"] < base["ratio"]
+    with P.override(prop_solidity=0.3):          # more stopped-prop drag = more yaw
+        more = lateral.engine_out_trim(g, d["aero"], d["pt"], d["atm"], d["perf"]["V_s"], a, cf, W)
+    assert more["yaw_moment"] > base["yaw_moment"] and more["ratio"] > base["ratio"]
+    assert -P.engine_out_bank_max_deg - 1e-9 <= base["phi_deg"] <= 1e-9   # banked toward the live engine
+
+
+def test_scissor_stabilizer_grows_with_cg_band(converged_design):
+    import controls as C
+    d = converged_design.detail
+    args = (d["geom"], d["aero"], d["perf"], d["pt"], converged_design.m)
+    narrow = C.tail_and_elevator(*args, choice=d["tail"]["choice"], band_frac=0.04)
+    wide = C.tail_and_elevator(*args, choice=d["tail"]["choice"], band_frac=0.15)
+    assert wide["sh_needed"] > narrow["sh_needed"]
+    assert wide["h_cg_aft"] == pytest.approx(narrow["h_cg_aft"])          # stability line unchanged
+    assert narrow["h_cg_aft"] == pytest.approx(narrow["h_n"] - P.static_margin_min)
+    assert d["tail"]["dh_n_fuselage"] < 0                                 # fuselage moves the NP forward
+
+
+def test_cg_scatter_scales_with_mass_uncertainty(converged_design):
+    from weights import cg_budget, component_stations
+    d = converged_design.detail
+    g, tl = d["geom"], d["tail"]
+    args = (g, d["masses"], d["winfo"], d["battery"], tl["x_main_gear"], 0.8 * g.L_nose,
+            "sd7062", None, d["esc"], None)
+    s0 = cg_budget(g, component_stations(*args), tl["h_mid"])
+    with P.override(mass_sigma_structure=0.30, mass_sigma_estimate=0.40):
+        s1 = cg_budget(g, component_stations(*args), tl["h_mid"])
+    assert s1["sigma_x"] > s0["sigma_x"] and s1["band_m"] >= s0["band_m"]
+    assert sum(i["m"] for i in s0["items"]) == pytest.approx(converged_design.m, abs=2e-4)
+    # the wing station solve puts the nominal CG mid-band
+    assert d["balance"]["h_cg"] == pytest.approx(tl["h_mid"], abs=0.01)
+
+
+def test_control_drag_and_crow_vanish_at_zero_deflection():
+    import controls as C
+    re = 80000
+    cl0 = C.FlapSection("naca0009", 0.3, 0.0).cl_at(2.0, re)[0]
+    de, cd, ok = C.elevator_trim("naca0009", 0.3, 0.9 * cl0, math.radians(2.0), re, 0.9, 1.0)
+    assert abs(de) < 1e-9 and cd == pytest.approx(C.FlapSection("naca0009", 0.3, 0.0).cd_at(2.0, re))
+    pr = C.CrowSection("sd7062", 0.25, 0.0).props(re)
+    assert abs(pr["d_alpha0"]) < 1e-12 and abs(pr["d_clmax"]) < 1e-12
+    up = C.CrowSection("sd7062", 0.25, -15.0).props(re)
+    assert up["d_alpha0"] > 0                 # ailerons up = lift dump
+
+
+def test_bekker_grass_friction_reference_and_trend():
+    from catalog import wheels
+    from mission import grass_mu
+    ref = SimpleNamespace(d=P.grass_ref_wheel_d_m, w=P.grass_ref_wheel_w_m)
+    assert grass_mu(ref, P.grass_ref_wheel_load_n) == pytest.approx(P.mu_grass_ref)
+    ws = sorted(wheels().values(), key=lambda w: w.d)
+    mus = [grass_mu(w, 4.0) for w in ws]
+    assert mus[-1] < mus[0]                   # bigger wheels roll more easily on soft ground
+
+
+def test_braked_roll_is_shorter_and_score_counts_stall_speed(converged_design):
+    p = converged_design.detail["perf"]
+    assert p["mu_grass"]["brake"] > p["mu_grass"]["roll"]
+    assert p["s_landing"] < p["s_landing_nocrow"] if p["crow"] else True
+    assert p["CLmax_landing_trimmed"] < p["CLmax_landing"]        # forward-CG tail download
+    r = converged_design
+    assert r.score == pytest.approx(r.m + P.stall_speed_weight_g_per_ms / 1000 * r.vs)

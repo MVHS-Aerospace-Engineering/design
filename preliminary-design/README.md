@@ -16,7 +16,7 @@ It also prints a first cross-check: AeroSandbox's AeroBuildup drag vs. the conce
 .venv/bin/python preliminary-design/visualize.py
 ```
 
-The landing gear is drawn but not included in AeroBuildup, which has no gear model. The CG is not computed yet, so the main-gear position is a placeholder.
+The landing gear is drawn but not included in AeroBuildup, which has no gear model. The CG band, the wing station and the main-gear position now come from the conceptual balance (component stations + CG scatter); CAD dimensions are in `../conceptual-design/outputs/dimensions.txt`.
 
 ## Plan
 

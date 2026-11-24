@@ -1,0 +1,241 @@
+AIRCRAFT DIMENSIONS FOR CAD
+Source: conceptual-design/outputs/design_point.json   (generated 2026-11-24 12:45)
+Takeoff mass 0.839 kg   motor Cobra C-2204/40   prop APC 6x6E   battery Gens Ace Soaring 3S 2200 20C
+
+======================================================================================
+ 1. DATUM AND FRAME
+======================================================================================
+  Origin   : tip of the fuselage nose, on the fuselage centreline
+  Axes     : x aft (toward the tail), y to the right wing, z up
+  z = 0    : fuselage centreline (half way between fuselage top and bottom)
+  Units    : millimetres and degrees. Positions are x/y/z of the point named.
+  DO NOT SCALE - these dimensions govern. Re-generate this file after any design change.
+  Wing and tails are unswept along their quarter-chord (25%) line; chords are
+  measured along x; 'LE' = leading edge, 'TE' = trailing edge.
+
+======================================================================================
+ 2. OVERALL ENVELOPE
+======================================================================================
+  wingspan ......................................     1026.4 mm
+  overall length (nose to furthest tail TE) .....      572.3 mm
+  height on the gear (ground to fin tip) ........      269.5 mm
+  ground level (z of the ground) ................      -91.2 mm
+
+======================================================================================
+ 3. WING
+======================================================================================
+ -- planform
+  span (tip to tip) .............................     1026.4 mm
+  root chord ....................................      172.2 mm
+  tip chord .....................................      103.3 mm
+  taper (tip / root) ............................      0.600
+  area ..........................................     1414.3 cm^2
+  quarter-chord line x (straight, unswept) ......      128.0 mm
+  root LE x .....................................       85.0 mm
+  root TE x .....................................      257.2 mm
+  tip LE x ......................................      102.2 mm
+  tip TE x ......................................      205.5 mm
+  mean aerodynamic chord (MAC) ..................      140.7 mm
+  MAC spanwise station y ........................      235.2 mm
+  MAC LE x ......................................       92.9 mm
+ -- mounting
+  root chord line z (on top of the fuselage) ....       33.1 mm
+  incidence (root chord vs fuselage axis) .......       5.80 deg  LE up
+  washout (tip twisted LE-down vs root) .........       0.00 deg  linear root->tip
+  dihedral ......................................       0.00 deg
+ -- airfoils
+  root airfoil ..................................      s4083      airfoils/s4083.dat
+  tip airfoil ...................................      s4083      airfoils/s4083.dat
+  root thickness / chord ........................      0.080
+  (sections loft linearly from root to tip; twist about the quarter-chord line)
+ -- main spar
+  material ...................................... carbon tube
+  outside diameter ..............................        6.0 mm
+  wall thickness ................................        0.5 mm
+  length (centred on the fuselage) ..............      923.8 mm
+  spar centre x (straight tube) .................      124.1 mm
+  spar centre z at the root .....................       38.5 mm
+  spar position x/c at root .....................      0.228      = max-thickness point
+  spar position x/c at tip ......................      0.212
+
+======================================================================================
+ 4. AILERONS AND FLAPS
+======================================================================================
+ -- flaperons
+  inboard edge y ................................       33.6 mm
+  outboard edge y ...............................      487.6 mm
+  chord fraction (of local chord) ...............       0.25
+  surface chord at inboard edge .................       41.9 mm
+  surface chord at outboard edge ................       26.7 mm
+  hinge line x at inboard edge ..................      211.9 mm
+  hinge line x at outboard edge .................      181.4 mm
+  throw (each direction) ........................      10.00 deg
+  no separate flaps
+
+======================================================================================
+ 5. HORIZONTAL TAIL AND ELEVATOR
+======================================================================================
+  span ..........................................      270.4 mm
+  root chord ....................................       84.5 mm
+  tip chord .....................................       50.7 mm
+  area ..........................................      182.8 cm^2
+  quarter-chord line x ..........................      469.2 mm
+  root LE x .....................................      448.0 mm
+  root TE x .....................................      532.5 mm
+  tip LE x ......................................      456.5 mm
+  tip TE x ......................................      507.2 mm
+  chord plane z .................................        0.0 mm
+  incidence (vs fuselage axis) ..................      -1.50 deg  LE up
+  airfoil .......................................   naca0009      airfoils/naca0009.dat
+ -- elevator
+  chord fraction ................................       0.25
+  span fraction (centred) .......................       0.95
+  hinge line x at root ..........................      511.4 mm
+  hinge line x at tip ...........................      494.5 mm
+
+======================================================================================
+ 6. FIN AND RUDDER
+======================================================================================
+  height (root to tip) ..........................      165.0 mm
+  root chord ....................................      137.5 mm
+  tip chord .....................................       68.8 mm
+  area ..........................................      170.2 cm^2
+  quarter-chord line x ..........................      469.2 mm
+  root z (on the tail cone) .....................       13.2 mm
+  tip z .........................................      178.3 mm
+  root LE x .....................................      434.8 mm
+  root TE x .....................................      572.3 mm
+  tip LE x ......................................      452.0 mm
+  tip TE x ......................................      520.7 mm
+  airfoil .......................................   naca0009      airfoils/naca0009.dat
+ -- rudder
+  chord fraction ................................       0.40
+  height fraction (from root) ...................       0.90
+  rudder top z ..................................      161.8 mm
+  hinge line x at root ..........................      517.3 mm
+  hinge line x at tip ...........................      493.2 mm
+
+======================================================================================
+ 7. FUSELAGE
+======================================================================================
+  length ........................................      572.3 mm
+  nose fairing length ...........................       40.0 mm
+  bay length ....................................      118.3 mm
+  bay start x ...................................       40.0 mm
+  bay end x .....................................      158.3 mm
+  outer width (max) .............................       67.2 mm
+  outer height (max) ............................       66.2 mm
+  inner bay width ...............................       66.0 mm
+  inner bay height ..............................       65.0 mm
+  wall thickness ................................        0.6 mm
+  tail-end width ................................       20.2 mm
+  tail-end height ...............................       26.5 mm
+  cross-section ................................. rounded box (superellipse exponent 2.6)
+ -- outer-shape stations (loft through these; centred on z = 0)
+        x mm   width mm  height mm
+         0.0       13.4       13.2
+        12.0       47.0       47.7
+        28.0       63.8       63.5
+        40.0       67.2       66.2
+       158.3       67.2       66.2
+       303.2       41.7       46.3
+       572.3       20.2       26.5
+
+======================================================================================
+ 8. NACELLES, MOTOR MOUNTS AND PROPS
+======================================================================================
+ -- nacelles (one under each wing, mirror at -y)
+  centreline y ..................................      134.8 mm
+  thrust-axis z .................................       39.3 mm
+  front x (motor mount face) ....................       33.2 mm
+  rear x ........................................      135.6 mm
+  diameter ......................................       35.0 mm
+  length ........................................      102.4 mm
+  motor ......................................... Cobra C-2204/40
+ -- props (tractor)
+  model .........................................   APC 6x6E
+  diameter ......................................      152.4 mm
+  prop disc x ...................................       23.2 mm
+  prop hub y ....................................      134.8 mm
+  prop hub z ....................................       39.3 mm
+  prop tip to fuselage side .....................       25.0 mm
+  prop tip to ground ............................       54.3 mm
+
+======================================================================================
+ 9. LANDING GEAR, WHEELS AND BRAKES
+======================================================================================
+ -- main gear (aluminium strap)
+  axle x ........................................      156.3 mm
+  wheel centre y (each side) ....................       91.7 mm
+  track (wheel centre to wheel centre) ..........      183.4 mm
+  gear height (fuselage bottom to ground) .......       58.1 mm
+  leg length (each) .............................       82.2 mm
+  strap thickness ...............................        1.0 mm
+  strap width ...................................       20.0 mm
+  main wheels ................................... Du-Bro 300SL
+  main wheel diameter ...........................       76.2 mm
+  main wheel width ..............................       23.0 mm
+  main axle diameter ............................        4.0 mm
+  nose axle diameter ............................        4.0 mm
+ -- nose gear (steerable music wire)
+  axle x ........................................       32.0 mm
+  strut length ..................................       88.1 mm
+  wire diameter .................................        2.5 mm
+  extra strut length for nose-up stance .........        3.5 mm
+  ground stance (nose up) .......................       1.63 deg
+  nose wheel .................................... Du-Bro 300SL
+  nose wheel diameter ...........................       76.2 mm
+  nose wheel width ..............................       23.0 mm
+ -- brakes
+  brakes (main wheels) .......................... Du-Bro E/Z Brake
+  actuator ...................................... micro servo (one for both brakes)
+  note: takeoff technique: stance; main gear at 15 deg tip-back behind the aft CG
+
+======================================================================================
+ 10. INTERNAL LAYOUT AND BALANCE
+======================================================================================
+ -- battery
+  pack .......................................... Gens Ace Soaring 3S 2200 20C
+  box l x w x h 74.0 x 33.0 x 25.0 mm, 146 g
+  battery tray travel (each way) ................       10.0 mm
+ -- components (l x w x h, mass each)
+  1 x Raspberry Pi 5 board                            85.0 x 56.0 x 17.0 mm   46.0 g  bay
+  1 x Raspberry Pi 5 Active Cooler                    85.0 x 56.0 x 10.0 mm   29.0 g  bay
+  1 x Raspberry Pi Camera Module 3                    25.0 x 24.0 x 11.5 mm    4.0 g  bay
+  1 x Matek H743-WING V3 flight controller            54.0 x 36.0 x 13.0 mm   30.0 g  bay
+  1 x Matek M10Q-5883 GPS + compass                   20.0 x 20.0 x 12.4 mm    8.0 g  outside bay
+  1 x Matek ASPD-4525 airspeed + pitot                30.0 x 20.0 x 10.0 mm   10.0 g  bay
+  1 x ExpressLRS receiver                              20.0 x 13.0 x 4.0 mm    2.0 g  bay
+  1 x SiK 915 MHz telemetry radio (100 mW)            55.0 x 28.0 x 11.0 mm   25.0 g  bay
+  1 x 5 V / 5 A UBEC for Pi 5                         40.0 x 20.0 x 10.0 mm   10.0 g  bay
+  5 x Micro servo (12 g class)                        23.0 x 12.0 x 25.0 mm   12.0 g  outside bay
+  1 x Signal wiring harness + connectors                           (no box)   15.0 g  outside bay
+  1 x Hinges / horns / pushrods / fasteners                        (no box)   25.0 g  outside bay
+  note: CG budget assumes the bay contents' centroid at the bay centre; the battery slides +/- battery_slide to trim
+ -- CENTRE OF GRAVITY - BALANCE HERE
+  forward CG limit x ............................      121.7 mm
+  target (nominal) CG x .........................      126.8 mm
+  aft CG limit x ................................      131.9 mm
+  CG band width .................................       10.2 mm
+  neutral point x (never balance behind this) ...      138.9 mm
+  note: balance the finished aircraft so the CG falls in this range (slide the battery)
+
+======================================================================================
+ 11. CONTROL THROWS AND SERVOS
+======================================================================================
+  surface          direction              throw deg  notes
+  flaperons        up / down (each)           10.00  differential not assumed
+  elevator         trailing edge up           16.54  needed
+  elevator         servo throw (each way)     25.00  design max
+  rudder           left / right (needed)      21.11  engine-out / crosswind
+  rudder           servo throw (each way)     25.00  design max
+ -- servos
+  2 x ailerons         wing, at the aileron inboard end
+  1 x elevator         fuselage bay
+  1 x rudder           fuselage bay
+  1 x nose steering    fuselage bay
+  1 x wheel brakes     fuselage bay (cables to both main wheels)
+
+Airfoil coordinate files (Selig format, x/c y/c; scale to the local chord):
+  outputs/airfoils/s4083.dat
+  outputs/airfoils/naca0009.dat

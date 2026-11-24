@@ -9,7 +9,7 @@ This is where a wide range of configurations are explored and where design conce
 ### Requirements & Constraints (these are not engineering descisions)
 
 - The aircraft shall remain airborne for a minimum of 30 minutes with no payload.
-- The aircraft shall be capable of taking off and landing in under 250 feet grass runways.
+- The aircraft shall take off within 75 m on the paved strip and within 80 m on soft grass, and land (with wheel brakes) within the same distances (field survey, Nov 2026; was 250 ft).
 - The aircraft shall support full autonomous and remote-controlled operation.
 
 **After defining the requirements and constraints, there are 2 main parts of conceputal design are sizing and synthesis. See how this is implemented in the conceptual design folder.**

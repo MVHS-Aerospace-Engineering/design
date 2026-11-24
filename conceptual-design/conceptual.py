@@ -36,7 +36,8 @@ OUT = os.path.join(HERE, "outputs")
 OLD_ASSUMED = dict(LD=10.0, V=15.0, eta_prop=0.65, eta_b2s=0.80, U=150.0, roc=2.5)
 
 SENSITIVITY = [
-    ("mu_roll_takeoff", 0.07, 0.15), ("mu_roll_landing", 0.03, 0.08),
+    ("mu_grass_ref", 0.07, 0.15), ("bekker_n", 0.5, 1.1), ("mu_brake_grass", 0.10, 0.30),
+    ("cg_balance_tol_m", 0.001, 0.004), ("mass_sigma_structure", 0.08, 0.25),
     ("eta_esc", 0.90, 0.97), ("avionics_power_factor", 0.7, 1.5),
     ("weight_growth_allowance", 0.0, 0.20), ("wing_internal_ratio", 0.2, 0.6),
     ("fus_frames_ratio", 0.10, 0.40), ("roughness_k_m", 1e-5, 1e-4),
@@ -125,21 +126,133 @@ def sensitivity(best):
             return 99.0
         base_to, base_ld = best.detail["perf"]["takeoff"]["s"], best.detail["perf"]["s_landing"]
         return max(abs(c["d_loiter_min"]) / P.endurance_min,
-                   abs(c["takeoff_m"] - base_to) / P.takeoff_roll_max_m,
-                   abs(c["landing_m"] - base_ld) / P.landing_roll_max_m)
+                   abs(c["takeoff_m"] - base_to) / P.takeoff_roll_max_grass_m,
+                   abs(c["landing_m"] - base_ld) / P.landing_roll_max_grass_m)
     rows.sort(key=lambda r: -max(impact(c) for c in r["cases"]))
     return rows
 
 
-def report(best, alts, cdiag, sens, runtime, twist=None):
+def print_balance(best):
+    b, tl, g = best.detail["balance"], best.detail["tail"], best.detail["geom"]
+    if not b:
+        return
+    c = g.wing.mac
+    print("\n BALANCE  (CG band from the as-built scatter; scissor plot hangs it from the aft limit)")
+    print(f"  as-built CG scatter 1-sigma {b['sigma_x'] * 1000:.1f} mm; x{P.cg_coverage_sigma:.0f} = "
+          f"{P.cg_coverage_sigma * b['sigma_x'] * 1000:.1f} mm, battery slide corrects "
+          f"{b['slide_authority'] * 1000:.1f} mm, balancing accuracy +/-{P.cg_balance_tol_m * 1000:.1f} mm")
+    print(f"  -> CG band {b['band_m'] * 1000:.1f} mm = {b['band_frac_mac']:.1%} MAC "
+          f"(was 15% MAC from the fixed 5-20% static-margin range)")
+    print(f"  stability line: aft CG {tl['h_cg_aft']:.1%} MAC = NP {tl['h_n']:.1%} - {P.static_margin_min:.0%};  "
+          f"control line: forward CG {tl['h_cg_fwd']:.1%} MAC (elevator {tl['elevator']['ratio']:.2f}x required)")
+    print(f"  wing placed at x_qc {g.x_qc * 1000:.0f} mm so the nominal CG ({b['x_cg'] * 1000:.0f} mm, "
+          f"{b['h_cg']:.1%} MAC) sits mid-band" + ("  [CLAMPED: wing at the nose]" if g.x_qc_clamped else ""))
+    top = sorted(b["items"], key=lambda i: -abs(i["sigma"] * i["m"] * (i["x"] - b["x_cg"])))[:5]
+    print("  biggest scatter contributors: " + ", ".join(
+        f"{i['name']} ({i['sigma'] * i['m'] * abs(i['x'] - b['x_cg']) / b['m'] * 1000:.2f} mm)" for i in top))
+
+
+def print_lateral(best):
+    lat = best.detail.get("lateral")
+    if not lat:
+        return
+    eo, xw, dv = lat["engine_out"], lat["crosswind"], lat["derivatives"]
+    print("\n COUPLED LATERAL-DIRECTIONAL TRIM  (side force + roll + yaw solved together)")
+    print(f"  derivatives /rad: Cn_beta {dv['cn_beta']:+.3f} (fuselage {dv['cn_beta_fus']:+.3f}), "
+          f"Cl_beta {dv['cl_beta']:+.3f} (wing height {dv['cl_beta_wing']:+.3f}, no dihedral), "
+          f"CY_beta {dv['cy_beta']:+.3f}, full aileron Cl {dv['cl_aileron_full']:.4f} / adverse Cn {dv['cn_aileron_full']:+.4f}")
+    print(f"  {'case':28s} {'V':>5s} {'bank':>6s} {'slip':>6s} {'aileron':>8s} {'rudder':>7s} {'usable':>7s} {'fin a':>6s}")
+    for name, c in (("engine-out (right motor dead)", eo), ("crosswind 0.2 V_SO from right", xw)):
+        if c:
+            print(f"  {name:28s} {c['V']:5.1f} {c['phi_deg']:+6.1f} {c['beta_deg']:+6.1f} {c['aileron_frac']:+8.0%} "
+                  f"{c['rudder_deg']:+7.1f} {c['rudder_usable_deg']:7.1f} {c['fin_alpha_deg']:+6.1f}")
+    if eo:
+        print(f"  engine-out: {eo['T_one']:.2f} N live motor + {eo['D_dead_prop']:.2f} N stopped-prop drag at "
+              f"{eo['V']:.1f} m/s -> yaw {eo['yaw_moment']:.3f} N.m; slipstream roll {eo['roll_moment']:.3f} N.m "
+              f"(+{eo['slipstream_dV']:.1f} m/s over the wing). Fin needed {lat['sv_needed']:.4f} m^2 "
+              f"({lat['rudder_cf']:.0%} rudder)")
+
+
+def print_landing(best):
+    p = best.detail["perf"]
+    ap = p["approach"]
+    print("\n LANDING / APPROACH  (stall speeds trimmed at the forward CG; deflected-surface drag included)")
+    print(f"  V_stall landing {p['V_s_landing']:.2f} m/s (wing CLmax {p['CLmax_landing']:.3f}, trimmed "
+          f"{p['CLmax_landing_trimmed']:.3f}); touchdown {p['V_td']:.1f} m/s; approach {ap['V']:.1f} m/s")
+    if ap.get("trim"):
+        t = ap["trim"]
+        print(f"  approach trim: tail CL {t['CL_tail']:+.3f}, elevator {t['elevator_deg']:+.1f} deg, trim drag "
+              f"{t['dCD'] * 1e4:.0f} counts; glide (motors idle) {ap['glide_deg']:.1f} deg; balked-landing "
+              f"gradient {ap['balked_gradient']:.3f}")
+    mg, mp = p["mu_grass"], p["mu_pavement"]
+    print(f"  wheels: grass rolling mu {mg['roll']:.3f} (main {mg['main']:.3f}, nose {mg['nose']:.3f}); braked "
+          f"{mg['brake']:.3f} grass / {mp['brake']:.3f} pavement" + ("" if mg["braked"] else "  (NO BRAKES)"))
+    crow = p.get("crow")
+    print(f"  braked roll: grass {p['s_landing']:.1f} m, pavement {p['s_landing_pavement']:.1f} m "
+          f"(after {P.brake_delay_s:.0f} s free roll)" + (
+              f"; crow ailerons up {crow['deflection_up_deg']:.0f} deg (without crow {p['s_landing_nocrow']:.1f} m)"
+              if crow else ""))
+
+
+def print_wheels(rows):
+    print("\n WHEEL TRADE STUDY  (design frozen; same wheel on all three legs)")
+    print(f"  {'wheel':14s} {'d mm':>5s} {'mass g':>7s} {'gear CD':>8s} {'grass mu':>8s} {'TO grass':>9s} "
+          f"{'LDG grass':>9s} {'brake':>6s}")
+    for r in rows:
+        if not r.get("ok"):
+            print(f"  {r['wheel']:14s} (failed)")
+            continue
+        mark = "  <- chosen" if r["chosen"] else ""
+        print(f"  {r['wheel']:14s} {r['d_mm']:5.0f} {r['m'] * 1000:7.1f} {r['CD_gear'] * 1e4:7.0f}c {r['mu_grass']:8.3f} "
+              f"{r['takeoff_grass_m']:8.1f}m {r['landing_grass_m']:8.1f}m {'fits' if r['brake_fits'] else 'NO':>6s}{mark}")
+
+
+def print_stall(rows, best):
+    print("\n STALL-SPEED TRADE STUDY  (lightest design at each stall-speed cap, same parts, re-optimized)")
+    print(f"  {'cap':>5s} {'V_s':>6s} {'mass kg':>8s} {'score':>7s} {'S m2':>7s} {'AR':>5s} {'span':>6s} "
+          f"{'W/S g/dm2':>9s} {'V_td':>5s} {'TO grs':>7s} {'LDG grs':>7s}  status")
+    for r in rows:
+        if not r.get("ok"):
+            print(f"  {r['cap']:5.1f}  (did not converge)")
+            continue
+        st = "ok" if r["feasible"] else "misses " + "+".join(r["misses"])
+        print(f"  {r['cap']:5.1f} {r['V_s_landing']:6.2f} {r['m']:8.4f} {r['score']:7.4f} {r['S']:7.4f} {r['AR']:5.2f} "
+              f"{r['span']:6.3f} {r['W_S'] / G0 * 10:9.1f} {r['V_td']:5.1f} {r['takeoff_m']:6.1f}m "
+              f"{r['landing_m']:6.1f}m  {st}")
+    print(f"  chosen: V_s {best.vs:.2f} m/s, {best.m:.4f} kg (objective weight "
+          f"{P.stall_speed_weight_g_per_ms:.0f} g per m/s)")
+
+
+def wheel_study(best):
+    """Every catalog wheel on all three legs, design frozen (same x, parts)."""
+    from catalog import wheels, wheel_brake
+    rows = []
+    for name, wh in wheels().items():
+        with P.override(main_wheel=name, nose_wheel=name):
+            r = sizing.evaluate(best.x, best.combo)
+        if not r.ok:
+            rows.append(dict(wheel=name, ok=False))
+            continue
+        p = r.detail["perf"]
+        rows.append(dict(wheel=name, ok=True, d_mm=wh.d * 1000, m=r.m, CD_gear=r.detail["aero"].CD_gear,
+                         mu_grass=p["mu_grass"]["roll"], takeoff_grass_m=p["takeoff"]["s"],
+                         landing_grass_m=p["s_landing"], brake_fits=wheel_brake().fits(wh),
+                         feasible=r.feasible, chosen=(name == P.main_wheel)))
+    return rows
+
+
+def report(best, alts, cdiag, sens, runtime, twist=None, wheels_=None, stall=None):
     d = best.detail
     g, perf, bmf, ms, batt = d["geom"], d["perf"], d["bmf"], d["masses"], d["battery"]
     lo, cl, to = perf["loiter"], perf["climb"], perf["takeoff"]
     W = best.m * G0
     line = "=" * 78
     print("\n" + line)
-    print(" CONCEPTUAL DESIGN POINT  (min takeoff mass meeting every requirement)")
+    print(" CONCEPTUAL DESIGN POINT  (min  mass + %.0f g per m/s of stall speed, meeting every requirement)"
+          % P.stall_speed_weight_g_per_ms)
     print(line)
+    print(f" Objective {best.score:.4f} kg = mass {best.m:.4f} kg + {P.stall_speed_weight_g_per_ms:.0f} g/(m/s) x "
+          f"V_stall {best.vs:.2f} m/s (landing config, trimmed at forward CG)")
     print(f" Takeoff mass {best.m:.3f} kg   W/S {W / g.S:.1f} N/m^2   "
           f"P/W {cdiag['design'][1]:.1f} W/N (installed shaft)   search {runtime:.0f} s")
     print(f" Atmosphere: {P.field_elevation_m:.0f} m, ISA{P.isa_temp_offset_K:+.0f} K, "
@@ -149,8 +262,11 @@ def report(best, alts, cdiag, sens, runtime, twist=None):
     rows = [
         ("Endurance (loiter only, not counting climb)", f"{bmf['loiter_max_min']:.1f} min", f">= {P.endurance_min:.0f}", best.cons.get("endurance", 0)),
         ("  total airborne time", f"{bmf['airborne_max_min']:.1f} min", "", None),
-        ("Takeoff ground roll (grass)", f"{to['s']:.1f} m", f"<= {P.takeoff_roll_max_m:.1f}", best.cons["takeoff_roll"]),
-        ("Landing ground roll (no brakes)", f"{perf['s_landing']:.1f} m", f"<= {P.landing_roll_max_m:.1f}", best.cons["landing_roll"]),
+        ("Takeoff ground roll (soft grass)", f"{to['s']:.1f} m", f"<= {P.takeoff_roll_max_grass_m:.0f}", best.cons["takeoff_roll_grass"]),
+        ("Takeoff ground roll (pavement)", f"{perf['takeoff_pavement']['s']:.1f} m", f"<= {P.takeoff_roll_max_pavement_m:.0f}", best.cons["takeoff_roll_pavement"]),
+        ("Landing ground roll (soft grass, braked)", f"{perf['s_landing']:.1f} m", f"<= {P.landing_roll_max_grass_m:.0f}", best.cons["landing_roll_grass"]),
+        ("Landing ground roll (pavement, braked)", f"{perf['s_landing_pavement']:.1f} m", f"<= {P.landing_roll_max_pavement_m:.0f}", best.cons["landing_roll_pavement"]),
+        ("Balked-landing climb gradient", f"{perf['approach']['balked_gradient']:.3f}", f">= {P.balked_landing_gradient_min:.3f}", best.cons["balked_landing"]),
         ("Wingspan", f"{g.b:.3f} m", f"<= {P.span_max_m}", best.cons["span"]),
         ("Climb rate (at throttle cap)", f"{cl['roc']:.2f} m/s", f">= {max(P.min_roc_ms, P.climb_rate_target_ms):.2f}", best.cons["climb_rate"]),
         ("Climb gradient", f"{cl['grad_max']:.3f}", f">= {P.min_climb_gradient:.3f}", best.cons["climb_gradient"]),
@@ -158,6 +274,12 @@ def report(best, alts, cdiag, sens, runtime, twist=None):
         ("Battery current (max)", f"{perf['I_batt_max']:.1f} A", f"<= {batt.i_max:.0f}", best.cons["battery_current"]),
         ("Spar fits in root airfoil", f"{d['winfo']['spar']['util']:.2f}", "< 1", best.cons["spar_fits"]),
         ("Tip Reynolds number at loiter", f"{(best.cons['tip_reynolds'] + 1) * P.re_tip_min / 1e3:.0f}k", f">= {P.re_tip_min / 1e3:.0f}k", best.cons["tip_reynolds"]),
+        ("Roll helix pb/2V (approach)", f"{d['controls']['aileron']['pb2v']:.3f}", f">= {P.roll_helix_min}", best.cons["roll_helix"]),
+        ("Elevator authority (forward CG)", f"{d['tail']['elevator']['ratio']:.2f}x", ">= 1", best.cons["elevator_authority"]),
+        ("Crosswind rudder (0.2 V_SO)", f"{d['lateral']['crosswind']['ratio']:.2f}", "<= 1 of usable", best.cons["crosswind_rudder"]),
+        ("Crosswind aileron", f"{abs(d['lateral']['crosswind']['aileron_frac']):.0%}", f"<= {P.trim_aileron_max_frac:.0%}", best.cons["crosswind_aileron"]),
+        ("Engine-out aileron", f"{abs(d['lateral']['engine_out']['aileron_frac']):.0%}", f"<= {P.trim_aileron_max_frac:.0%}", best.cons["engine_out_aileron"]),
+        ("Directional stability Cn_beta", f"{d['lateral']['derivatives']['cn_beta']:.3f}/rad", "> 0", best.cons["cn_beta"]),
     ]
     for name, val, lim, mar in rows:
         ms_ = "" if mar is None else (f"{mar * 100:+6.1f}%" + ("  ACTIVE" if abs(mar) < 0.02 else ""))
@@ -171,15 +293,12 @@ def report(best, alts, cdiag, sens, runtime, twist=None):
           f"{d['washout']:.2f} deg   construction: {best.combo.construction}   span efficiency e {d['aero'].e:.3f}")
     print(f"         spar: carbon tube OD {d['winfo']['spar']['D'] * 1000:.1f} mm x {d['winfo']['spar']['t'] * 1000:.2f} mm wall"
           f"  (n_limit {d['winfo']['n_limit']:.2f}, ultimate {d['winfo']['n_ult']:.2f}, V_C {d['V_C']:.1f} m/s)")
-    print(f"  H-tail S={g.htail.S:.4f} m^2  span={g.htail.b * 1000:.0f} mm  tail arm={g.l_t * 1000:.0f} mm")
-    sv_drv = "engine-out" if g.sv_engine_out > g.sv_volume else "tail volume"
+    sh_drv = ("scissor plot (elevator at forward CG)" if P.htail_sizing == "scissor" else "tail volume / elevator")
+    print(f"  H-tail S={g.htail.S:.4f} m^2  span={g.htail.b * 1000:.0f} mm  tail arm={g.l_t * 1000:.0f} mm  "
+          f"(sized by {sh_drv}; Raymer tail-volume value {g.sh_volume:.4f})")
+    sv_drv = "coupled engine-out trim" if g.sv_engine_out > g.sv_volume else "Raymer tail volume (floor)"
     print(f"  Fin    S={g.vtail.S:.4f} m^2  height={g.vtail.b * 1000:.0f} mm  (sized by {sv_drv}; "
-          f"volume-coeff value {g.sv_volume:.4f})")
-    eo = d["engine_out"]
-    if eo:
-        print(f"         engine-out: {eo['T_one']:.2f} N on one motor at V_mc {eo['V_mc']:.1f} m/s; "
-              f"{eo['rudder_cf']:.0%} rudder usable to {eo['rudder_defl_usable']:.1f} deg "
-              f"(section cl {eo['rudder_cl2d']:.2f}, fin dCL {eo['dCL_fin']:.2f})")
+          f"volume-coeff value {g.sv_volume:.4f}, engine-out needs {g.sv_engine_out:.4f})")
     print(f"  Fuselage L={g.fus_L * 1000:.0f} mm  {g.fus_w * 1000:.0f} x {g.fus_h * 1000:.0f} mm section  bay {g.bay_L * 1000:.0f} mm")
     print(f"  Motors at y=+/-{g.y_eng * 1000:.0f} mm   gear height {g.gear_h * 1000:.0f} mm  track {g.track * 1000:.0f} mm")
 
@@ -202,15 +321,20 @@ def report(best, alts, cdiag, sens, runtime, twist=None):
     print(f"  Elevator: {el['chord_fraction']:.0%} chord, {el['span_fraction']:.0%} span, {el['throw_deg']:.0f} deg up; "
           f"authority {el['authority_ratio']:.2f}x required (landing trim {el['ratio_landing_trim']:.2f}, "
           f"takeoff {el['ratio_takeoff']:.2f})")
-    print(f"  Rudder:   {ru['chord_fraction']:.0%} chord, usable {ru['throw_usable_deg']:.1f} deg (engine-out)")
+    print(f"  Rudder:   {ru['chord_fraction']:.0%} chord, {ru['span_fraction']:.0%} height; engine-out needs "
+          f"{ru['engine_out_deg']:.1f} deg of {ru['throw_usable_deg']:.1f} trusted, crosswind {ru['crosswind_deg']:.1f} deg")
     print(f"  Stabilizer {stb['stabilizer_area_m2']:.4f} m^2 (tail-volume value {stb['stabilizer_area_tail_volume_m2']:.4f})")
-    print(f"  Neutral point {stb['neutral_point_frac_mac']:.1%} MAC; CG range {stb['cg_forward_frac_mac']:.1%}-"
-          f"{stb['cg_aft_frac_mac']:.1%} MAC (static margin {P.static_margin_max:.0%}-{P.static_margin_min:.0%})")
+    print(f"  Neutral point {stb['neutral_point_frac_mac']:.1%} MAC (fuselage moves it {stb['np_shift_fuselage']:+.1%}); "
+          f"CG band {stb['cg_forward_frac_mac']:.1%}-{stb['cg_aft_frac_mac']:.1%} MAC (static margin "
+          f"{stb['static_margin_range'][1]:.1%}-{stb['static_margin_range'][0]:.1%})")
     print(f"  Incidence: wing {stb['wing_incidence_deg']:+.2f} deg, stabilizer {stb['tail_incidence_deg']:+.2f} deg "
           f"(decalage {stb['decalage_deg']:+.2f}) relative to the fuselage axis")
     print(f"  Takeoff: {stb['takeoff_technique']}" + (f", nose-up ground stance {stb['ground_stance_deg']:.1f} deg"
                                                     if stb["takeoff_technique"] == "stance" else ""))
     print(f"  Stall starts at {perf['stall_eta']:.0%} semispan (clean), {perf['stall_eta_landing']:.0%} (landing)")
+    print_balance(best)
+    print_lateral(best)
+    print_landing(best)
 
     print("\n PROPULSION (selected from catalogs)")
     st = perf["static"]
@@ -276,6 +400,10 @@ def report(best, alts, cdiag, sens, runtime, twist=None):
 
     if twist:
         print_twist(twist, best)
+    if stall:
+        print_stall(stall, best)
+    if wheels_:
+        print_wheels(wheels_)
 
     print("\n INPUTS TO MEASURE / VERIFY (they replace estimates in parameters.py and data/*.csv)")
     for p in P.all():
@@ -285,58 +413,154 @@ def report(best, alts, cdiag, sens, runtime, twist=None):
 
 
 def layout(best):
-    """Part positions for preliminary design / visualization.
-    Frame: x aft from the nose tip, y right, z up, fuselage centerline at z = 0.
-    The wing aerodynamic center sits over the middle of the payload bay. CG range
-    comes from the static-margin limits about the computed neutral point; the main
-    gear is placed for a 15 deg tip-back angle behind the AFT CG (Raymer)."""
+    """Part positions and dimensions for CAD / preliminary design (the single
+    source for dimensions.txt and visualize.py). Metres and degrees.
+    Frame: x aft from the nose tip, y right, z up, fuselage centreline at z = 0.
+    The wing station comes from the balance (nominal CG mid-band); the CG band
+    from the scissor plot; the main gear 15 deg behind the AFT CG (Raymer)."""
+    from catalog import airfoil_shape, components
+    from geometry import fuselage_profile
+    from weights import nacelle_stations
     d = best.detail
-    g, tl = d["geom"], d["tail"]
-    nose = P.nose_length_ratio * g.fus_d_eq
-    x_qc = nose + g.bay_L / 2
+    g, tl, ct, wi, bal = d["geom"], d["tail"], d["controls"], d["winfo"], d["balance"]
+    r = lambda v: _f(v, 5)
+    x_qc = g.x_qc
     z_wing = g.fus_h / 2
-    eta_eng = min(2 * g.y_eng / g.b, 1.0)
-    c_eng = g.wing.c_root * (1 - (1 - g.wing.taper) * eta_eng)
-    x_le_eng = x_qc - 0.25 * c_eng
+    semi = g.b / 2
+    c_eng = float(g.chord_at(g.y_eng))
+    nac = nacelle_stations(g)
     z_axis = z_wing + 0.5 * g.wing.t_c * c_eng
-    x_tail = x_qc + g.l_t
+    x_tail = g.x_tail
     z_ground = -(g.fus_h / 2 + g.gear_h)
     x_main = tl["x_main_gear"]
-    x_nose = 0.8 * nose
+    x_nose = 0.8 * g.L_nose
     stance = tl["stance_deg"]
-    r = lambda v: _f(v, 4)
+    root_af = best.combo.airfoil
+    tip_af = best.combo.tip_airfoil or best.combo.airfoil
+    wsh = airfoil_shape(root_af)
+    x_spar = x_qc + (wsh["x_tmax"] - 0.25) * g.wing.c_root
+    c_tip = g.wing.c_tip
+    lam = g.wing.taper
+    y_mac = semi / 3 * (1 + 2 * lam) / (1 + lam)
+
+    def le(c):
+        return x_qc - 0.25 * c
+
+    def hinge(x_qc_s, c, cf):
+        return x_qc_s - 0.25 * c + (1 - cf) * c
+
+    def surf_block(s_, x_q, extra):
+        out = {"area": r(s_.S), "span": r(s_.b), "c_root": r(s_.c_root), "c_tip": r(s_.c_tip),
+               "taper": r(s_.taper), "mac": r(s_.mac), "t_c": r(s_.t_c),
+               "x_quarter_chord": r(x_q), "x_le_root": r(x_q - 0.25 * s_.c_root),
+               "x_le_tip": r(x_q - 0.25 * s_.c_tip), "x_te_root": r(x_q + 0.75 * s_.c_root),
+               "x_te_tip": r(x_q + 0.75 * s_.c_tip)}
+        out.update(extra)
+        return out
+
+    a = ct["aileron"]
+    c_a1, c_a2 = float(g.chord_at(a["y1"])), float(g.chord_at(a["y2"]))
+    ailerons = {"y_inboard": r(a["y1"]), "y_outboard": r(a["y2"]), "chord_fraction": a["cf"],
+                "chord_inboard": r(a["cf"] * c_a1), "chord_outboard": r(a["cf"] * c_a2),
+                "hinge_x_inboard": r(hinge(x_qc, c_a1, a["cf"])), "hinge_x_outboard": r(hinge(x_qc, c_a2, a["cf"])),
+                "throw_deg": a["throw"], "is_flaperon": ct["config"] == "flaperons",
+                "crow_up_deg": (d["perf"].get("crow") or {}).get("deflection_up_deg", 0.0)}
+    flaps = None
+    if ct["flap"] and ct["config"] == "flaps":
+        f = ct["flap"]
+        c1, c2 = float(g.chord_at(f["y0"])), float(g.chord_at(f["y1"]))
+        flaps = {"y_inboard": r(f["y0"]), "y_outboard": r(f["y1"]), "chord_fraction": f["cf"],
+                 "hinge_x_inboard": r(hinge(x_qc, c1, f["cf"])), "hinge_x_outboard": r(hinge(x_qc, c2, f["cf"])),
+                 "landing_deflection_deg": f["deflection"]}
+    el, lat = tl["elevator"], d.get("lateral") or {}
+    cf_r = lat.get("rudder_cf") or d["engine_out"].get("rudder_cf") or 0.4
+    ht, vt = g.htail, g.vtail
+    eo = lat.get("engine_out") or {}
+    xw = lat.get("crosswind") or {}
+    rudder_throw = max(abs(eo.get("rudder_deg", 0.0)), abs(xw.get("rudder_deg", 0.0)))
+    bay_x0 = g.L_nose
+    comps = [{"name": c.name, "qty": c.qty, "l": r(c.dims_m[0]), "w": r(c.dims_m[1]), "h": r(c.dims_m[2]),
+              "mass_each": r(c.mass_kg), "in_fuselage": c.in_fuselage} for c in components()]
+    batt = d["battery"]
     return {
         "frame": "x aft from nose tip, y right, z up, fuselage centerline z=0 [m]",
-        "fuselage": {"nose_length": r(nose), "bay_length": r(g.bay_L), "length": r(g.fus_L),
-                     "width": r(g.fus_w), "height": r(g.fus_h),
-                     "tail_end_width": r(0.3 * g.fus_w), "tail_end_height": r(0.4 * g.fus_h)},
-        "wing": {"x_quarter_chord": r(x_qc), "z_root_chord_line": r(z_wing),
-                 "incidence_deg": _f(tl["wing_incidence_deg"], 2), "washout_deg": _f(d["washout"], 2),
-                 "root_airfoil": best.combo.airfoil,
-                 "tip_airfoil": best.combo.tip_airfoil or best.combo.airfoil,
-                 "note": "unswept quarter-chord line; incidence puts the fuselage level at loiter; "
-                         "washout linear root->tip, airfoil lofted linearly root->tip"},
-        "htail": {"x_quarter_chord": r(x_tail), "z": 0.0, "incidence_deg": _f(tl["tail_incidence_deg"], 2)},
-        "vtail": {"x_quarter_chord": r(x_tail), "z_root": r(0.2 * g.fus_h)},
-        "nacelles": {"y": r(g.y_eng), "z_axis": r(z_axis), "x_front": r(x_le_eng - 0.55 * g.nac_L),
-                     "x_rear": r(x_le_eng + 0.45 * g.nac_L), "diameter": r(g.nac_d)},
-        "props": {"x": r(x_le_eng - 0.55 * g.nac_L - 0.01), "y": r(g.y_eng), "z": r(z_axis),
-                  "diameter": r(g.prop_D)},
+        "fuselage": {"nose_length": r(g.L_nose), "bay_length": r(g.bay_L), "length": r(g.fus_L),
+                     "width": r(g.fus_w), "height": r(g.fus_h), "wall_t": P.fus_skin_t_m,
+                     "bay_x_start": r(bay_x0), "bay_x_end": r(bay_x0 + g.bay_L),
+                     "bay_inner_width": r(g.fus_w - 2 * P.fus_skin_t_m),
+                     "bay_inner_height": r(g.fus_h - 2 * P.fus_skin_t_m),
+                     "tail_end_width": r(0.3 * g.fus_w), "tail_end_height": r(0.4 * g.fus_h),
+                     "stations": [[r(x), r(kw * g.fus_w), r(kh * g.fus_h)]
+                                  for x, kw, kh in fuselage_profile(g.L_nose, g.bay_L, g.fus_L)],
+                     "section_shape": "rounded box (superellipse exponent 2.6)"},
+        "wing": surf_block(g.wing, x_qc, {
+            "z_root_chord_line": r(z_wing), "incidence_deg": _f(tl["wing_incidence_deg"], 2),
+            "washout_deg": _f(d["washout"], 2), "dihedral_deg": 0.0, "root_airfoil": root_af,
+            "tip_airfoil": tip_af, "y_mac": r(y_mac), "x_le_mac": r(x_qc - 0.25 * g.wing.mac),
+            "t_c_root": r(g.wing.t_c),
+            "note": "unswept quarter-chord line; incidence puts the fuselage level at loiter; "
+                    "washout linear root->tip, airfoil lofted linearly root->tip"}),
+        "spar": {"od": r(wi["spar"]["D"]), "wall": r(wi["spar"]["t"]), "length": r(P.spar_span_frac * g.b),
+                 "x": r(x_spar), "z": r(z_wing + wsh["camber_at_tmax"] * g.wing.c_root),
+                 "xc_root": r(wsh["x_tmax"]), "xc_tip": r((x_spar - le(c_tip)) / c_tip),
+                 "material": "carbon tube"},
+        "ailerons": ailerons, "flaps": flaps,
+        "htail": surf_block(ht, x_tail, {"z": 0.0, "incidence_deg": _f(tl["tail_incidence_deg"], 2),
+                                         "airfoil": P.tail_airfoil}),
+        "elevator": {"chord_fraction": el["cf"], "span_fraction": P.elevator_span_frac,
+                     "hinge_x_root": r(hinge(x_tail, ht.c_root, el["cf"])),
+                     "hinge_x_tip": r(hinge(x_tail, ht.c_tip, el["cf"])),
+                     "throw_up_deg": _f(el["throw"], 2), "servo_throw_deg": P.elevator_max_deg},
+        "vtail": surf_block(vt, x_tail, {"z_root": r(0.2 * g.fus_h), "height": r(vt.b),
+                                         "airfoil": P.tail_airfoil}),
+        "rudder": {"chord_fraction": cf_r, "span_fraction": P.rudder_span_frac,
+                   "hinge_x_root": r(hinge(x_tail, vt.c_root, cf_r)),
+                   "hinge_x_tip": r(hinge(x_tail, vt.c_tip, cf_r)),
+                   "throw_needed_deg": _f(rudder_throw, 2), "servo_throw_deg": P.rudder_max_deg},
+        "nacelles": {"y": r(g.y_eng), "z_axis": r(z_axis), "x_front": r(nac["x_front"]),
+                     "x_rear": r(nac["x_rear"]), "diameter": r(g.nac_d), "length": r(g.nac_L)},
+        "props": {"x": r(nac["x_prop"]), "y": r(g.y_eng), "z": r(z_axis), "diameter": r(g.prop_D),
+                  "model": best.combo.prop,
+                  "tip_to_fuselage": r(g.y_eng - g.prop_D / 2 - g.fus_w / 2),
+                  "tip_to_ground": r(z_axis - g.prop_D / 2 - z_ground)},
         "cg": {"x_forward_limit": r(tl["x_cg_fwd"]), "x_aft_limit": r(tl["x_cg_aft"]),
-               "x_neutral_point": r(tl["x_np"]),
-               "note": "place the battery so the CG falls inside this range"},
+               "x_neutral_point": r(tl["x_np"]), "x_nominal": r(bal["x_cg"]) if bal else None,
+               "band": r(tl["x_cg_aft"] - tl["x_cg_fwd"]), "battery_slide": P.battery_slide_m,
+               "note": "balance the finished aircraft so the CG falls in this range (slide the battery)"},
         "gear": {"z_ground": r(z_ground), "x_main": r(x_main), "y_main": r(g.track / 2),
-                 "main_wheel_d": P.wheel_d_main_m, "main_wheel_w": P.wheel_w_main_m,
-                 "x_nose": r(x_nose), "nose_wheel_d": P.wheel_d_nose_m,
-                 "nose_wheel_w": P.wheel_w_nose_m, "ground_stance_deg": _f(stance, 2),
+                 "main_wheel_model": g.main_wheel.name, "main_wheel_d": r(g.main_wheel.d),
+                 "main_wheel_w": r(g.main_wheel.w), "main_axle_mm": g.main_wheel.axle_mm,
+                 "x_nose": r(x_nose), "nose_wheel_model": g.nose_wheel.name,
+                 "nose_wheel_d": r(g.nose_wheel.d), "nose_wheel_w": r(g.nose_wheel.w),
+                 "nose_axle_mm": g.nose_wheel.axle_mm,
+                 "ground_stance_deg": _f(stance, 2),
                  "nose_gear_extra_length": r((x_main - x_nose) * math.tan(math.radians(stance))),
-                 "note": f"takeoff technique: {tl['takeoff_technique']}"},
+                 "gear_height": r(g.gear_h), "main_leg_length": r(g.main_leg_L),
+                 "nose_strut_length": r(g.nose_strut_L), "strap_thickness": r(wi["gear_strap_t"]),
+                 "strap_width": P.gear_plate_width_m, "nose_wire_d": r(wi["nose_wire_d"]),
+                 "brake_model": g.brake.name if g.brake.active else None,
+                 "brake_actuator": g.brake.actuator if g.brake.active else None,
+                 "note": f"takeoff technique: {tl['takeoff_technique']}; main gear at "
+                         f"{P.tipback_deg:.0f} deg tip-back behind the aft CG"},
+        "bay_contents": {"battery": {"name": batt.name, "l": r(batt.dims_m[0]), "w": r(batt.dims_m[1]),
+                                     "h": r(batt.dims_m[2]), "mass": r(batt.mass_kg)},
+                         "components": comps,
+                         "note": "CG budget assumes the bay contents' centroid at the bay centre; "
+                                 "the battery slides +/- battery_slide to trim"},
+        "servos": [{"surface": "ailerons", "count": 2, "location": "wing, at the aileron inboard end"},
+                   {"surface": "elevator", "count": 1, "location": "fuselage bay"},
+                   {"surface": "rudder", "count": 1, "location": "fuselage bay"},
+                   {"surface": "nose steering", "count": 1, "location": "fuselage bay"}]
+        + ([{"surface": "flaps", "count": 2, "location": "wing, flap inboard end"}] if flaps else [])
+        + ([{"surface": "wheel brakes", "count": 1, "location": "fuselage bay (cables to both main wheels)"}]
+           if g.brake.active else []),
     }
 
 
 def controls_json(best):
     d = best.detail
     g, ct, tl, eo = d["geom"], d["controls"], d["tail"], d["engine_out"]
+    lat = d.get("lateral") or {}
     semi = g.b / 2
     a = ct["aileron"]
     out = {"configuration": ct["config"],
@@ -351,11 +575,18 @@ def controls_json(best):
                         "authority_ratio": _f(tl["elevator"]["ratio"], 3),
                         "ratio_landing_trim": _f(tl["elevator"]["ratio_land"], 3),
                         "ratio_takeoff": _f(tl["elevator"]["ratio_takeoff"], 3)},
-           "rudder": {"chord_fraction": eo.get("rudder_cf"), "throw_usable_deg": _f(eo.get("rudder_defl_usable", 0), 2),
-                      "span_fraction": P.rudder_span_frac},
+           "rudder": {"chord_fraction": lat.get("rudder_cf", eo.get("rudder_cf")),
+                      "throw_usable_deg": _f((lat.get("engine_out") or {}).get("rudder_usable_deg",
+                                                                              eo.get("rudder_defl_usable", 0)), 2),
+                      "engine_out_deg": _f(abs((lat.get("engine_out") or {}).get("rudder_deg", 0.0)), 2),
+                      "crosswind_deg": _f(abs((lat.get("crosswind") or {}).get("rudder_deg", 0.0)), 2),
+                      "span_fraction": P.rudder_span_frac, "servo_throw_deg": P.rudder_max_deg},
            "stability": {"neutral_point_frac_mac": _f(tl["h_n"], 4),
                          "cg_forward_frac_mac": _f(tl["h_cg_fwd"], 4), "cg_aft_frac_mac": _f(tl["h_cg_aft"], 4),
-                         "static_margin_range": [P.static_margin_min, P.static_margin_max],
+                         "static_margin_range": [P.static_margin_min, _f(tl["h_n"] - tl["h_cg_fwd"], 4)],
+                         "np_shift_fuselage": _f(tl["dh_n_fuselage"], 4),
+                         "cm_alpha_fuselage_per_rad": _f(tl["cm_alpha_fuselage"], 4),
+                         "cg_band_frac_mac": _f(tl["band_frac"], 4), "htail_sizing": P.htail_sizing,
                          "tail_volume_V_H": _f(tl["V_H"], 4), "downwash_gradient": _f(tl["deps_dalpha"], 4),
                          "wing_incidence_deg": _f(tl["wing_incidence_deg"], 2),
                          "tail_incidence_deg": _f(tl["tail_incidence_deg"], 2),
@@ -390,7 +621,22 @@ def _parts(best):
     }
 
 
-def to_json(best, alts, cdiag, sens, twist=None):
+def _clean(o):
+    """JSON-safe copy (numpy -> float, drop heavy objects)."""
+    if isinstance(o, dict):
+        return {k: _clean(v) for k, v in o.items() if not callable(v)}
+    if isinstance(o, (list, tuple)):
+        return [_clean(v) for v in o]
+    if isinstance(o, (np.floating, np.integer)):
+        return _f(o, 6)
+    if isinstance(o, float):
+        return _f(o, 6) if math.isfinite(o) else None
+    if isinstance(o, (str, int, bool)) or o is None:
+        return o
+    return str(o)
+
+
+def to_json(best, alts, cdiag, sens, twist=None, wheels_=None, stall=None):
     d = best.detail
     g, perf, bmf = d["geom"], d["perf"], d["bmf"]
     conv = lambda v: (_f(v, 6) if isinstance(v, (float, np.floating, int)) and not isinstance(v, bool) else v)
@@ -429,8 +675,25 @@ def to_json(best, alts, cdiag, sens, twist=None):
         "thrust_in_flight": flight_thrust_table(best),
         "parts": _parts(best),
         "engine_out": {k: _f(v, 4) for k, v in d["engine_out"].items()},
+        "objective": {"score_kg": _f(best.score, 5), "mass_kg": _f(best.m, 5),
+                      "stall_speed_landing_ms": _f(best.vs, 4),
+                      "stall_speed_weight_g_per_ms": P.stall_speed_weight_g_per_ms},
+        "lateral": _clean({k: v for k, v in (d.get("lateral") or {}).items() if k != "cons"}),
+        "balance": _clean({k: v for k, v in (d.get("balance") or {}).items()}),
+        "landing": _clean({"approach": perf["approach"], "crow": perf.get("crow"),
+                           "V_stall_landing_ms": perf["V_s_landing"], "V_touchdown_ms": perf["V_td"],
+                           "CLmax_landing_wing": perf["CLmax_landing"],
+                           "CLmax_landing_trimmed": perf["CLmax_landing_trimmed"],
+                           "roll_grass_m": perf["s_landing"], "roll_pavement_m": perf["s_landing_pavement"],
+                           "roll_grass_without_crow_m": perf.get("s_landing_nocrow"),
+                           "mu_grass": perf["mu_grass"], "mu_pavement": perf["mu_pavement"]}),
+        "wheel_study": _clean(wheels_) if wheels_ else None,
+        "stall_study": _clean(stall) if stall else None,
         "performance": {"takeoff_roll_m": _f(perf["takeoff"]["s"], 2),
+                        "takeoff_roll_pavement_m": _f(perf["takeoff_pavement"]["s"], 2),
                         "landing_roll_m": _f(perf["s_landing"], 2),
+                        "landing_roll_pavement_m": _f(perf["s_landing_pavement"], 2),
+                        "stall_speed_landing_ms": _f(perf["V_s_landing"], 3),
                         "static_thrust_N": _f(perf["static"]["T"]),
                         "max_motor_current_A": _f(perf["I_motor_max"]),
                         "max_battery_current_A": _f(perf["I_batt_max"])},
@@ -440,7 +703,8 @@ def to_json(best, alts, cdiag, sens, twist=None):
         "layout": layout(best),
         "design_variables": dict(zip(sizing.X_NAMES, [_f(v, 5) for v in best.x])),
         "design_variable_bounds": dict(zip(sizing.X_NAMES, [list(b) for b in sizing.X_BOUNDS])),
-        "alternatives": [{"mass_kg": _f(r.m, 4), "label": r.combo.label()} for r in alts],
+        "alternatives": [{"mass_kg": _f(r.m, 4), "score_kg": _f(getattr(r, "score", r.m), 4),
+                          "label": r.combo.label()} for r in alts],
         "sensitivity": [{"param": r["param"], "base": r["base"],
                          "cases": [{k: conv(v) for k, v in c.items()} for c in r["cases"]]} for r in sens],
         "inputs": [{"name": p.name, "value": p.value, "units": p.units, "tag": p.tag,
@@ -490,22 +754,33 @@ def main(argv):
             if len(alts) == 5:
                 break
     runtime = time.time() - t0
-    twist = None
+    twist = stall = None
     if "--evaluate" not in argv or "--twist" in argv:
         print("[F ] twist trade study (tip airfoil x washout, each re-optimized) ...")
         twist = sizing.twist_study(best)
+    if "--evaluate" not in argv or "--stall" in argv:
+        print("[G ] stall-speed trade study (lightest design at each stall-speed cap) ...")
+        stall = sizing.stall_study(best)
+    print("[H ] wheel trade study ...")
+    wheels_ = wheel_study(best)
     print("[E ] sensitivity study ...")
     sens = sensitivity(best)
     cdiag = constraints.compute(best)
     constraints.plot(cdiag, os.path.join(OUT, "constraint_diagram.png"),
                      f"Constraint diagram - {best.m:.2f} kg, {best.combo.motor} + {best.combo.prop}")
     with open(os.path.join(OUT, "design_point.json"), "w") as f:
-        json.dump(to_json(best, alts, cdiag, sens, twist), f, indent=2, default=str)
-    report(best, alts, cdiag, sens, runtime, twist)
+        json.dump(to_json(best, alts, cdiag, sens, twist, wheels_, stall), f, indent=2, default=str)
+    report(best, alts, cdiag, sens, runtime, twist, wheels_, stall)
     import print_design
-    print_design.write(os.path.join(OUT, "design_point.json"),
-                       os.path.join(OUT, "design_parameters.txt"))
-    print(f" wrote {os.path.relpath(OUT)}/design_point.json, design_parameters.txt, constraint_diagram.png")
+    import print_dimensions
+    import print_parts
+    jp = os.path.join(OUT, "design_point.json")
+    print_design.write(jp, os.path.join(OUT, "design_parameters.txt"))
+    print_dimensions.write(jp, os.path.join(OUT, "dimensions.txt"))
+    print_dimensions.write_airfoils(jp, os.path.join(OUT, "airfoils"))
+    print_parts.write(jp, os.path.join(OUT, "parts_list.txt"), os.path.join(OUT, "parts_list.csv"))
+    print(f" wrote {os.path.relpath(OUT)}/design_point.json, design_parameters.txt, dimensions.txt, "
+          f"parts_list.txt/.csv, airfoils/*.dat, constraint_diagram.png")
 
 
 if __name__ == "__main__":

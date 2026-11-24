@@ -359,3 +359,86 @@ def materials():
 
 def with_battery_mass(b, mass):
     return replace(b, mass_kg=mass)
+
+
+# ============================================================== wheels + brakes
+@dataclass(frozen=True)
+class Wheel:
+    name: str
+    d: float            # m
+    w: float            # m
+    mass_kg: float
+    axle_mm: float
+    tag: str
+    source: str
+
+
+@lru_cache(maxsize=None)
+def wheels():
+    return {r["name"]: Wheel(r["name"], float(r["diameter_mm"]) / 1000, float(r["width_mm"]) / 1000,
+                             float(r["mass_g"]) / 1000, float(r["axle_mm"]) if r["axle_mm"] else float("nan"),
+                             r["tag"], r["source"])
+            for r in _rows("wheels.csv")}
+
+
+@dataclass(frozen=True)
+class Brake:
+    name: str
+    mass_per_wheel_kg: float
+    actuator: str
+    actuator_mass_kg: float
+    cable_mass_kg: float
+    d_min: float        # m, wheel diameters the brake fits
+    d_max: float
+    includes_wheels: bool
+    tag: str
+    source: str
+
+    @property
+    def active(self):
+        return self.name != "none"
+
+    def fits(self, wheel):
+        return self.d_min - 1e-6 <= wheel.d <= self.d_max + 1e-6
+
+    def mass_kg(self, n_wheels=2):
+        return n_wheels * self.mass_per_wheel_kg + self.actuator_mass_kg + self.cable_mass_kg
+
+
+@lru_cache(maxsize=None)
+def brakes():
+    return {r["name"]: Brake(r["name"], float(r["mass_per_wheel_g"]) / 1000, r["actuator"],
+                             float(r["actuator_mass_g"]) / 1000, float(r["cable_mass_g"]) / 1000,
+                             float(r["wheel_d_min_mm"]) / 1000, float(r["wheel_d_max_mm"]) / 1000,
+                             r["includes_wheels"] == "1", r["tag"], r["source"])
+            for r in _rows("brakes.csv")}
+
+
+def main_wheel():
+    return wheels()[P.main_wheel]
+
+
+def nose_wheel():
+    return wheels()[P.nose_wheel]
+
+
+def wheel_brake():
+    return brakes()[P.wheel_brake]
+
+
+@lru_cache(maxsize=None)
+def airfoil_shape(name):
+    """Section geometry from the airfoil coordinates (AeroSandbox):
+    x/c of max thickness, area centroid x/c, and the coordinates (Selig order)."""
+    import aerosandbox as asb
+    af = asb.Airfoil(name)
+    xy = np.asarray(af.coordinates, float)
+    xs = np.linspace(0.0, 1.0, 401)
+    t = np.asarray(af.local_thickness(x_over_c=xs), float)
+    i = int(np.argmax(t))
+    x, y = xy[:, 0], xy[:, 1]
+    cross = x * np.roll(y, -1) - np.roll(x, -1) * y
+    A = 0.5 * np.sum(cross)
+    cx = np.sum((x + np.roll(x, -1)) * cross) / (6 * A) if abs(A) > 1e-9 else 0.4
+    camber = float(np.asarray(af.local_camber(x_over_c=xs[i]), float))
+    return dict(x_tmax=float(xs[i]), t_max=float(t[i]), x_centroid=float(cx), camber_at_tmax=camber, coords=xy)

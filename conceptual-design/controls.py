@@ -16,10 +16,16 @@ Results are interpolated between Reynolds-number buckets so they vary smoothly.
               meet the roll requirement about the drooped position.
   Elevator  : (a) trim at landing CLmax, flaps down, forward CG;
               (b) takeoff rotation about the main wheels at liftoff speed,
-              forward CG. Neutral point from the tail-volume relation; CG
-              range from static-margin limits. If the stabilizer cannot do it
-              at the largest elevator chord, the stabilizer area grows.
-  (Rudder   : engine-out, see sizing.fin_engine_out.)
+              forward CG. Neutral point from the tail-volume relation plus
+              the fuselage (Raymer eq. 16.25, K_fus of Fig. 16.14).
+  Stabilizer: SCISSOR PLOT (P.htail_sizing = 'scissor'): the CG band width
+              comes from the as-built CG scatter (weights.cg_budget); its aft
+              end sits on the stability line (static margin >= minimum), its
+              forward end must be controllable (a)+(b). The stabilizer area is
+              the smallest that does both - no historical tail-volume floor.
+  Trim drag : elevator deflection + tail induced drag for a trimmed condition
+              (elevator_trim_drag) - used for the approach / balked landing.
+  (Rudder   : coupled lateral-directional trim, see lateral.py.)
 """
 import math
 from functools import lru_cache
@@ -145,6 +151,15 @@ class FlapSection:
             v = np.where(over, b_cd[-1] + 0.5 * (cl - b_cl[-1]) + 3 * (cl - b_cl[-1]) ** 2, v)
             res = res + wt * v
         return res
+
+    def cd_at(self, alpha_deg, re):
+        """section cd at an angle of attack, interpolated in alpha and Re."""
+        lo, hi, w = _buckets(re)
+        cd = 0.0
+        for k, wt in ((lo, 1 - w), (hi, w)):
+            _, c, _, _ = _sweep(self.af, self.cf, self.delta, k)
+            cd += wt * float(np.interp(alpha_deg, ALPHAS, c))
+        return cd
 
     def cl_at(self, alpha_deg, re):
         """(cl, confidence) at an angle of attack, interpolated in alpha and Re."""
@@ -329,9 +344,26 @@ def wing_controls(geom, aero, W, config, choice=None):
 # =====================================================================
 # Neutral point, CG range, tail incidence, elevator
 # =====================================================================
-def tail_and_elevator(geom, aero, perf, pt, m, choice=None):
+def fuselage_k_fus(x_ratio):
+    """Raymer Fig. 16.14 empirical pitching-moment factor K_fus [per deg] vs. the wing
+    root quarter-chord position / fuselage length (quadratic fit of the figure used by
+    FAST-GA, compute_k_fuselage.py; valid 0.1-0.62)."""
+    x = min(max(x_ratio, 0.1), 0.62)
+    return 0.01 - 0.063 * x + 0.211 * x ** 2
+
+
+def fuselage_dh_n(geom, a_w):
+    """Neutral-point shift from the fuselage (destabilizing), fraction of MAC:
+    Cm_alpha_fus = K_fus W_f^2 L_f / (c S)  [per deg]  (Raymer eq. 16.25);  dh_n = -Cm_a / a_w."""
+    k = fuselage_k_fus(geom.x_qc / geom.fus_L)
+    cma = k * geom.fus_w ** 2 * geom.fus_L / (geom.wing.mac * geom.S) * 180 / math.pi
+    return -cma / a_w, cma
+
+
+def tail_and_elevator(geom, aero, perf, pt, m, choice=None, band_frac=None):
     """Returns dict with neutral point, CG range, tail incidence, elevator size
-    and the stabilizer area needed (>= current) for landing trim + rotation."""
+    and the stabilizer area the elevator checks need (scissor plot: the CG band
+    of width band_frac [MAC] hangs from the aft limit h_n - static_margin_min)."""
     rho, mu = aero.atm.rho, aero.atm.mu
     W = m * G0
     S, c, AR = geom.S, geom.wing.mac, geom.AR
@@ -345,8 +377,13 @@ def tail_and_elevator(geom, aero, perf, pt, m, choice=None):
     deda = 2 * a_w / (math.pi * AR)
     V_H = S_h * l_t / (S * c)
     h_ac = 0.25
-    h_n = h_ac + eta_t * V_H * (a_t / a_w) * (1 - deda)
-    h_aft, h_fwd = h_n - P.static_margin_min, h_n - P.static_margin_max
+    dh_fus, cma_fus = fuselage_dh_n(geom, a_w)
+    h_n = h_ac + eta_t * V_H * (a_t / a_w) * (1 - deda) + dh_fus
+    h_aft = h_n - P.static_margin_min
+    if P.htail_sizing == "scissor" and band_frac is not None:
+        h_fwd = h_aft - band_frac
+    else:
+        h_fwd = h_n - P.static_margin_max
     h_mid = 0.5 * (h_aft + h_fwd)
 
     # loiter trim at mid CG with the elevator neutral -> tail incidence
@@ -374,7 +411,7 @@ def tail_and_elevator(geom, aero, perf, pt, m, choice=None):
     #  "stance": nose-up ground stance so the wing already makes liftoff CL; the
     #            aircraft flies off in that attitude and the elevator only has to
     #            trim it in free air (common on RC tricycle aircraft)
-    x_qc = P.nose_length_ratio * geom.fus_d_eq + geom.bay_L / 2
+    x_qc = geom.x_qc
     x_lemac = x_qc - 0.25 * c
     x_cg_fwd, x_cg_aft = x_lemac + h_fwd * c, x_lemac + h_aft * c
     z_cg = geom.gear_h + geom.fus_h / 2
@@ -399,14 +436,26 @@ def tail_and_elevator(geom, aero, perf, pt, m, choice=None):
     stance_deg = math.degrees(aero.clean.alpha_root(CL_lof) - i_w)
 
     def tail_cl(cf, alpha_rad):
-        """3-D stabilizer CL with elevator full up (largest trusted throw)."""
+        """3-D stabilizer CL with elevator full up: the largest trusted throw,
+        interpolated where NeuralFoil's confidence crosses foil_conf_min (continuous,
+        so the sizing loop does not jump between 2.5-deg steps)."""
         ad = math.degrees(alpha_rad)
         cl0, _ = FlapSection(tail_af.name, cf, 0.0).cl_at(ad, re_t)
-        for de in np.arange(P.elevator_max_deg, 4.9, -2.5):
+        prev = None                                      # (deflection, cl, conf) of the last trusted step
+        for de in np.arange(2.5, P.elevator_max_deg + 1e-9, 2.5):
             cle, conf = FlapSection(tail_af.name, cf, -float(de)).cl_at(ad, re_t)
             if conf >= P.foil_conf_min:
-                return (a_t / a2t) * (cl0 + P.elevator_span_frac * (cle - cl0)), float(de)
-        return (a_t / a2t) * cl0, 0.0
+                prev = (float(de), cle, conf)
+                continue
+            if prev is not None:
+                f = (prev[2] - P.foil_conf_min) / max(prev[2] - conf, 1e-9)
+                d_use = prev[0] + f * (float(de) - prev[0])
+                cl_use = prev[1] + f * (cle - prev[1])
+                return (a_t / a2t) * (cl0 + P.elevator_span_frac * (cl_use - cl0)), d_use
+            break
+        if prev is None:
+            return (a_t / a2t) * cl0, 0.0
+        return (a_t / a2t) * (cl0 + P.elevator_span_frac * (prev[1] - cl0)), prev[0]
 
     def ratio(cl_avail, cl_req):
         """> 1: the stabilizer can produce the required (negative) lift"""
@@ -441,6 +490,104 @@ def tail_and_elevator(geom, aero, perf, pt, m, choice=None):
                 wing_incidence_deg=math.degrees(i_w), decalage_deg=math.degrees(i_w - i_t),
                 CLt_loiter=CLt_lo, CLt_req_landing=CLt_req_land, CLt_req_rotation=CLt_req_rot,
                 CLt_req_stance=CLt_req_st, CL_landing=CL_land, elevator=best, sh_needed=sh_need,
+                dh_n_fuselage=dh_fus, cm_alpha_fuselage=cma_fus, h_mid=h_mid,
+                band_frac=h_aft - h_fwd, i_w=i_w, i_t=i_t, CL_loiter=CL_lo, a_t2=a2t,
                 takeoff_technique=tech, stance_deg=stance_deg if tech == "stance" else 0.0,
                 CL_ground=CL_lof if tech == "stance" else None,
                 choice=dict(elevator_cf=best["cf"], technique=tech))
+
+
+def elevator_trim(tail_af_name, cf, CLt_req, alpha_t_rad, re_t, a_t, a2t):
+    """Elevator deflection that makes the stabilizer produce CLt_req at tail angle
+    alpha_t, and the section cd there (NeuralFoil on the deflected section).
+    Returns (deflection deg, +down; section cd averaged over span; trusted)."""
+    ad = math.degrees(alpha_t_rad)
+    f = P.elevator_span_frac
+    k3 = a_t / a2t
+    base = FlapSection(tail_af_name, cf, 0.0)
+    cl0 = base.cl_at(ad, re_t)[0]
+    cd0 = base.cd_at(ad, re_t)
+    if abs(k3 * cl0 - CLt_req) < 1e-6:
+        return 0.0, cd0, True
+    sgn = 1.0 if CLt_req > k3 * cl0 else -1.0
+    prev = (0.0, k3 * cl0, cd0)
+    for d in np.arange(2.5, P.elevator_max_deg + 1e-9, 2.5):
+        fs = FlapSection(tail_af_name, cf, sgn * float(d))
+        cle, conf = fs.cl_at(ad, re_t)
+        CL = k3 * (cl0 + f * (cle - cl0))
+        cd = (1 - f) * cd0 + f * fs.cd_at(ad, re_t)
+        if (CL - CLt_req) * sgn >= 0:
+            w = (CLt_req - prev[1]) / (CL - prev[1]) if abs(CL - prev[1]) > 1e-9 else 1.0
+            return sgn * (prev[0] + w * (d - prev[0])), prev[2] + w * (cd - prev[2]), conf >= P.foil_conf_min
+        prev = (float(d), CL, cd)
+    return sgn * P.elevator_max_deg, prev[2], False
+
+
+def elevator_trim_drag(geom, aero, tail, CL, V, config):
+    """Extra drag (CD on the wing area) of flying trimmed at the FORWARD CG:
+    stabilizer profile drag with the elevator deflected (minus the cl = 0 tail drag
+    already in Aero.drag) + the stabilizer's induced drag."""
+    from aerodynamics import oswald_inviscid
+    rho, mu = aero.atm.rho, aero.atm.mu
+    S, c, AR = geom.S, geom.wing.mac, geom.AR
+    S_h, l_t = geom.htail.S, geom.l_t
+    eta_t = P.tail_efficiency
+    V_H = S_h * l_t / (S * c)
+    wcfg = aero._cfg(config)
+    CLt = (aero.cm_ac(config) + CL * (tail["h_cg_fwd"] - 0.25)) / (eta_t * V_H)
+    alpha_t = (wcfg.alpha_root(CL) - tail["i_w"]) - 2 * CL / (math.pi * AR) + tail["i_t"]
+    re_t = rho * V * geom.htail.mac / mu
+    de, cd_e, ok = elevator_trim(aero.tail_af.name, tail["elevator"]["cf"], CLt, alpha_t, re_t,
+                                 tail["a_tail"], tail["a_t2"])
+    cd_ref = float(aero.tail_af.cd(0.0, re_t))
+    e_t = oswald_inviscid(P.ar_htail, P.taper_htail, 0.0, geom.htail.b)
+    dCD = (P.q_tail * eta_t * (cd_e - cd_ref) + eta_t * CLt ** 2 / (math.pi * e_t * P.ar_htail)) * S_h / S
+    return dict(dCD=float(dCD), CL_tail=float(CLt), elevator_deg=float(de), trusted=bool(ok),
+                alpha_tail_deg=math.degrees(alpha_t))
+
+
+class CrowSection(FlapSection):
+    """Aileron raised for crow on the landing rollout. Only the lift loss and the
+    drag near the ground attitude matter (no stall point is needed), so the
+    increments come straight from the NeuralFoil sweeps where both the clean and
+    the raised section are trusted, over alpha in [-2, 6] deg."""
+    A_LO, A_HI = -2.0, 6.0
+
+    def _pair(self, re_key):
+        cl, cd, cm, conf = _sweep(self.af, self.cf, self.delta, re_key)
+        c0, _, m0, f0 = _sweep(self.af, self.cf, 0.0, re_key)
+        k = (ALPHAS >= self.A_LO) & (ALPHAS <= self.A_HI) & (conf >= P.foil_conf_min) & (f0 >= P.foil_conf_min)
+        return cl, cd, cm, c0, m0, k
+
+    def usable(self, re):
+        lo, hi, _ = _buckets(re)
+        return all(self._pair(k)[5].sum() >= 4 for k in (lo, hi))
+
+    def props(self, re):
+        lo, hi, w = _buckets(re)
+        out = dict(d_clmax=0.0, d_alpha0=0.0, d_cm0=0.0, cl_alpha=0.0, clmax=0.0)
+        for kk, wt in ((lo, 1 - w), (hi, w)):
+            cl, cd, cm, c0, m0, k = self._pair(kk)
+            clean = _derived(self.af, self.cf, 0.0, kk, P.foil_conf_min)
+            a0 = clean["cl_alpha"] if clean else 2 * math.pi
+            if k.sum() < 2:
+                dcl = dcm = 0.0
+            else:
+                dcl, dcm = float(np.mean(cl[k] - c0[k])), float(np.mean(cm[k] - m0[k]))
+            vals = dict(d_clmax=dcl, d_alpha0=-dcl / a0, d_cm0=dcm, cl_alpha=a0,
+                        clmax=(clean["clmax"] if clean else 1.0) + dcl)
+            for key, v in vals.items():
+                out[key] += wt * v
+        return out
+
+    def cd(self, cl, re):
+        cl = np.asarray(cl, float)
+        lo, hi, w = _buckets(float(np.mean(re)))
+        res = 0.0
+        for kk, wt in ((lo, 1 - w), (hi, w)):
+            c, d, _, conf = _sweep(self.af, self.cf, self.delta, kk)
+            k = (ALPHAS >= -6) & (ALPHAS <= 10) & (conf >= P.foil_conf_min)
+            cc, dd = c[k], d[k]
+            order = np.argsort(cc)
+            res = res + wt * np.interp(cl, cc[order], dd[order])
+        return res

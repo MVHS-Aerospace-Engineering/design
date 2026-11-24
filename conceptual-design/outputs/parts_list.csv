@@ -1,0 +1,35 @@
+category,item,qty,spec,unit_g,total_g,source
+propulsion,Cobra C-2204/40,2,"1570 Kv, 9 A max, 27 mm can",22.50,45.00,DATASHEET: gravesrc.com/indc-2204-40-cobra-c-2204-40-brushless-motor-kv-1570 (spec table; Kv from product title)
+propulsion,APC 6x6E,2,6 x 6 in (APC E),7.80,15.60,ESTIMATE (mass scaled from a 10 in APC E; WEIGH)
+propulsion,prop adapter + spinner,2,to fit the motor shaft,6.00,12.00,ESTIMATE
+propulsion,Hobbywing Skywalker 20A V2,2,20 A continuous,19.00,38.00,DATASHEET
+propulsion,Gens Ace Soaring 3S 2200 20C,1,"3S1P LiPo, 24.4 Wh, 74 x 33 x 25 mm",146.00,146.00,DATASHEET
+propulsion,power wire 16 AWG silicone,1,"0.94 m total (2 conductors per motor, fuselage to nacelle + 0.10 m)",14.09,14.09,ESTIMATE (mass per metre)
+avionics + servos,Raspberry Pi 5 board,1,85 x 56 x 17 mm,46.00,46.00,ESTIMATE: mass ESTIMATE (weigh); power: RPi white paper RP-010139 gives 4-5 W min / ~12 W peak - 6 W typical workload ESTIMATE
+avionics + servos,Raspberry Pi 5 Active Cooler,1,85 x 56 x 10 mm,29.00,29.00,DATASHEET: waveshare.com Raspberry-Pi-5-Official-Active-Cooler (0.029 kg)
+avionics + servos,Raspberry Pi Camera Module 3,1,25 x 24 x 12 mm,4.00,4.00,"DATASHEET: raspberrypi.com Camera Module 3 docs: 4 g, 25x24x11.5 mm; power ESTIMATE (measure)"
+avionics + servos,Matek H743-WING V3 flight controller,1,54 x 36 x 13 mm,30.00,30.00,DATASHEET: getfpv.com / banggood listing 30 g 54x36x13 mm; power ESTIMATE
+avionics + servos,Matek M10Q-5883 GPS + compass,1,20 x 20 x 12 mm,8.00,8.00,DATASHEET: mateksys listing 8 g; 13 mA at 5 V
+avionics + servos,Matek ASPD-4525 airspeed + pitot,1,30 x 20 x 10 mm,10.00,10.00,ESTIMATE: ESTIMATE (weigh)
+avionics + servos,ExpressLRS receiver,1,20 x 13 x 4 mm,2.00,2.00,ESTIMATE: ESTIMATE
+avionics + servos,SiK 915 MHz telemetry radio (100 mW),1,55 x 28 x 11 mm,25.00,25.00,ESTIMATE: ESTIMATE (weigh)
+avionics + servos,5 V / 5 A UBEC for Pi 5,1,40 x 20 x 10 mm,10.00,10.00,ESTIMATE: ESTIMATE (efficiency in parameters.eta_bec)
+avionics + servos,Micro servo (12 g class),5,23 x 12 x 25 mm,12.00,60.00,ESTIMATE: 2 aileron + elevator + rudder + nose steering; ESTIMATE - size from hinge moments in preliminary design
+avionics + servos,Signal wiring harness + connectors,1,,15.00,15.00,ESTIMATE: ESTIMATE
+avionics + servos,Hinges / horns / pushrods / fasteners,1,,25.00,25.00,ESTIMATE: ESTIMATE
+landing gear,Du-Bro 300SL,3,"76.2 x 23.0 mm, 4 mm axle",16.80,50.40,"DATASHEET: Du-Bro 3 in Super Lite treaded EVA (300SL): 76.2 x 23.0 mm, 4 mm axle (motionrc.com DUB300SL); 16.8 g/wheel (frontlinehobbies.com.au listing). WEIGH"
+landing gear,Du-Bro E/Z Brake,2,fits wheels 57-89 mm,8.00,16.00,"ESTIMATE: dubro.com E/Z Brake System: cable-pulled mechanical brake, 8 g per assembly, fits Du-Bro wheels 57-89 mm (verify the exact wheel model); servo = same 12 g class as data/components.csv; cable/pushrod mass ESTIMATE. WEIGH"
+landing gear,brake actuator: micro servo (one for both brakes),1,drives both brake cables,12.00,12.00,ESTIMATE: same 12 g servo class as the other servos
+landing gear,brake cable / pushrod,1,,3.00,3.00,ESTIMATE
+landing gear,"main gear strap, 6061-T6 aluminum",1,"1.03 mm thick (minimum - use the next stock size up) x 20 mm x 232 mm, bent to 45 deg legs",12.88,12.88,DATASHEET material; thickness sized from the landing load
+landing gear,"nose strut, music wire (ASTM A228)",1,2.5 mm dia x 128 mm,4.94,4.94,ESTIMATE material; diameter sized from the load
+landing gear,nose gear steering block + collar,1,,10.00,10.00,ESTIMATE
+structure,carbon tube (main spar),1,6.0 mm OD x 0.50 mm wall x 924 mm,12.44,12.44,ESTIMATE density; size from bending at ultimate load
+structure,wing laminate: 25 g/m^2 glass cloth + epoxy,1,"0.285 m^2 of cloth (one layer per side, before waste), ~1:1 epoxy by weight",14.27,14.27,ESTIMATE (areal mass)
+structure,wing core: EPS foam (hot-wire cut),1,"s4083 sections, 1026 mm span",19.53,19.53,ESTIMATE (foam density)
+printed parts (LW-PLA filament mass),fuselage shell + frames,1,,41.25,41.25,ESTIMATE (LW-PLA density; WEIGH)
+printed parts (LW-PLA filament mass),horizontal tail,1,,11.69,11.69,ESTIMATE (LW-PLA density; WEIGH)
+printed parts (LW-PLA filament mass),fin,1,,10.88,10.88,ESTIMATE (LW-PLA density; WEIGH)
+printed parts (LW-PLA filament mass),nacelles,2,,2.92,5.84,ESTIMATE
+printed parts (LW-PLA filament mass),motor mounts (printed or plywood),2,,8.00,16.00,ESTIMATE
+allowance,"glue, paint, connectors, build variation",1,10% of everything except the battery,62.97,62.97,DESIGN CHOICE (weight_growth_allowance)

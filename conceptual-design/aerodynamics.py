@@ -162,8 +162,11 @@ class Aero:
     edge surfaces for the landing configuration (see controls.py):
         dict(y0, y1, section=<FlapSection-like with props(re), cd(cl, re)>)"""
 
-    def __init__(self, geom, wing_secs, tail_af, atm, flaps=None):
+    def __init__(self, geom, wing_secs, tail_af, atm, flaps=None, trim=None):
         self.g, self.secs, self.tail_af, self.atm = geom, wing_secs, tail_af, atm
+        # trim = dict(h=CG / MAC, c_lt=MAC / tail arm): stall speeds then use the TRIMMED
+        # CLmax (wing CLmax + the tail download needed at that CG). None = wing alone.
+        self.trim = trim
         g = geom
         self.S = g.S
         nu = atm.mu / atm.rho
@@ -177,8 +180,8 @@ class Aero:
         f_n = g.nac_L / g.nac_d
         self.ff_nac = 1 + 0.35 / f_n
         # landing gear, Raymer Table 12.5 (frontal areas)
-        a_wheels = 2 * P.wheel_d_main_m * P.wheel_w_main_m
-        a_nosewheel = P.wheel_d_nose_m * P.wheel_w_nose_m
+        a_wheels = 2 * g.main_wheel.d * g.main_wheel.w
+        a_nosewheel = g.nose_wheel.d * g.nose_wheel.w
         mat_t = 0.003    # nominal strap thickness for drag only (weights.py sizes it)
         a_legs = 2 * g.main_leg_L * mat_t
         a_nose_strut = g.nose_strut_L * 0.003
@@ -199,33 +202,54 @@ class Aero:
         self.e = self.clean.e * self.k_eF
         self.flaps = None
         self.landing = self.clean
+        self.rollout = None
+        self._surf = {"clean": [], "landing": [], "rollout": []}
         if flaps is not None:
             self.set_flaps(flaps)
 
-    # ------------------------------------------------------------------ flaps
-    def clear_flaps(self):
-        self.flaps, self.landing = None, self.clean
-
-    def set_flaps(self, flaps):
-        """Landing configuration: deflected surfaces shift the local zero-lift
-        angle and raise the local clmax over their span (NeuralFoil on the
-        deflected section, see controls.FlapSection)."""
+    # ------------------------------------------------------------------ deflected surfaces
+    def _surfaces(self, surfaces):
+        """Lifting-line configuration with deflected trailing-edge surfaces.
+        surfaces: list of dict(y0, y1, section=<FlapSection-like>). Each shifts the
+        local zero-lift angle and clmax over its span (NeuralFoil on the deflected
+        section, see controls.FlapSection). Returns (WingConfig, strip records)."""
         g = self.g
         nu = self.atm.mu / self.atm.rho
-        self.flaps = flaps
-        in_c = (self.ll.y >= flaps["y0"]) & (self.ll.y <= flaps["y1"])
-        in_s = (g.y >= flaps["y0"]) & (g.y <= flaps["y1"])
         re_ref = V_REF * g.wing.mac / nu
-        fp = flaps["section"].props(re_ref)
-        a0 = np.where(in_c, fp["cl_alpha"], self.a0_c)
-        al0 = np.where(in_c, self.al0_c + fp["d_alpha0"], self.al0_c)
-        self.landing = WingConfig(self.ll, a0, al0, self.twist_c, g.y)
-        self._flap_strips = in_s
-        self._flap_dclmax = fp["d_clmax"]
+        a0, al0 = self.a0_c.copy(), self.al0_c.copy()
+        recs = []
+        for sf in surfaces:
+            in_c = (self.ll.y >= sf["y0"]) & (self.ll.y <= sf["y1"])
+            in_s = (g.y >= sf["y0"]) & (g.y <= sf["y1"])
+            fp = sf["section"].props(re_ref)
+            a0 = np.where(in_c, fp["cl_alpha"], a0)
+            al0 = np.where(in_c, al0 + fp["d_alpha0"], al0)
+            recs.append(dict(strips=in_s, section=sf["section"], d_clmax=fp["d_clmax"], d_cm0=fp["d_cm0"]))
+        return WingConfig(self.ll, a0, al0, self.twist_c, g.y), recs
+
+    def clear_flaps(self):
+        self.flaps, self.landing = None, self.clean
+        self._surf["landing"] = []
+
+    def set_flaps(self, flaps):
+        """Landing configuration (flaps or drooped flaperons)."""
+        self.flaps = flaps
+        self.landing, self._surf["landing"] = self._surfaces([flaps])
+
+    def set_rollout(self, surfaces):
+        """Landing-rollout configuration: landing flaps + crow (ailerons up)."""
+        self.rollout, self._surf["rollout"] = self._surfaces(surfaces)
 
     # ------------------------------------------------------------------ drag
     def _cfg(self, config):
-        return self.landing if config == "landing" else self.clean
+        if config == "rollout" and self.rollout is not None:
+            return self.rollout
+        return self.landing if config in ("landing", "rollout") else self.clean
+
+    def _recs(self, config):
+        if config == "rollout" and self.rollout is None:
+            config = "landing"
+        return self._surf.get(config, [])
 
     def drag(self, CL, V, ground=False, config="clean"):
         """CD (and breakdown) for lift coefficient CL at true airspeed V.
@@ -239,11 +263,12 @@ class Aero:
         cl_loc = CL[..., None] * w.la + w.lb
         re_loc = V[..., None] * g.chord / nu
         cd_loc = self.secs.cd(cl_loc, re_loc, self.eta_strip)
-        if config == "landing" and self.flaps is not None:
-            fs = self.flaps["section"]
-            cd_f = fs.cd(cl_loc[..., self._flap_strips], re_loc[..., self._flap_strips])
+        recs = self._recs(config)
+        if recs:
             cd_loc = cd_loc.copy()
-            cd_loc[..., self._flap_strips] = cd_f
+            for rc in recs:
+                k = rc["strips"]
+                cd_loc[..., k] = rc["section"].cd(cl_loc[..., k], re_loc[..., k])
         CD_wing = 2 * np.sum(cd_loc * g.chord, axis=-1) * g.dy / self.S
         # tails
         CD_ht = P.q_tail * self.tail_af.cd(0.0 * V, V * g.htail.mac / nu) * g.htail.S / self.S
@@ -267,8 +292,8 @@ class Aero:
         g, a = self.g, self.atm
         re_loc = np.asarray(V, float)[..., None] * g.chord * a.rho / a.mu
         cm = self.secs.clmax(re_loc, self.eta_strip)
-        if config == "landing" and self.flaps is not None:
-            cm = cm + np.where(self._flap_strips, self._flap_dclmax, 0.0)
+        for rc in self._recs(config):
+            cm = cm + np.where(rc["strips"], rc["d_clmax"], 0.0)
         return cm
 
     def CLmax(self, V, config="clean"):
@@ -284,10 +309,22 @@ class Aero:
         i = int(np.argmin((cm - w.lb) / np.maximum(w.la, 1e-6)))
         return float(self.eta_strip[i])
 
+    def CLmax_trimmed(self, V, config="clean"):
+        """Airplane CLmax trimmed at the forward CG: the wing reaches its CLmax and the
+        tail carries the lift that balances the moments,
+            CL = CL_w + (c / l_t) * (Cm_ac + CL_w (h - h_ac))
+        (eta_t S_h/S * CL_tail written with V_H = S_h l_t / (S c)). A forward CG needs a
+        download, so the trimmed CLmax is lower than the wing's (Raymer Ch.16)."""
+        clw = self.CLmax(V, config)
+        if not self.trim:
+            return clw
+        k = self.trim["c_lt"]
+        return clw + k * (self.cm_ac(config) + clw * (self.trim["h"] - 0.25))
+
     def stall_speed(self, W, config="clean"):
         V = 10.0
         for _ in range(8):
-            V = math.sqrt(2 * W / (self.atm.rho * self.S * float(self.CLmax(V, config))))
+            V = math.sqrt(2 * W / (self.atm.rho * self.S * float(self.CLmax_trimmed(V, config))))
         return V
 
     def cm_ac(self, config="clean"):
@@ -297,9 +334,8 @@ class Aero:
         nu = self.atm.mu / self.atm.rho
         re = V_REF * g.chord / nu
         cm = self.secs.cm0(re, self.eta_strip)
-        if config == "landing" and self.flaps is not None:
-            fp = self.flaps["section"].props(V_REF * g.wing.mac / nu)
-            cm = np.where(self._flap_strips, cm + fp["d_cm0"], cm)
+        for rc in self._recs(config):
+            cm = np.where(rc["strips"], cm + rc["d_cm0"], cm)
         return float(2 * np.sum(cm * g.chord ** 2) * g.dy / (g.S * g.wing.mac))
 
     def span_load(self):
