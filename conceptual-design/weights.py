@@ -17,7 +17,7 @@ import math
 import numpy as np
 
 from atmosphere import G0
-from catalog import airfoil_shape, components, materials
+from catalog import airfoil_shape, carbon_tubes, components, materials, nose_gears
 from parameters import P
 
 CONSTRUCTIONS = ("printed_lwpla", "foam_glass")
@@ -60,7 +60,19 @@ def spar_sizing(geom, m_to, n_ult, span_load=None):
             t = min(t, D / 2)
     L = P.spar_span_frac * geom.b
     mass = rho * math.pi * (D ** 2 - max(D - 2 * t, 0) ** 2) / 4 * L
-    return dict(D=D, t=t, mass=mass, util=util, M_root=M, y_bar=y_bar)
+    out = dict(D=D, t=t, mass=mass, util=util, M_root=M, y_bar=y_bar, tube=None, n_tubes=0)
+    if P.spar_from_catalog:
+        # lightest catalog tube that fits the root depth and carries the moment
+        fits = [tb for tb in carbon_tubes() if tb.od <= D_max]
+        ok = [tb for tb in fits if z_tube(tb.od, (tb.od - tb.id) / 2) >= Z]
+        if ok:
+            tb = min(ok, key=lambda x: x.kg_per_m)
+        else:                                   # nothing works: the strongest that fits (util > 1)
+            tb = max(fits or carbon_tubes(), key=lambda x: z_tube(x.od, (x.od - x.id) / 2))
+        tw = (tb.od - tb.id) / 2
+        out.update(D=tb.od, t=tw, mass=tb.kg_per_m * L, util=Z / z_tube(tb.od, tw)
+                   if tb.od <= D_max else max(util, 1.01), tube=tb.name, n_tubes=math.ceil(L / tb.length - 1e-9))
+    return out
 
 
 def design_cruise_speed(W_S, V_H):
@@ -115,19 +127,40 @@ def mass_breakdown(geom, wing_af, construction, motor, prop, esc, battery, m_to,
     # ---- landing gear (sized to landing load)
     W = m_to * G0
     n_land_ult = P.n_landing_limit * P.factor_of_safety
-    al = mat["aluminum_6061_t6"]
+    gm = mat[P.main_gear_material]
     F_leg = n_land_ult * W * P.main_gear_load_frac / 2
     M_leg = F_leg * geom.gear_h                       # 45 deg legs: lateral arm = height
-    t_strap = math.sqrt(6 * M_leg / (al["allowable_pa"] * P.gear_plate_width_m))
-    main = al["density_kg_m3"] * P.gear_plate_width_m * t_strap * (2 * geom.main_leg_L + geom.fus_w)
-    mw = mat["music_wire"]
+    t_strap = math.sqrt(6 * M_leg / (gm["allowable_pa"] * P.gear_plate_width_m))
+    main = gm["density_kg_m3"] * P.gear_plate_width_m * t_strap * (2 * geom.main_leg_L + geom.fus_w)
+    mw_ = mat["music_wire"]
     F_nose = n_land_ult * W * (1 - P.main_gear_load_frac)
     M_nose = F_nose * 0.25 * geom.nose_strut_L        # trail/side-load arm (ESTIMATE)
-    d_wire = max((32 * M_nose / (math.pi * mw["allowable_pa"])) ** (1 / 3), 0.0025)
-    nose = mw["density_kg_m3"] * math.pi * d_wire ** 2 / 4 * (geom.nose_strut_L + 0.04)
+    d_wire = max((32 * M_nose / (math.pi * mw_["allowable_pa"])) ** (1 / 3), 0.0025)
+    nose_model, nose_fits, leg_d = None, True, d_wire
+    if P.nose_gear_type == "printed_petg":
+        pg = mat["petg_printed"]
+        leg_d = max((32 * M_nose / (math.pi * pg["allowable_pa"])) ** (1 / 3), P.printed_nose_leg_min_d_m)
+        fw, ft = P.printed_fork_section_m
+        r_w, w_w = geom.nose_wheel.d / 2, geom.nose_wheel.w
+        leg = pg["density_kg_m3"] * math.pi * leg_d ** 2 / 4 * (geom.nose_strut_L + 0.02)
+        fork = pg["density_kg_m3"] * fw * ft * (2 * (r_w + 0.010) + (w_w + 2 * (ft + 0.002)))
+        nose = leg + fork + P.printed_nose_mount_mass_kg + P.nose_gear_hardware_mass_kg
+        steer = 0.0
+        nose_model = f"printed PETG nose leg {leg_d * 1000:.1f} mm + fork"
+    elif P.nose_gear_type == "catalog":
+        cands = sorted(nose_gears(), key=lambda n_: n_.leg_length)
+        good = [n_ for n_ in cands if n_.leg_length >= geom.nose_strut_L and n_.wire_d >= d_wire]
+        ng = good[0] if good else cands[-1]
+        nose_fits = bool(good)
+        nose_model = ng.name
+        nose = ng.mass_kg                                 # complete: wire, blocks, steering arm, hardware
+        steer = 0.0
+    else:
+        nose = mw_["density_kg_m3"] * math.pi * d_wire ** 2 / 4 * (geom.nose_strut_L + 0.04)
+        steer = P.nose_steer_mass_kg
     mw, nw, br = geom.main_wheel, geom.nose_wheel, geom.brake
     gear_main = main + 2 * mw.mass_kg
-    gear_nose = nose + nw.mass_kg + P.nose_steer_mass_kg
+    gear_nose = nose + nw.mass_kg + steer
     out["landing_gear"] = gear_main + gear_nose
     out["wheel_brakes"] = br.mass_kg(2) if br.active else 0.0
 
@@ -145,7 +178,9 @@ def mass_breakdown(geom, wing_af, construction, motor, prop, esc, battery, m_to,
     out["payload"] = P.payload_kg
 
     info = dict(spar=spar, n_limit=n_limit, n_ult=n_ult, gear_strap_t=t_strap, nose_wire_d=d_wire,
-                gear_main=gear_main, gear_nose=gear_nose,
+                gear_main=gear_main, gear_nose=gear_nose, main_gear_material=P.main_gear_material,
+                nose_gear_model=nose_model, nose_gear_fits=nose_fits, nose_gear_type=P.nose_gear_type,
+                nose_leg_d=leg_d,
                 brake_wheels=2 * br.mass_per_wheel_kg if br.active else 0.0,
                 brake_actuator=br.actuator_mass_kg + br.cable_mass_kg if br.active else 0.0)
     return out, info

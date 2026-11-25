@@ -243,6 +243,10 @@ d("wheel_brake", "Du-Bro E/Z Brake", "-", "DESIGN CHOICE",
   "electric brakes rejected (~200 g)")
 
 # ---------------------------------------------------------------- structure / weights
+d("wing_constructions", ("printed_lwpla",), "-", "DESIGN CHOICE",
+  "Wing constructions the search may use. Team decision 2026-11-24: print most of the aircraft in LW-PLA, "
+  "including the wing (only the carbon spar, aluminum gear strap and music-wire nose strut are not printed). "
+  "Add 'foam_glass' to let the search compare a hot-wire foam core + glass skin wing again")
 d("wing_skin_t_m", 0.00045, "m", "DESIGN CHOICE", "Single-wall LW-PLA wing skin")
 d("tail_skin_t_m", 0.00045, "m", "DESIGN CHOICE", "Single-wall LW-PLA tail skin")
 d("fus_skin_t_m", 0.0006, "m", "DESIGN CHOICE", "LW-PLA fuselage wall")
@@ -261,7 +265,24 @@ d("gust_ude_ms", 15.24, "m/s", "STANDARD", "14 CFR 23.341: 50 ft/s derived gust 
 d("factor_of_safety", 1.5, "-", "STANDARD", "14 CFR 23.303 ultimate / limit")
 d("n_landing_limit", 3.0, "-", "ESTIMATE", "Landing limit load factor (14 CFR 23.473 >= 2.67)")
 d("main_gear_load_frac", 0.9, "-", "RAYMER", "Raymer Ch.11: nose gear carries 8-15% of weight")
-d("gear_plate_width_m", 0.020, "m", "DESIGN CHOICE", "Aluminum main-gear strap width")
+d("gear_plate_width_m", 0.020, "m", "DESIGN CHOICE", "Main-gear strap width")
+d("main_gear_material", "petg_printed", "-", "DESIGN CHOICE",
+  "Team decision 2026-11-24: every part 3D printed or off-the-shelf -> main gear strap printed in PETG "
+  "(data/materials.csv), thickness sized from the landing load. 'aluminum_6061_t6' = bent strap from stock")
+d("spar_from_catalog", True, "-", "DESIGN CHOICE",
+  "Spar = lightest off-the-shelf carbon tube in data/carbon_tubes.csv that carries the load and fits the root "
+  "(False = any diameter/wall, the old idealized sizing)")
+d("nose_gear_type", "printed_petg", "-", "DESIGN CHOICE",
+  "'printed_petg': printed PETG leg + wheel fork (sized from the nose load, min diameter below), printed "
+  "mounting/bearing blocks + steering arm, off-the-shelf bolts and axle. 'catalog': shortest off-the-shelf "
+  "steerable assembly in data/nose_gear.csv (Du-Bro, 55-62 g). 'music_wire': bent wire + steering block")
+d("printed_nose_leg_min_d_m", 0.008, "m", "DESIGN CHOICE",
+  "Minimum printed nose-leg diameter: the nose sizing load is an ESTIMATE and printed legs break at layer "
+  "lines (print the leg lying flat so the layers run along it)")
+d("printed_fork_section_m", (0.008, 0.004), "m", "DESIGN CHOICE", "Printed nose-wheel fork tine/bridge section (w x t)")
+d("printed_nose_mount_mass_kg", 0.006, "kg", "ESTIMATE",
+  "Printed PETG mounting/bearing blocks + steering arm for the nose leg. WEIGH", measure=True)
+d("nose_gear_hardware_mass_kg", 0.004, "kg", "ESTIMATE", "Off-the-shelf axle bolt + 4 x M3 mounting bolts/nuts")
 d("nose_steer_mass_kg", 0.010, "kg", "ESTIMATE", "Nose gear steering block + collar")
 d("motor_mount_mass_kg", 0.008, "kg", "ESTIMATE", "Printed/ply motor mount, each")
 d("spinner_mass_kg", 0.006, "kg", "ESTIMATE", "Prop adapter + spinner, each")

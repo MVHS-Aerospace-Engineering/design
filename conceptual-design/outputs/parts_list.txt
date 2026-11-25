@@ -1,19 +1,19 @@
 PARTS LIST (bill of materials)
-Source: conceptual-design/outputs/design_point.json   (generated 2026-11-24 12:59)
-Design takeoff mass 0.839 kg   Cobra C-2204/40 + APC 6x6E   Gens Ace Soaring 3S 2200 20C
+Source: conceptual-design/outputs/design_point.json   (generated 2026-11-24 21:07)
+Design takeoff mass 0.915 kg   Cobra C-2204/40 + APC 7x5E   Gens Ace Soaring 3S 2200 20C
 Masses: datasheet where tagged DATASHEET, otherwise estimates to WEIGH. No prices (catalogs carry none).
 Sizes of stock (spar, strap, wire) are the computed minimums; dimensions for CAD: outputs/dimensions.txt
 
 ====================================================================================================
- PROPULSION   (270.7 g)
+ PROPULSION   (277.9 g)
 ====================================================================================================
   qty  item                                                each g  total g  spec
     2  Cobra C-2204/40                                       22.5     45.0  1570 Kv, 9 A max, 27 mm can
-    2  APC 6x6E                                               7.8     15.6  6 x 6 in (APC E)
+    2  APC 7x5E                                              11.0     22.0  7 x 5 in (APC E)
     2  prop adapter + spinner                                 6.0     12.0  to fit the motor shaft
     2  Hobbywing Skywalker 20A V2                            19.0     38.0  20 A continuous
     1  Gens Ace Soaring 3S 2200 20C                         146.0    146.0  3S1P LiPo, 24.4 Wh, 74 x 33 x 25 mm
-    1  power wire 16 AWG silicone                            14.1     14.1  0.94 m total (2 conductors per motor, fuselage to nacelle + 0.10 m)
+    1  power wire 16 AWG silicone                            14.8     14.8  0.99 m total (2 conductors per motor, fuselage to nacelle + 0.10 m)
 
 ====================================================================================================
  AVIONICS + SERVOS   (264.0 g)
@@ -33,43 +33,48 @@ Sizes of stock (spar, strap, wire) are the computed minimums; dimensions for CAD
     1  Hinges / horns / pushrods / fasteners                 25.0     25.0  
 
 ====================================================================================================
- LANDING GEAR   (109.2 g)
+ LANDING GEAR   (85.4 g)
 ====================================================================================================
   qty  item                                                each g  total g  spec
     3  Du-Bro 300SL                                          16.8     50.4  76.2 x 23.0 mm, 4 mm axle
     2  Du-Bro E/Z Brake                                       8.0     16.0  fits wheels 57-89 mm
     1  brake actuator: micro servo (one for both brakes)     12.0     12.0  drives both brake cables
     1  brake cable / pushrod                                  3.0      3.0  
-    1  main gear strap, 6061-T6 aluminum                     12.9     12.9  1.03 mm thick (minimum - use the next stock size up) x 20 mm x 232 mm, bent to 45 deg legs
-    1  nose strut, music wire (ASTM A228)                     4.9      4.9  2.5 mm dia x 128 mm
-    1  nose gear steering block + collar                     10.0     10.0  
+    1  nose gear hardware (axle bolt, 4 x M3 bolts + nuts     4.0      4.0  
 
 ====================================================================================================
- STRUCTURE   (46.2 g)
+ PRINTED PARTS (PETG)   (36.6 g)
 ====================================================================================================
   qty  item                                                each g  total g  spec
-    1  carbon tube (main spar)                               12.4     12.4  6.0 mm OD x 0.50 mm wall x 924 mm
-    1  wing laminate: 25 g/m^2 glass cloth + epoxy           14.3     14.3  0.285 m^2 of cloth (one layer per side, before waste), ~1:1 epoxy by weight
-    1  wing core: EPS foam (hot-wire cut)                    19.5     19.5  s4083 sections, 1026 mm span
+    1  main landing gear (one piece, legs at 45 deg)         18.1     18.1  2.94 mm thick x 20 mm wide x 243 mm developed length; print FLAT so the layers run along the legs
+    1  nose leg + wheel fork (one piece)                     12.5     12.5  8.0 mm round leg x 112 mm, fork 8 x 4 mm for the 76 mm wheel; print lying flat
+    1  nose gear mounting/bearing blocks + steering arm       6.0      6.0  
 
 ====================================================================================================
- PRINTED PARTS (LW-PLA FILAMENT MASS)   (85.7 g)
+ OFF-THE-SHELF STRUCTURE   (17.1 g)
 ====================================================================================================
   qty  item                                                each g  total g  spec
-    1  fuselage shell + frames                               41.2     41.2  
-    1  horizontal tail                                       11.7     11.7  
-    1  fin                                                   10.9     10.9  
+    1  Pultruded carbon tube 6x4x1000                        17.1     17.1  cut to 728 mm (main spar)
+
+====================================================================================================
+ PRINTED PARTS (LW-PLA FILAMENT MASS)   (164.4 g)
+====================================================================================================
+  qty  item                                                each g  total g  spec
+    1  wing (both halves)                                    80.7     80.7  0.45 mm single-wall skin + internal web, sd7062, 809 mm span
+    1  fuselage shell + frames                               43.4     43.4  
+    1  horizontal tail                                        9.5      9.5  
+    1  fin                                                    9.0      9.0  
     2  nacelles                                               2.9      5.8  
-    2  motor mounts (printed or plywood)                      8.0     16.0  
+    2  motor mounts                                           8.0     16.0  
 
 ====================================================================================================
- ALLOWANCE   (63.0 g)
+ ALLOWANCE   (69.9 g)
 ====================================================================================================
   qty  item                                                each g  total g  spec
-    1  glue, paint, connectors, build variation              63.0     63.0  10% of everything except the battery
+    1  glue, paint, connectors, build variation              69.9     69.9  10% of everything except the battery
 
 ====================================================================================================
-  TOTAL 838.8 g   (design takeoff mass 838.7 g, difference +0.1 g)
+  TOTAL 915.3 g   (design takeoff mass 915.2 g, difference +0.1 g)
 
  Sources (full text in the CSV):
   - DATASHEET: gravesrc.com/indc-2204-40-cobra-c-2204-40-brushless-motor-kv-1570 (spec table; Kv from product title)
@@ -89,10 +94,8 @@ Sizes of stock (spar, strap, wire) are the computed minimums; dimensions for CAD
   - DATASHEET: Du-Bro 3 in Super Lite treaded EVA (300SL): 76.2 x 23.0 mm, 4 mm axle (motionrc.com DUB300SL); 16.8 g/wheel (frontlinehobbies.com.au listing). WEIGH
   - ESTIMATE: dubro.com E/Z Brake System: cable-pulled mechanical brake, 8 g per assembly, fits Du-Bro wheels 57-89 mm (verify the exact wheel model); servo = same 12 g class as data/components.csv; cable/pushrod mass ESTIMATE. WEIGH
   - ESTIMATE: same 12 g servo class as the other servos
-  - DATASHEET material; thickness sized from the landing load
-  - ESTIMATE material; diameter sized from the load
-  - ESTIMATE density; size from bending at ultimate load
-  - ESTIMATE (areal mass)
-  - ESTIMATE (foam density)
+  - DATASHEET (PETG strength/density); thickness sized from the landing load
+  - DATASHEET (PETG); leg sized from the nose load, min diameter is a design choice
+  - DATASHEET: easycomposites.co.uk 6mm (4mm) pultruded carbon fibre tube ~23.5 g/m (other listings 20-25 g: buzzardmodels.com 24.7 g, vortex-rc.com 24 g). WEIGH
   - ESTIMATE (LW-PLA density; WEIGH)
   - DESIGN CHOICE (weight_growth_allowance)

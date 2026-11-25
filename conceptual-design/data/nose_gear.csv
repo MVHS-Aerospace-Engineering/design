@@ -1,0 +1,3 @@
+name,leg_length_mm,wire_d_mm,mass_g,style,tag,source
+Du-Bro 152 steerable nose gear (bent),95.25,3.97,55,bent,DATASHEET,"windcatcherrc.com / dubro listings: 5/32 in wire, 3-3/4 in from coil centre to end, complete with nylon blocks + steering arm + hardware, 55 g (no wheel). WEIGH"
+Du-Bro 153 steerable nose gear (straight),168.3,3.97,62,straight,DATASHEET,"windcatcherrc.com / dubro listings: 5/32 in wire, 6-5/8 in from coil centre to end, complete with nylon blocks + steering arm + hardware, 62 g (no wheel). WEIGH"

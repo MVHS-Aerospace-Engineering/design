@@ -46,7 +46,7 @@ At the end of this, we will get a final number for motor size, wing area, and we
 
 ## How the Code Works
 
-Run `.venv/bin/python conceptual-design/conceptual.py` from `design/`. It searches every combination of wing airfoil, wing construction, motor, prop, and battery in the catalogs. For each one, it finds the aircraft with the lowest **mass + 30 g per m/s of stall speed** that meets every requirement (mass alone always shrinks the wing to the fastest stall speed any constraint allows; the 30 g/(m/s) weight is a team decision in `parameters.py`, and the stall-speed trade study in the report shows what other weights would give). It writes:
+Run `.venv/bin/python conceptual-design/conceptual.py` from `design/`. It searches every combination of wing airfoil, wing construction (`wing_constructions` in `parameters.py`; currently printed LW-PLA only), motor, prop, and battery in the catalogs. For each one, it finds the aircraft with the lowest **mass + 30 g per m/s of stall speed** that meets every requirement (mass alone always shrinks the wing to the fastest stall speed any constraint allows; the 30 g/(m/s) weight is a team decision in `parameters.py`, and the stall-speed trade study in the report shows what other weights would give). It writes:
 
 - `outputs/design_point.json`: the hand-off to preliminary design (geometry, parts, aero, masses, margins)
 - `outputs/constraint_diagram.png`: power loading vs. wing loading with every requirement line

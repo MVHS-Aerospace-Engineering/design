@@ -129,6 +129,8 @@ def render(j):
     if spar:
         sub("main spar")
         txt("material", spar.get("material", "carbon tube"))
+        if spar.get("tube_model"):
+            txt("tube (off the shelf)", spar["tube_model"])
         mm("outside diameter", spar["od"])
         mm("wall thickness", spar["wall"])
         mm("length (centred on the fuselage)", spar["length"])
@@ -249,7 +251,8 @@ def render(j):
 
     # 9 ------------------------------------------------------------------
     head("9. LANDING GEAR, WHEELS AND BRAKES")
-    sub("main gear (aluminium strap)")
+    sub("main gear (" + ("printed PETG, one piece - print flat" if gear.get("main_gear_material") == "petg_printed"
+                         else "aluminium strap") + ")")
     mm("axle x", gear["x_main"])
     mm("wheel centre y (each side)", gear["y_main"])
     mm("track (wheel centre to wheel centre)", 2 * float(gear["y_main"]))
@@ -267,10 +270,14 @@ def render(j):
         except (TypeError, ValueError):
             v = float("nan")
         row(lbl, "-" if v != v else f"{v:.1f}", "mm", "" if v == v else "check the wheel")
-    sub("nose gear (steerable music wire)")
+    sub("nose gear (steerable" + (", " + gear["nose_gear_model"] if gear.get("nose_gear_model") else " music wire")
+        + ")")
     mm("axle x", gear["x_nose"])
     mm("strut length", gear.get("nose_strut_length"))
-    mm("wire diameter", gear.get("nose_wire_d"))
+    if gear.get("nose_gear_type") == "printed_petg":
+        mm("printed leg diameter (PETG, print lying flat)", gear.get("nose_leg_d"))
+    else:
+        mm("wire diameter", gear.get("nose_wire_d"))
     mm("extra strut length for nose-up stance", gear.get("nose_gear_extra_length"))
     deg("ground stance (nose up)", gear.get("ground_stance_deg"))
     txt("nose wheel", gear.get("nose_wheel_model"))

@@ -91,26 +91,62 @@ def build(j):
         add("landing gear", f"brake actuator: {br.actuator}", 1, "drives both brake cables",
             br.actuator_mass_kg, f"{br.tag}: same 12 g servo class as the other servos")
         add("landing gear", "brake cable / pushrod", 1, "", br.cable_mass_kg, "ESTIMATE")
-    al = mat["aluminum_6061_t6"]
+    gmat = G.get("main_gear_material", "aluminum_6061_t6")
+    gm = mat[gmat]
     strap_len = 2 * G["main_leg_length"] + g["fuselage_width_m"]
     t, w = G["strap_thickness"], G["strap_width"]
-    add("landing gear", "main gear strap, 6061-T6 aluminum", 1,
-        f"{t * 1000:.2f} mm thick (minimum - use the next stock size up) x {w * 1000:.0f} mm x "
-        f"{strap_len * 1000:.0f} mm, bent to 45 deg legs", al["density_kg_m3"] * t * w * strap_len,
-        "DATASHEET material; thickness sized from the landing load")
-    mwire = mat["music_wire"]
-    d = G["nose_wire_d"]
-    wl = G["nose_strut_length"] + 0.04
-    add("landing gear", "nose strut, music wire (ASTM A228)", 1, f"{d * 1000:.1f} mm dia x {wl * 1000:.0f} mm",
-        mwire["density_kg_m3"] * math.pi * d ** 2 / 4 * wl, "ESTIMATE material; diameter sized from the load")
-    add("landing gear", "nose gear steering block + collar", 1, "", P["nose_steer_mass_kg"], "ESTIMATE")
+    if gmat == "petg_printed":
+        add("printed parts (PETG)", "main landing gear (one piece, legs at 45 deg)", 1,
+            f"{t * 1000:.2f} mm thick x {w * 1000:.0f} mm wide x {strap_len * 1000:.0f} mm developed length; "
+            f"print FLAT so the layers run along the legs", gm["density_kg_m3"] * t * w * strap_len,
+            "DATASHEET (PETG strength/density); thickness sized from the landing load")
+    else:
+        add("landing gear", "main gear strap, 6061-T6 aluminum", 1,
+            f"{t * 1000:.2f} mm thick (minimum - use the next stock size up) x {w * 1000:.0f} mm x "
+            f"{strap_len * 1000:.0f} mm, bent to 45 deg legs", gm["density_kg_m3"] * t * w * strap_len,
+            "DATASHEET material; thickness sized from the landing load")
+    if G.get("nose_gear_type") == "printed_petg":
+        pg = mat["petg_printed"]
+        d = G["nose_leg_d"]
+        fw, ft = P["printed_fork_section_m"]
+        r_w, w_w = nw.d / 2, nw.w
+        leg = pg["density_kg_m3"] * math.pi * d ** 2 / 4 * (G["nose_strut_length"] + 0.02)
+        fork = pg["density_kg_m3"] * fw * ft * (2 * (r_w + 0.010) + (w_w + 2 * (ft + 0.002)))
+        add("printed parts (PETG)", "nose leg + wheel fork (one piece)", 1,
+            f"{d * 1000:.1f} mm round leg x {(G['nose_strut_length'] + 0.02) * 1000:.0f} mm, fork "
+            f"{fw * 1000:.0f} x {ft * 1000:.0f} mm for the {nw.d * 1000:.0f} mm wheel; print lying flat",
+            leg + fork, "DATASHEET (PETG); leg sized from the nose load, min diameter is a design choice")
+        add("printed parts (PETG)", "nose gear mounting/bearing blocks + steering arm", 1, "",
+            P["printed_nose_mount_mass_kg"], "ESTIMATE")
+        add("landing gear", "nose gear hardware (axle bolt, 4 x M3 bolts + nuts)", 1, "",
+            P["nose_gear_hardware_mass_kg"], "ESTIMATE")
+    elif G.get("nose_gear_model"):
+        from catalog import nose_gears
+        ng = {n.name: n for n in nose_gears()}[G["nose_gear_model"]]
+        add("landing gear", ng.name, 1, f"{ng.wire_d * 1000:.2f} mm (5/32 in) wire, {ng.leg_length * 1000:.0f} mm "
+            f"leg; nylon blocks, steering arm, hardware", ng.mass_kg, f"{ng.tag}: {ng.source}")
+    else:
+        mwire = mat["music_wire"]
+        d = G["nose_wire_d"]
+        wl = G["nose_strut_length"] + 0.04
+        add("landing gear", "nose strut, music wire (ASTM A228)", 1, f"{d * 1000:.1f} mm dia x {wl * 1000:.0f} mm",
+            mwire["density_kg_m3"] * math.pi * d ** 2 / 4 * wl, "ESTIMATE material; diameter sized from the load")
+        add("landing gear", "nose gear steering block + collar", 1, "", P["nose_steer_mass_kg"], "ESTIMATE")
 
     # ---------------------------------------------------------------- structure (materials)
     sp = L["spar"]
     cf = mat["cfrp_tube"]
-    sp_mass = cf["density_kg_m3"] * math.pi * (sp["od"] ** 2 - max(sp["od"] - 2 * sp["wall"], 0) ** 2) / 4 * sp["length"]
-    add("structure", "carbon tube (main spar)", 1, f"{sp['od'] * 1000:.1f} mm OD x {sp['wall'] * 1000:.2f} mm "
-        f"wall x {sp['length'] * 1000:.0f} mm", sp_mass, "ESTIMATE density; size from bending at ultimate load")
+    if sp.get("tube_model"):
+        from catalog import carbon_tubes
+        tb = {x.name: x for x in carbon_tubes()}[sp["tube_model"]]
+        n_t = int(sp.get("n_tubes") or 1)
+        add("off-the-shelf structure", tb.name, n_t, f"cut to {sp['length'] * 1000:.0f} mm (main spar)"
+            + ("; join the pieces with a sleeve" if n_t > 1 else ""),
+            tb.kg_per_m * sp["length"] / n_t, f"{tb.tag}: {tb.source}")
+    else:
+        sp_mass = cf["density_kg_m3"] * math.pi * (sp["od"] ** 2 - max(sp["od"] - 2 * sp["wall"], 0) ** 2) / 4 * sp["length"]
+        add("structure", "carbon tube (main spar)", 1, f"{sp['od'] * 1000:.1f} mm OD x {sp['wall'] * 1000:.2f} mm "
+            f"wall x {sp['length'] * 1000:.0f} mm", sp_mass, "ESTIMATE density; size from bending at ultimate load")
     S_wet = g["wing"]["S_wet"]
     if sel["wing_construction"] == "foam_glass":
         lam = mat["glass_laminate_25gsm"]["areal_kg_m2"] * S_wet
@@ -121,14 +157,16 @@ def build(j):
             f"{sel['wing_airfoil']} sections, {g['wing']['b'] * 1000:.0f} mm span",
             mb["wing_shell"] - lam, "ESTIMATE (foam density)")
     else:
-        add("structure", "printed wing (LW-PLA)", 1, "shell + internal web", mb["wing_shell"], "ESTIMATE")
+        add("printed parts (LW-PLA filament mass)", "wing (both halves)", 1,
+            f"{P['wing_skin_t_m'] * 1000:.2f} mm single-wall skin + internal web, {sel['wing_airfoil']}, "
+            f"{g['wing']['b'] * 1000:.0f} mm span", mb["wing_shell"], "ESTIMATE (LW-PLA density; WEIGH)")
     motor_mounts = n * P["motor_mount_mass_kg"]
     for key, name in (("fuselage", "fuselage shell + frames"), ("htail", "horizontal tail"),
                       ("vtail", "fin")):
         add("printed parts (LW-PLA filament mass)", name, 1, "", mb[key], "ESTIMATE (LW-PLA density; WEIGH)")
     add("printed parts (LW-PLA filament mass)", "nacelles", n, "", (mb["nacelles"] - motor_mounts) / n,
         "ESTIMATE")
-    add("printed parts (LW-PLA filament mass)", "motor mounts (printed or plywood)", n, "",
+    add("printed parts (LW-PLA filament mass)", "motor mounts", n, "",
         P["motor_mount_mass_kg"], "ESTIMATE")
 
     # ---------------------------------------------------------------- allowance
@@ -140,6 +178,8 @@ def build(j):
 
 def render(j):
     rows = build(j)
+    order = list(dict.fromkeys(r["category"] for r in rows))          # group by category, first-seen order
+    rows = sorted(rows, key=lambda r: order.index(r["category"]))
     W = []
     w = W.append
     w("PARTS LIST (bill of materials)")

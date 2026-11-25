@@ -13,7 +13,7 @@ trimmed landing-configuration stall speed. Mass alone always shrinks the wing
 to the fastest stall speed any constraint allows.
 
 run()               - staged search:
-   A  airframe technology (wing airfoil x construction), screened with
+   A  airframe technology (wing airfoil x construction in P.wing_constructions), screened with
       reference powertrains
    B  every motor x prop x battery-family combination, screened in parallel
       on a 2-D (wing area x aspect ratio) grid
@@ -41,7 +41,7 @@ from geometry import build
 from mission import mission_bmf, performance
 from parameters import P
 from propulsion import V_GRID, Powertrain
-from weights import (CONSTRUCTIONS, avionics_power_w, cg_budget, component_stations,
+from weights import (avionics_power_w, cg_budget, component_stations,
                      design_cruise_speed, gust_load_factor, mass_breakdown)
 
 X_BOUNDS = [(0.04, 0.60), (4.0, 20.0), (1.8, 5.0), (0.0, 6.0)]   # S, AR, tail arm/MAC, washout deg
@@ -50,7 +50,7 @@ CONS_KEYS = ("takeoff_roll_grass", "takeoff_roll_pavement", "landing_roll_grass"
              "span", "climb_rate", "climb_gradient", "balked_landing", "motor_current", "battery_current",
              "esc_available", "motor_station", "spar_fits", "tip_reynolds", "roll_helix",
              "elevator_authority", "crosswind_rudder", "crosswind_aileron", "engine_out_aileron",
-             "cn_beta", "stall_speed", "brake_fits", "prop_data_range", "converged")
+             "cn_beta", "stall_speed", "brake_fits", "nose_gear_fits", "prop_data_range", "converged")
 N_CONS = len(CONS_KEYS)   # constraints for a continuous battery (+1 endurance for a real pack)
 
 
@@ -283,6 +283,7 @@ def evaluate(x, combo, max_iter=100, fast=False):
         cn_beta=min(lc.get("cn_beta", 0.0), 1.0),
         stall_speed=(1 - perf["V_s_landing"] / P.stall_speed_max_ms) if P.stall_speed_max_ms else 1.0,
         brake_fits=0.0 if (not geom.brake.active or geom.brake.fits(geom.main_wheel)) else -1.0,
+        nose_gear_fits=0.0 if winfo.get("nose_gear_fits", True) else -1.0,
         prop_data_range=0.0 if not st["rpm_limited"] else -1.0,
         converged=0.0 if converged else -1.0,
     )
@@ -416,7 +417,7 @@ def run(verbose=True, workers=None):
     # ---- A: airframe technology, screened with a stratified sample of powertrains
     order = sorted(range(len(combos)), key=lambda i: combos[i][3])
     refs = [combos[i] for i in order[::max(1, len(order) // 36)]]
-    jobs = [(af, cn, r[0], r[1], r[2]) for af in wing_airfoil_names() for cn in CONSTRUCTIONS for r in refs]
+    jobs = [(af, cn, r[0], r[1], r[2]) for af in wing_airfoil_names() for cn in P.wing_constructions for r in refs]
     with ProcessPoolExecutor(max_workers=workers) as ex:
         resA = [r for r in ex.map(_screen_job, jobs, chunksize=4) if r is not None]
     tech = {}

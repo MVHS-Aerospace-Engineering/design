@@ -1,10 +1,10 @@
 category,item,qty,spec,unit_g,total_g,source
 propulsion,Cobra C-2204/40,2,"1570 Kv, 9 A max, 27 mm can",22.50,45.00,DATASHEET: gravesrc.com/indc-2204-40-cobra-c-2204-40-brushless-motor-kv-1570 (spec table; Kv from product title)
-propulsion,APC 6x6E,2,6 x 6 in (APC E),7.80,15.60,ESTIMATE (mass scaled from a 10 in APC E; WEIGH)
+propulsion,APC 7x5E,2,7 x 5 in (APC E),11.00,22.00,ESTIMATE (mass scaled from a 10 in APC E; WEIGH)
 propulsion,prop adapter + spinner,2,to fit the motor shaft,6.00,12.00,ESTIMATE
 propulsion,Hobbywing Skywalker 20A V2,2,20 A continuous,19.00,38.00,DATASHEET
 propulsion,Gens Ace Soaring 3S 2200 20C,1,"3S1P LiPo, 24.4 Wh, 74 x 33 x 25 mm",146.00,146.00,DATASHEET
-propulsion,power wire 16 AWG silicone,1,"0.94 m total (2 conductors per motor, fuselage to nacelle + 0.10 m)",14.09,14.09,ESTIMATE (mass per metre)
+propulsion,power wire 16 AWG silicone,1,"0.99 m total (2 conductors per motor, fuselage to nacelle + 0.10 m)",14.85,14.85,ESTIMATE (mass per metre)
 avionics + servos,Raspberry Pi 5 board,1,85 x 56 x 17 mm,46.00,46.00,ESTIMATE: mass ESTIMATE (weigh); power: RPi white paper RP-010139 gives 4-5 W min / ~12 W peak - 6 W typical workload ESTIMATE
 avionics + servos,Raspberry Pi 5 Active Cooler,1,85 x 56 x 10 mm,29.00,29.00,DATASHEET: waveshare.com Raspberry-Pi-5-Official-Active-Cooler (0.029 kg)
 avionics + servos,Raspberry Pi Camera Module 3,1,25 x 24 x 12 mm,4.00,4.00,"DATASHEET: raspberrypi.com Camera Module 3 docs: 4 g, 25x24x11.5 mm; power ESTIMATE (measure)"
@@ -21,15 +21,15 @@ landing gear,Du-Bro 300SL,3,"76.2 x 23.0 mm, 4 mm axle",16.80,50.40,"DATASHEET: 
 landing gear,Du-Bro E/Z Brake,2,fits wheels 57-89 mm,8.00,16.00,"ESTIMATE: dubro.com E/Z Brake System: cable-pulled mechanical brake, 8 g per assembly, fits Du-Bro wheels 57-89 mm (verify the exact wheel model); servo = same 12 g class as data/components.csv; cable/pushrod mass ESTIMATE. WEIGH"
 landing gear,brake actuator: micro servo (one for both brakes),1,drives both brake cables,12.00,12.00,ESTIMATE: same 12 g servo class as the other servos
 landing gear,brake cable / pushrod,1,,3.00,3.00,ESTIMATE
-landing gear,"main gear strap, 6061-T6 aluminum",1,"1.03 mm thick (minimum - use the next stock size up) x 20 mm x 232 mm, bent to 45 deg legs",12.88,12.88,DATASHEET material; thickness sized from the landing load
-landing gear,"nose strut, music wire (ASTM A228)",1,2.5 mm dia x 128 mm,4.94,4.94,ESTIMATE material; diameter sized from the load
-landing gear,nose gear steering block + collar,1,,10.00,10.00,ESTIMATE
-structure,carbon tube (main spar),1,6.0 mm OD x 0.50 mm wall x 924 mm,12.44,12.44,ESTIMATE density; size from bending at ultimate load
-structure,wing laminate: 25 g/m^2 glass cloth + epoxy,1,"0.285 m^2 of cloth (one layer per side, before waste), ~1:1 epoxy by weight",14.27,14.27,ESTIMATE (areal mass)
-structure,wing core: EPS foam (hot-wire cut),1,"s4083 sections, 1026 mm span",19.53,19.53,ESTIMATE (foam density)
-printed parts (LW-PLA filament mass),fuselage shell + frames,1,,41.25,41.25,ESTIMATE (LW-PLA density; WEIGH)
-printed parts (LW-PLA filament mass),horizontal tail,1,,11.69,11.69,ESTIMATE (LW-PLA density; WEIGH)
-printed parts (LW-PLA filament mass),fin,1,,10.88,10.88,ESTIMATE (LW-PLA density; WEIGH)
+printed parts (PETG),"main landing gear (one piece, legs at 45 deg)",1,2.94 mm thick x 20 mm wide x 243 mm developed length; print FLAT so the layers run along the legs,18.12,18.12,DATASHEET (PETG strength/density); thickness sized from the landing load
+printed parts (PETG),nose leg + wheel fork (one piece),1,"8.0 mm round leg x 112 mm, fork 8 x 4 mm for the 76 mm wheel; print lying flat",12.48,12.48,"DATASHEET (PETG); leg sized from the nose load, min diameter is a design choice"
+printed parts (PETG),nose gear mounting/bearing blocks + steering arm,1,,6.00,6.00,ESTIMATE
+landing gear,"nose gear hardware (axle bolt, 4 x M3 bolts + nuts)",1,,4.00,4.00,ESTIMATE
+off-the-shelf structure,Pultruded carbon tube 6x4x1000,1,cut to 728 mm (main spar),17.10,17.10,"DATASHEET: easycomposites.co.uk 6mm (4mm) pultruded carbon fibre tube ~23.5 g/m (other listings 20-25 g: buzzardmodels.com 24.7 g, vortex-rc.com 24 g). WEIGH"
+printed parts (LW-PLA filament mass),wing (both halves),1,"0.45 mm single-wall skin + internal web, sd7062, 809 mm span",80.67,80.67,ESTIMATE (LW-PLA density; WEIGH)
+printed parts (LW-PLA filament mass),fuselage shell + frames,1,,43.38,43.38,ESTIMATE (LW-PLA density; WEIGH)
+printed parts (LW-PLA filament mass),horizontal tail,1,,9.51,9.51,ESTIMATE (LW-PLA density; WEIGH)
+printed parts (LW-PLA filament mass),fin,1,,9.01,9.01,ESTIMATE (LW-PLA density; WEIGH)
 printed parts (LW-PLA filament mass),nacelles,2,,2.92,5.84,ESTIMATE
-printed parts (LW-PLA filament mass),motor mounts (printed or plywood),2,,8.00,16.00,ESTIMATE
-allowance,"glue, paint, connectors, build variation",1,10% of everything except the battery,62.97,62.97,DESIGN CHOICE (weight_growth_allowance)
+printed parts (LW-PLA filament mass),motor mounts,2,,8.00,16.00,ESTIMATE
+allowance,"glue, paint, connectors, build variation",1,10% of everything except the battery,69.93,69.93,DESIGN CHOICE (weight_growth_allowance)

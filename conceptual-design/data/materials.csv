@@ -5,3 +5,4 @@ glass_laminate_25gsm,,0.050,,ESTIMATE,25 g/m2 (0.75 oz) cloth + ~1:1 epoxy by we
 cfrp_tube,1550,,500e6,ESTIMATE,roll-wrapped carbon tube density; 500 MPa ultimate bending allowable (conservative)
 aluminum_6061_t6,2700,,276e6,DATASHEET,6061-T6 yield strength 276 MPa (MMPDS / ASM handbook)
 music_wire,7850,,1400e6,ESTIMATE,ASTM A228 spring steel - bending yield ~1400 MPa
+petg_printed,1270,,39e6,DATASHEET,"Printed PETG: yield 39 MPa printed flat (Prusament PETG V0 TDS 2023, horizontal; 42 MPa vertical), modulus 1.7 GPa; density 1.27 g/cc typical PETG. Print the gear strap flat so the layers run along the legs"

@@ -414,6 +414,40 @@ def brakes():
             for r in _rows("brakes.csv")}
 
 
+@dataclass(frozen=True)
+class Tube:
+    name: str
+    od: float           # m
+    id: float           # m
+    length: float       # m
+    kg_per_m: float
+    tag: str
+    source: str
+
+
+@lru_cache(maxsize=None)
+def carbon_tubes():
+    return [Tube(r["name"], float(r["od_mm"]) / 1000, float(r["id_mm"]) / 1000, float(r["length_mm"]) / 1000,
+                 float(r["mass_g_per_m"]) / 1000, r["tag"], r["source"]) for r in _rows("carbon_tubes.csv")]
+
+
+@dataclass(frozen=True)
+class NoseGear:
+    name: str
+    leg_length: float   # m
+    wire_d: float       # m
+    mass_kg: float
+    style: str
+    tag: str
+    source: str
+
+
+@lru_cache(maxsize=None)
+def nose_gears():
+    return [NoseGear(r["name"], float(r["leg_length_mm"]) / 1000, float(r["wire_d_mm"]) / 1000,
+                     float(r["mass_g"]) / 1000, r["style"], r["tag"], r["source"]) for r in _rows("nose_gear.csv")]
+
+
 def main_wheel():
     return wheels()[P.main_wheel]
 

@@ -208,7 +208,7 @@ def render(j):
                      "negative stall). Balance toward the aft half of the CG range, and check elevator authority "
                      "on the first approaches.")
     for k, v in (j.get("constraint_margins") or {}).items():
-        if 0 <= v < 0.02 and k not in ("converged", "esc_available", "prop_data_range", "brake_fits", "stall_speed"):
+        if 0 <= v < 0.02 and k not in ("converged", "esc_available", "prop_data_range", "brake_fits", "nose_gear_fits", "stall_speed"):
             notes.append(f"'{k}' is at its limit (margin {v * 100:.1f}%) - it sized the design; "
                          "a heavier build or measured inputs may push it over.")
     ph_lo = math.degrees(math.acos(min(1.0, (Vs / lo["V"]) ** 2)))
@@ -218,7 +218,7 @@ def render(j):
                      "loiter or add speed for turns.")
     if dv and dv.get("cn_beta", 1) < 0.06:
         notes.append(f"Weathercock stability is modest (Cn_beta {dv['cn_beta']:.3f}/rad): expect the nose to "
-                     "wander in gusts; the fin is held at the Raymer tail-volume size for this reason.")
+                     "wander in gusts; this is why the fin is never allowed below the Raymer tail-volume size.")
     for i, s_ in enumerate(notes, 1):
         w(f"  {i}. {s_}")
     if not notes:

@@ -1,0 +1,5 @@
+name,od_mm,id_mm,length_mm,mass_g_per_m,tag,source
+Pultruded carbon tube 6x4x1000,6,4,1000,23.5,DATASHEET,"easycomposites.co.uk 6mm (4mm) pultruded carbon fibre tube ~23.5 g/m (other listings 20-25 g: buzzardmodels.com 24.7 g, vortex-rc.com 24 g). WEIGH"
+Roll-wrapped carbon tube 8x6x1000,8,6,1000,34.1,ESTIMATE,"size listed by vortex-rc.com (8x6x1000); mass = 1550 kg/m3 x section area (no listed mass found). WEIGH"
+Roll-wrapped carbon tube 10x8x1000,10,8,1000,43.8,ESTIMATE,"size listed by vortex-rc.com (10x8x1000); mass = 1550 kg/m3 x section area (no listed mass found). WEIGH"
+Roll-wrapped carbon tube 14x12x1000,14,12,1000,63.0,DATASHEET,"vortex-rc.com 14x12x1000mm roll-wrapped 3K tube, 63 g"

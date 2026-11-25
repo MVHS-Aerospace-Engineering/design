@@ -272,7 +272,8 @@ def report(best, alts, cdiag, sens, runtime, twist=None, wheels_=None, stall=Non
         ("Climb gradient", f"{cl['grad_max']:.3f}", f">= {P.min_climb_gradient:.3f}", best.cons["climb_gradient"]),
         ("Motor current (max)", f"{perf['I_motor_max']:.1f} A", f"<= {sizing.motors()[best.combo.motor].imax:.0f}", best.cons["motor_current"]),
         ("Battery current (max)", f"{perf['I_batt_max']:.1f} A", f"<= {batt.i_max:.0f}", best.cons["battery_current"]),
-        ("Spar fits in root airfoil", f"{d['winfo']['spar']['util']:.2f}", "< 1", best.cons["spar_fits"]),
+        (("Spar stress / allowable (ultimate load)" if d['winfo']['spar'].get('tube') else
+          "Spar section / largest that fits the root"), f"{d['winfo']['spar']['util']:.2f}", "< 1", best.cons["spar_fits"]),
         ("Tip Reynolds number at loiter", f"{(best.cons['tip_reynolds'] + 1) * P.re_tip_min / 1e3:.0f}k", f">= {P.re_tip_min / 1e3:.0f}k", best.cons["tip_reynolds"]),
         ("Roll helix pb/2V (approach)", f"{d['controls']['aileron']['pb2v']:.3f}", f">= {P.roll_helix_min}", best.cons["roll_helix"]),
         ("Elevator authority (forward CG)", f"{d['tail']['elevator']['ratio']:.2f}x", ">= 1", best.cons["elevator_authority"]),
@@ -501,6 +502,7 @@ def layout(best):
             "note": "unswept quarter-chord line; incidence puts the fuselage level at loiter; "
                     "washout linear root->tip, airfoil lofted linearly root->tip"}),
         "spar": {"od": r(wi["spar"]["D"]), "wall": r(wi["spar"]["t"]), "length": r(P.spar_span_frac * g.b),
+                 "tube_model": wi["spar"].get("tube"), "n_tubes": wi["spar"].get("n_tubes", 0),
                  "x": r(x_spar), "z": r(z_wing + wsh["camber_at_tmax"] * g.wing.c_root),
                  "xc_root": r(wsh["x_tmax"]), "xc_tip": r((x_spar - le(c_tip)) / c_tip),
                  "material": "carbon tube"},
@@ -538,6 +540,9 @@ def layout(best):
                  "gear_height": r(g.gear_h), "main_leg_length": r(g.main_leg_L),
                  "nose_strut_length": r(g.nose_strut_L), "strap_thickness": r(wi["gear_strap_t"]),
                  "strap_width": P.gear_plate_width_m, "nose_wire_d": r(wi["nose_wire_d"]),
+                 "main_gear_material": wi.get("main_gear_material", "aluminum_6061_t6"),
+                 "nose_gear_model": wi.get("nose_gear_model"), "nose_gear_type": wi.get("nose_gear_type"),
+                 "nose_leg_d": r(wi.get("nose_leg_d", wi["nose_wire_d"])),
                  "brake_model": g.brake.name if g.brake.active else None,
                  "brake_actuator": g.brake.actuator if g.brake.active else None,
                  "note": f"takeoff technique: {tl['takeoff_technique']}; main gear at "
@@ -790,6 +795,9 @@ def main(argv):
     jp = os.path.join(OUT, "design_point.json")
     print_design.write(jp, os.path.join(OUT, "design_parameters.txt"))
     print_dimensions.write(jp, os.path.join(OUT, "dimensions.txt"))
+    import glob
+    for old in glob.glob(os.path.join(OUT, "airfoils", "*.dat")):     # only the current design's sections
+        os.remove(old)
     print_dimensions.write_airfoils(jp, os.path.join(OUT, "airfoils"))
     print_parts.write(jp, os.path.join(OUT, "parts_list.txt"), os.path.join(OUT, "parts_list.csv"))
     print_performance.write(jp, os.path.join(OUT, "performance.txt"))
