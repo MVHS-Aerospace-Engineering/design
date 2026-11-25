@@ -4,7 +4,7 @@ You will find a visual diagram of this process in this folder (which I honestly 
 
 ## Reminder of Requirements
 
-- The aircraft shall remain airborne for a minimum of 30 minutes with no payload.
+- The aircraft shall remain airborne for a minimum of 45 minutes with no payload (raised from 30 min, Nov 2026).
 - The aircraft shall take off within 75 m on the paved strip and within 80 m on soft grass, and land (with wheel brakes) within the same distances (field survey, Nov 2026; was 250 ft).
 - The aircraft shall support full autonomous and remote-controlled operation.
 
@@ -66,7 +66,7 @@ Inside the same loop, and converged together with the mass: the fin (coupled eng
 
 | File | Job |
 |---|---|
-| `requirements.py` | README requirements (30 min; takeoff/braked landing ≤ 75 m pavement, ≤ 80 m soft grass; ≤1.5 m span) |
+| `requirements.py` | README requirements (45 min; takeoff/braked landing ≤ 75 m pavement, ≤ 80 m soft grass; ≤1.5 m span) |
 | `parameters.py` | **every** input that isn't calculated, each tagged with its source (REQUIREMENT / STANDARD / RAYMER / DATASHEET / DESIGN CHOICE / SITE / ESTIMATE) |
 | `atmosphere.py` | ISA density and viscosity (hot day by default) |
 | `catalog.py` | loads `data/`: airfoil polars, APC prop tables, motors, batteries, ESCs, avionics, materials |

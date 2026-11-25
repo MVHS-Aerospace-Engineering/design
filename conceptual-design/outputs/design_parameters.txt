@@ -1,42 +1,44 @@
-CONCEPTUAL DESIGN PARAMETERS   (generated 2026-11-24 21:07)
+CONCEPTUAL DESIGN PARAMETERS   (generated 2026-11-25 00:29)
 Source: conceptual-design/outputs/design_point.json
 
 ======================================================================================
  1. SUMMARY
 ======================================================================================
-  takeoff mass                                           0.9152 kg       
-  objective = mass + w x V_stall                        1.19119 kg       w = 30.0 g per m/s
-  stall speed (landing config, trimmed)                  9.1984 m/s      
-  wing loading W/S                                        77.58 N/m^2    
-  installed shaft power / weight (capped)                 6.202 W/N      
-  throttle cap (max ESC duty)                            0.5623 -        set on both motor outputs in the FC
+  takeoff mass                                            0.936 kg       
+  objective = mass + w x V_stall                        1.20568 kg       w = 30.0 g per m/s
+  stall speed (landing config, trimmed)                   8.989 m/s      
+  wing loading W/S                                        72.11 N/m^2    
+  installed shaft power / weight (capped)                 5.171 W/N      
+  throttle cap (max ESC duty)                            0.6513 -        set on both motor outputs in the FC
 
 ======================================================================================
  2. DESIGN VARIABLES
 ======================================================================================
  -- chosen by the optimizer (SLSQP)
-  S_m2                                                  0.11569          bounds [0.04, 0.6]
-  AR                                                    5.65283          bounds [4.0, 20.0]
-  tail_arm_over_mac                                     2.58325          bounds [1.8, 5.0]
-  washout_deg                                           1.01562          bounds [0.0, 6.0]
+  S_m2                                                  0.12729          bounds [0.04, 0.6]
+  AR                                                    7.13987          bounds [4.0, 20.0]
+  tail_arm_over_mac                                     2.35814          bounds [1.8, 5.0]
+  washout_deg                                           1.12276          bounds [0.0, 6.0]
+  taper                                                 0.61776          bounds [0.35, 1.0]
  -- sized inside the convergence loop
-  throttle cap                                           0.5623 -        smallest meeting takeoff + climb target x margin
-  fin area                                               0.0141 m^2      max(tail-volume, coupled engine-out trim)
-  stabilizer area                                       0.01488 m^2      scissor plot: stability at aft CG, elevator at forward CG
-  wing station x_qc (CG mid-band)                      0.126415 m        
-  battery (snapped to a real pack)             Gens Ace Soaring 3S 2200 20C          
+  throttle cap                                           0.6513 -        smallest meeting takeoff + climb target x margin
+  fin area                                               0.0153 m^2      max(tail-volume, coupled engine-out trim)
+  stabilizer area                                       0.01953 m^2      scissor plot: stability at aft CG, elevator at forward CG
+  wing station x_qc (CG mid-band)                      0.121579 m        
+  battery (snapped to a real pack)             3S1P Molicel P28A (18650)          
   spar OD / wall                                    6.00 / 1.00 mm       
  -- discrete choices (searched over the catalogs)
   wing_airfoil                                           sd7062          
   wing_tip_airfoil                                       sd7062          
-  wing_washout_deg                                        1.016          
+  wing_washout_deg                                        1.123          
+  wing_taper                                             0.6178          
   control_config                                      flaperons          
   tail_airfoil                                         naca0009          
   wing_construction                               printed_lwpla          
   motor                                         Cobra C-2204/40          
-  prop                                                 APC 7x5E          
+  prop                                                 APC 6x6E          
   esc                                          Hobbywing Skywalker 20A V2          
-  battery                                      Gens Ace Soaring 3S 2200 20C          
+  battery                                      3S1P Molicel P28A (18650)          
 
 ======================================================================================
  3. SELECTED PARTS (datasheet values)
@@ -51,207 +53,208 @@ Source: conceptual-design/outputs/design_point.json
   od_m                                                    0.027          
   source                                       gravesrc.com/indc-2204-40-cobra-c-2204-40-brushless-motor-kv-1570 (spec table; Kv from product title)          
  -- prop
-  name                                                 APC 7x5E          
-  diameter_in                                                 7          
-  pitch_in                                                    5          
-  mass_kg_estimate                                        0.011          
+  name                                                 APC 6x6E          
+  diameter_in                                                 6          
+  pitch_in                                                    6          
+  mass_kg_estimate                                       0.0078          
   source                                       APC PER3 performance data          
  -- esc
   name                                         Hobbywing Skywalker 20A V2          
   i_cont_A                                                   20          
   mass_kg                                                 0.019          
  -- battery
-  name                                         Gens Ace Soaring 3S 2200 20C          
-  chemistry                                                LiPo          
+  name                                         3S1P Molicel P28A (18650)          
+  chemistry                                              Li-ion          
   cells_series                                                3          
   parallel                                                    1          
-  v_nom                                                    11.1          
-  energy_Wh                                               24.42          
-  mass_kg                                                 0.146          
-  specific_energy_Wh_kg                                   167.3          
-  r_int_ohm                                              0.0273          
-  i_max_A                                                  35.2          
-  dims_m                                       [0.074, 0.033, 0.025]          
-  usable_fraction_K                                         0.8          
+  v_nom                                                    10.8          
+  energy_Wh                                               30.24          
+  mass_kg                                                0.1659          
+  specific_energy_Wh_kg                                   182.2          
+  r_int_ohm                                               0.054          
+  i_max_A                                                    21          
+  dims_m                                       [0.0651, 0.0555, 0.0185]          
+  usable_fraction_K                                        0.85          
 
 ======================================================================================
  4. GEOMETRY
 ======================================================================================
  -- main wing
-  area (S)                                              0.11569 m^2      
-  span (fin: height) (b)                                0.80869 m        
-  taper ratio (taper)                                       0.6 -        
-  root chord (c_root)                                   0.17882 m        
-  tip chord (c_tip)                                     0.10729 m        
-  mean aerodynamic chord (mac)                          0.14604 m        
+  area (S)                                              0.12729 m^2      
+  span (fin: height) (b)                                0.95333 m        
+  taper ratio (taper)                                   0.61776 -        
+  root chord (c_root)                                   0.16507 m        
+  tip chord (c_tip)                                     0.10197 m        
+  mean aerodynamic chord (mac)                          0.13601 m        
   thickness/chord (t_c)                                 0.13977 -        
-  wetted area (S_wet)                                   0.23713 m^2      
-  aspect ratio                                          5.65286 -        
+  wetted area (S_wet)                                    0.2609 m^2      
+  aspect ratio                                           7.1399 -        
  -- horizontal tail
-  area (S)                                              0.01488 m^2      
-  span (fin: height) (b)                                0.24397 m        
+  area (S)                                              0.01953 m^2      
+  span (fin: height) (b)                                0.27947 m        
   taper ratio (taper)                                       0.6 -        
-  root chord (c_root)                                   0.07624 m        
-  tip chord (c_tip)                                     0.04574 m        
-  mean aerodynamic chord (mac)                          0.06226 m        
+  root chord (c_root)                                   0.08734 m        
+  tip chord (c_tip)                                      0.0524 m        
+  mean aerodynamic chord (mac)                          0.07132 m        
   thickness/chord (t_c)                                 0.09002 -        
-  wetted area (S_wet)                                   0.03012 m^2      
+  wetted area (S_wet)                                   0.03952 m^2      
  -- vertical tail (fin)
-  area (S)                                               0.0141 m^2      
-  span (fin: height) (b)                                0.15019 m        
+  area (S)                                               0.0153 m^2      
+  span (fin: height) (b)                                0.15645 m        
   taper ratio (taper)                                       0.5 -        
-  root chord (c_root)                                   0.12516 m        
-  tip chord (c_tip)                                     0.06258 m        
-  mean aerodynamic chord (mac)                          0.09735 m        
+  root chord (c_root)                                   0.13038 m        
+  tip chord (c_tip)                                     0.06519 m        
+  mean aerodynamic chord (mac)                          0.10141 m        
   thickness/chord (t_c)                                 0.09002 -        
-  wetted area (S_wet)                                   0.02853 m^2      
+  wetted area (S_wet)                                   0.03096 m^2      
  -- fuselage, nacelles, props, gear, spar
-  tail_arm_m                                             0.3773          
-  fuselage_length_m                                      0.5975          
+  tail_arm_m                                             0.3207          
+  fuselage_length_m                                      0.5401          
   fuselage_width_m                                       0.0672          
-  fuselage_height_m                                      0.0662          
-  motor_station_m                                        0.1475          
-  prop_diameter_m                                        0.1778          
+  fuselage_height_m                                      0.0597          
+  motor_station_m                                        0.1348          
+  prop_diameter_m                                        0.1524          
   nacelle_diameter_m                                      0.035          
   nacelle_length_m                                       0.1024          
-  gear_height_m                                           0.062          
-  gear_track_m                                           0.1913          
+  gear_height_m                                          0.0735          
+  gear_track_m                                           0.2142          
   spar_od_m                                               0.006          
   spar_wall_m                                             0.001          
  -- layout (x aft from nose tip, y right, z up; metres)
-  fuselage.nose_length                                  0.04002          
-  fuselage.bay_length                                   0.11829          
-  fuselage.length                                       0.59754          
+  fuselage.nose_length                                    0.038          
+  fuselage.bay_length                                   0.13445          
+  fuselage.length                                       0.54008          
   fuselage.width                                         0.0672          
-  fuselage.height                                        0.0662          
+  fuselage.height                                        0.0597          
   fuselage.wall_t                                        0.0006          
-  fuselage.bay_x_start                                  0.04002          
-  fuselage.bay_x_end                                     0.1583          
+  fuselage.bay_x_start                                    0.038          
+  fuselage.bay_x_end                                    0.17246          
   fuselage.bay_inner_width                                0.066          
-  fuselage.bay_inner_height                               0.065          
+  fuselage.bay_inner_height                              0.0585          
   fuselage.tail_end_width                               0.02016          
-  fuselage.tail_end_height                              0.02648          
+  fuselage.tail_end_height                              0.02388          
   fuselage.section_shape                       rounded box (superellipse exponent 2.6)          
-  wing.area                                             0.11569          
-  wing.span                                             0.80869          
-  wing.c_root                                           0.17882          
-  wing.c_tip                                            0.10729          
-  wing.taper                                                0.6          
-  wing.mac                                              0.14604          
+  wing.area                                             0.12729          
+  wing.span                                             0.95333          
+  wing.c_root                                           0.16507          
+  wing.c_tip                                            0.10197          
+  wing.taper                                            0.61776          
+  wing.mac                                              0.13601          
   wing.t_c                                              0.13977          
-  wing.x_quarter_chord                                  0.12641          
-  wing.x_le_root                                        0.08171          
-  wing.x_le_tip                                         0.09959          
-  wing.x_te_root                                        0.26053          
-  wing.x_te_tip                                         0.20689          
-  wing.z_root_chord_line                                 0.0331          
-  wing.incidence_deg                                        8.4          
-  wing.washout_deg                                         1.02          
-  wing.dihedral_deg                                           0          
+  wing.x_quarter_chord                                  0.12158          
+  wing.x_le_root                                        0.08031          
+  wing.x_le_tip                                         0.09609          
+  wing.x_te_root                                        0.24538          
+  wing.x_te_tip                                         0.19806          
+  wing.z_root_chord_line                                0.02985          
+  wing.incidence_deg                                       7.64          
+  wing.washout_deg                                         1.12          
+  wing.dihedral_deg                                        5.53          
+  wing.z_tip_le                                         0.07598          
   wing.root_airfoil                                      sd7062          
   wing.tip_airfoil                                       sd7062          
-  wing.y_mac                                            0.18532          
-  wing.x_le_mac                                         0.08991          
+  wing.y_mac                                            0.21956          
+  wing.x_le_mac                                         0.08758          
   wing.t_c_root                                         0.13977          
   spar.od                                                 0.006          
   spar.wall                                               0.001          
-  spar.length                                           0.72782          
+  spar.length                                             0.858          
   spar.tube_model                              Pultruded carbon tube 6x4x1000          
   spar.n_tubes                                                1          
-  spar.x                                                0.13044          
-  spar.z                                                0.03987          
+  spar.x                                                0.12529          
+  spar.z                                                 0.0361          
   spar.xc_root                                           0.2725          
-  spar.xc_tip                                            0.2875          
+  spar.xc_tip                                           0.28642          
   spar.material                                     carbon tube          
   ailerons.y_inboard                                     0.0336          
-  ailerons.y_outboard                                   0.38413          
+  ailerons.y_outboard                                   0.45283          
   ailerons.chord_fraction                                  0.25          
-  ailerons.chord_inboard                                0.04322          
-  ailerons.chord_outboard                               0.02772          
-  ailerons.hinge_x_inboard                              0.21285          
-  ailerons.hinge_x_outboard                             0.18185          
+  ailerons.chord_inboard                                0.04016          
+  ailerons.chord_outboard                               0.02628          
+  ailerons.hinge_x_inboard                              0.20189          
+  ailerons.hinge_x_outboard                             0.17414          
   ailerons.throw_deg                                         10          
   ailerons.is_flaperon                                     True          
   ailerons.crow_up_deg                                        0          
-  htail.area                                            0.01488          
-  htail.span                                            0.24397          
-  htail.c_root                                          0.07624          
-  htail.c_tip                                           0.04574          
+  htail.area                                            0.01953          
+  htail.span                                            0.27947          
+  htail.c_root                                          0.08734          
+  htail.c_tip                                            0.0524          
   htail.taper                                               0.6          
-  htail.mac                                             0.06226          
+  htail.mac                                             0.07132          
   htail.t_c                                             0.09002          
-  htail.x_quarter_chord                                 0.50367          
-  htail.x_le_root                                       0.48461          
-  htail.x_le_tip                                        0.49223          
-  htail.x_te_root                                       0.56085          
-  htail.x_te_tip                                        0.53798          
+  htail.x_quarter_chord                                  0.4423          
+  htail.x_le_root                                       0.42047          
+  htail.x_le_tip                                         0.4292          
+  htail.x_te_root                                        0.5078          
+  htail.x_te_tip                                         0.4816          
   htail.z                                                     0          
-  htail.incidence_deg                                      1.33          
+  htail.incidence_deg                                      2.04          
   htail.airfoil                                        naca0009          
   elevator.chord_fraction                                  0.25          
   elevator.span_fraction                                   0.95          
-  elevator.hinge_x_root                                 0.54179          
-  elevator.hinge_x_tip                                  0.52654          
-  elevator.throw_up_deg                                      15          
+  elevator.hinge_x_root                                 0.48597          
+  elevator.hinge_x_tip                                   0.4685          
+  elevator.throw_up_deg                                      25          
   elevator.servo_throw_deg                                   25          
-  vtail.area                                             0.0141          
-  vtail.span                                            0.15019          
-  vtail.c_root                                          0.12516          
-  vtail.c_tip                                           0.06258          
+  vtail.area                                             0.0153          
+  vtail.span                                            0.15645          
+  vtail.c_root                                          0.13038          
+  vtail.c_tip                                           0.06519          
   vtail.taper                                               0.5          
-  vtail.mac                                             0.09735          
+  vtail.mac                                             0.10141          
   vtail.t_c                                             0.09002          
-  vtail.x_quarter_chord                                 0.50367          
-  vtail.x_le_root                                       0.47238          
-  vtail.x_le_tip                                        0.48802          
-  vtail.x_te_root                                       0.59754          
-  vtail.x_te_tip                                        0.55061          
-  vtail.z_root                                          0.01324          
-  vtail.height                                          0.15019          
+  vtail.x_quarter_chord                                  0.4423          
+  vtail.x_le_root                                       0.40971          
+  vtail.x_le_tip                                          0.426          
+  vtail.x_te_root                                       0.54008          
+  vtail.x_te_tip                                        0.49119          
+  vtail.z_root                                          0.01194          
+  vtail.height                                          0.15645          
   vtail.airfoil                                        naca0009          
   rudder.chord_fraction                                    0.45          
   rudder.span_fraction                                      0.9          
-  rudder.hinge_x_root                                   0.54122          
-  rudder.hinge_x_tip                                    0.52244          
-  rudder.throw_needed_deg                                 23.83          
+  rudder.hinge_x_root                                   0.48141          
+  rudder.hinge_x_tip                                    0.46186          
+  rudder.throw_needed_deg                                 23.89          
   rudder.servo_throw_deg                                     25          
-  nacelles.y                                             0.1475          
-  nacelles.z_axis                                       0.04377          
-  nacelles.x_front                                      0.03191          
-  nacelles.x_rear                                       0.13431          
+  nacelles.y                                             0.1348          
+  nacelles.z_axis                                       0.04014          
+  nacelles.x_front                                      0.02845          
+  nacelles.x_rear                                       0.13085          
   nacelles.diameter                                       0.035          
   nacelles.length                                        0.1024          
-  props.x                                               0.02191          
-  props.y                                                0.1475          
-  props.z                                               0.04377          
-  props.diameter                                         0.1778          
-  props.model                                          APC 7x5E          
+  props.x                                               0.01845          
+  props.y                                                0.1348          
+  props.z                                               0.04014          
+  props.diameter                                         0.1524          
+  props.model                                          APC 6x6E          
   props.tip_to_fuselage                                   0.025          
-  props.tip_to_ground                                      0.05          
-  cg.x_forward_limit                                    0.12151          
-  cg.x_aft_limit                                        0.13206          
-  cg.x_neutral_point                                    0.13936          
-  cg.x_nominal                                          0.12678          
-  cg.band                                               0.01054          
+  props.tip_to_ground                                   0.06729          
+  cg.x_forward_limit                                    0.12166          
+  cg.x_aft_limit                                        0.13059          
+  cg.x_neutral_point                                    0.13739          
+  cg.x_nominal                                          0.12612          
+  cg.band                                               0.00892          
   cg.battery_slide                                         0.01          
-  gear.z_ground                                        -0.09513          
-  gear.x_main                                           0.15754          
-  gear.y_main                                           0.09563          
+  gear.z_ground                                        -0.10335          
+  gear.x_main                                           0.15828          
+  gear.y_main                                            0.1071          
   gear.main_wheel_model                            Du-Bro 300SL          
   gear.main_wheel_d                                      0.0762          
   gear.main_wheel_w                                       0.023          
   gear.main_axle_mm                                           4          
-  gear.x_nose                                           0.03202          
-  gear.nose_wheel_model                            Du-Bro 300SL          
-  gear.nose_wheel_d                                      0.0762          
-  gear.nose_wheel_w                                       0.023          
+  gear.x_nose                                            0.0304          
+  gear.nose_wheel_model                            Du-Bro 250SL          
+  gear.nose_wheel_d                                      0.0635          
+  gear.nose_wheel_w                                      0.0198          
   gear.nose_axle_mm                                           4          
-  gear.ground_stance_deg                                   2.26          
-  gear.nose_gear_extra_length                           0.00495          
-  gear.gear_height                                      0.06203          
-  gear.main_leg_length                                  0.08772          
-  gear.nose_strut_length                                0.09203          
-  gear.strap_thickness                                  0.00294          
+  gear.ground_stance_deg                                    2.1          
+  gear.nose_gear_extra_length                           0.00469          
+  gear.gear_height                                       0.0735          
+  gear.main_leg_length                                  0.10394          
+  gear.nose_strut_length                                 0.1035          
+  gear.strap_thickness                                  0.00324          
   gear.strap_width                                         0.02          
   gear.nose_wire_d                                       0.0025          
   gear.main_gear_material                          petg_printed          
@@ -268,183 +271,246 @@ Source: conceptual-design/outputs/design_point.json
   configuration                                       flaperons          
  -- ailerons
   y_inboard_m                                            0.0336          
-  y_outboard_m                                           0.3841          
-  eta_inboard                                             0.083          
+  y_outboard_m                                           0.4528          
+  eta_inboard                                              0.07          
   eta_outboard                                             0.95          
   chord_fraction                                           0.25          
   throw_deg                                                  10          
-  roll_helix_pb_2V                                       0.0791          
+  roll_helix_pb_2V                                       0.0807          
   requirement                                              0.07          
   is_flaperon                                              True          
  -- flaps
   y_inboard_m                                            0.0336          
-  y_outboard_m                                           0.3841          
-  eta_inboard                                             0.083          
+  y_outboard_m                                           0.4528          
+  eta_inboard                                              0.07          
   eta_outboard                                             0.95          
   chord_fraction                                           0.25          
   landing_deflection_deg                                     14          
-  CLmax_landing                                          1.6625          
+  CLmax_landing                                          1.6046          
  -- elevator
   chord_fraction                                           0.25          
-  throw_deg                                             14.9972          
+  throw_deg                                                  25          
+  throw_landing_flare_deg                                 23.64          
+  throw_approach_deg                                          0          
+  throw_takeoff_deg                                          25          
   span_fraction                                            0.95          
   authority_ratio                                          1.01          
-  ratio_landing_trim                                       1.01          
-  ratio_takeoff                                           1.064          
+  ratio_landing_trim                                      1.757          
+  ratio_approach_trim                                      1.01          
+  ratio_takeoff                                           1.464          
  -- rudder
   chord_fraction                                           0.45          
-  throw_usable_deg                                        23.83          
-  engine_out_deg                                          23.83          
-  crosswind_deg                                           14.39          
+  throw_usable_deg                                         23.9          
+  engine_out_deg                                          23.89          
+  crosswind_deg                                           13.77          
   span_fraction                                             0.9          
   servo_throw_deg                                            25          
  -- stability
-  neutral_point_frac_mac                                 0.3386          
-  cg_forward_frac_mac                                    0.2164          
-  cg_aft_frac_mac                                        0.2886          
-  static_margin_range                            [0.05, 0.1222]          
-  np_shift_fuselage                                     -0.0122          
-  cm_alpha_fuselage_per_rad                               0.056          
-  cg_band_frac_mac                                       0.0722          
+  neutral_point_frac_mac                                 0.3662          
+  cg_forward_frac_mac                                    0.2506          
+  cg_aft_frac_mac                                        0.3162          
+  static_margin_range                            [0.05, 0.1156]          
+  np_shift_fuselage                                     -0.0108          
+  cm_alpha_fuselage_per_rad                              0.0526          
+  cg_band_frac_mac                                       0.0656          
   htail_sizing                                          scissor          
-  tail_volume_V_H                                        0.3323          
-  downwash_gradient                                      0.5176          
-  wing_incidence_deg                                        8.4          
-  tail_incidence_deg                                       1.33          
-  decalage_deg                                             7.07          
+  tail_volume_V_H                                        0.3617          
+  downwash_gradient                                      0.4337          
+  wing_incidence_deg                                       7.64          
+  tail_incidence_deg                                       2.04          
+  decalage_deg                                              5.6          
   takeoff_technique                                      stance          
-  ground_stance_deg                                        2.26          
-  stabilizer_area_m2                                    0.01488          
-  stabilizer_area_tail_volume_m2                        0.02239          
+  ground_stance_deg                                         2.1          
+  stabilizer_area_m2                                    0.01953          
+  stabilizer_area_tail_volume_m2                        0.02699          
 
 ======================================================================================
  4d. BALANCE (CG budget -> CG band -> scissor plot)
 ======================================================================================
-  m                                                    0.915237          
-  x_cg                                                 0.126779          
-  h_cg                                                 0.252492          
-  sigma_x                                              0.002434          
-  slide_authority                                      0.001595          
-  residual                                             0.003272          
-  band_m                                               0.010544          
-  band_frac_mac                                        0.072197          
-  x_qc                                                 0.126415          
-  x_qc_target                                          0.126407          
-  h_mid                                                 0.25252          
+  m                                                    0.936008          
+  x_cg                                                 0.126124          
+  h_cg                                                 0.283416          
+  sigma_x                                              0.002118          
+  slide_authority                                      0.001773          
+  residual                                             0.002462          
+  band_m                                               0.008924          
+  band_frac_mac                                        0.065617          
+  x_qc                                                 0.121579          
+  x_qc_target                                          0.121579          
+  h_mid                                                0.283416          
   clamped                                                 False          
   item                                     mass kg      x m  sigma  moves with wing
-  wing shell                                0.0887   0.1470   0.15  True
-  wing spar                                 0.0188   0.1304   0.02  True
-  horizontal tail                           0.0105   0.5143   0.15  True
-  fin                                       0.0099   0.5203   0.15  True
-  fuselage shell                            0.0477   0.2502   0.15  False
-  nacelles + mounts                         0.0240   0.0831   0.15  True
-  motors                                    0.0495   0.0481   0.02  True
-  props + spinners                          0.0373   0.0219   0.20  True
-  ESCs                                      0.0418   0.0993   0.02  True
-  power wiring                              0.0163   0.1304   0.20  True
-  main gear + wheels                        0.0569   0.1575   0.20  True
-  nose gear + wheel                         0.0432   0.0320   0.20  False
-  wheel brakes                              0.0176   0.1575   0.20  True
-  brake servo + cable                       0.0165   0.0992   0.20  False
-  Raspberry Pi 5 board                      0.0506   0.0992   0.20  False
-  Raspberry Pi 5 Active Cooler              0.0319   0.0992   0.02  False
-  Raspberry Pi Camera Module 3              0.0044   0.0992   0.02  False
-  Matek H743-WING V3 flight controller      0.0330   0.0992   0.02  False
-  Matek M10Q-5883 GPS + compass             0.0088   0.0992   0.02  False
-  Matek ASPD-4525 airspeed + pitot          0.0110   0.0992   0.20  False
-  ExpressLRS receiver                       0.0022   0.0992   0.20  False
-  SiK 915 MHz telemetry radio (100 mW)      0.0275   0.0992   0.20  False
-  5 V / 5 A UBEC for Pi 5                   0.0110   0.0992   0.20  False
-  aileron servos                            0.0264   0.1264   0.20  True
-  tail + steering servos                    0.0396   0.0992   0.20  False
-  Signal wiring harness + connectors        0.0165   0.1264   0.20  True
-  Hinges / horns / pushrods / fasteners     0.0138   0.1994   0.20  True
-  Hinges / horns / pushrods / fasteners     0.0138   0.5348   0.20  True
-  battery                                   0.1460   0.0992   0.02  False
+  wing shell                                0.0976   0.1408   0.15  True
+  wing spar                                 0.0222   0.1253   0.02  True
+  horizontal tail                           0.0137   0.4545   0.15  True
+  fin                                       0.0108   0.4596   0.15  True
+  fuselage shell                            0.0407   0.2271   0.15  False
+  nacelles + mounts                         0.0240   0.0797   0.15  True
+  motors                                    0.0495   0.0447   0.02  True
+  props + spinners                          0.0304   0.0185   0.20  True
+  ESCs                                      0.0418   0.0959   0.02  True
+  power wiring                              0.0155   0.1253   0.20  True
+  main gear + wheels                        0.0619   0.1583   0.20  True
+  nose gear + wheel                         0.0375   0.0304   0.20  False
+  wheel brakes                              0.0176   0.1583   0.20  True
+  brake servo + cable                       0.0165   0.1052   0.20  False
+  Raspberry Pi 5 board                      0.0506   0.1052   0.20  False
+  Raspberry Pi 5 Active Cooler              0.0319   0.1052   0.02  False
+  Raspberry Pi Camera Module 3              0.0044   0.1052   0.02  False
+  Matek H743-WING V3 flight controller      0.0330   0.1052   0.02  False
+  Matek M10Q-5883 GPS + compass             0.0088   0.1052   0.02  False
+  Matek ASPD-4525 airspeed + pitot          0.0110   0.1052   0.20  False
+  ExpressLRS receiver                       0.0022   0.1052   0.20  False
+  SiK 915 MHz telemetry radio (100 mW)      0.0275   0.1052   0.20  False
+  5 V / 5 A UBEC for Pi 5                   0.0110   0.1052   0.20  False
+  aileron servos                            0.0264   0.1216   0.20  True
+  tail + steering servos                    0.0396   0.1052   0.20  False
+  Signal wiring harness + connectors        0.0165   0.1216   0.20  True
+  Hinges / horns / pushrods / fasteners     0.0138   0.1896   0.20  True
+  Hinges / horns / pushrods / fasteners     0.0138   0.4780   0.20  True
+  battery                                   0.1659   0.1052   0.02  False
 
 ======================================================================================
  4e. COUPLED LATERAL-DIRECTIONAL TRIM
 ======================================================================================
   rudder chord fraction                                    0.45          
-  fin area needed by engine-out                        0.014098 m^2      
+  fin area needed by engine-out                        0.015298 m^2      
  -- engine_out
-  phi_deg                                              -4.31968          
+  phi_deg                                              -4.32923          
   beta_deg                                                    0          
-  aileron_frac                                        -0.219296          
-  ratio                                                0.999942          
-  rudder_deg                                            23.8302          
-  rudder_usable_deg                                     23.8318          
+  aileron_frac                                        -0.168461          
+  ratio                                                0.999956          
+  rudder_deg                                            23.8948          
+  rudder_usable_deg                                      23.896          
   fin_alpha_deg                                               0          
-  CL_fin                                              -0.655092          
-  V                                                     11.8191          
-  CL                                                   0.953944          
-  T_one                                                 1.52147          
-  D_dead_prop                                          0.161541          
-  yaw_moment                                           0.248244          
-  roll_moment                                          0.068697          
-  Cn_T                                                 0.032626          
-  Cl_T                                                 0.009029          
-  slipstream_dV                                         3.37506          
-  slipstream_k                                         0.356258          
-  cn_beta                                              0.057679          
-  cy_beta                                             -0.247615          
-  cl_beta                                             -0.034794          
-  S_v                                                  0.014099          
+  CL_fin                                              -0.654551          
+  V                                                     11.4917          
+  CL                                                    0.93793          
+  T_one                                                 1.49809          
+  D_dead_prop                                          0.112198          
+  yaw_moment                                           0.217067          
+  roll_moment                                          0.062929          
+  Cn_T                                                 0.023266          
+  Cl_T                                                 0.006745          
+  slipstream_dV                                         4.54196          
+  slipstream_k                                          0.32605          
+  cn_beta                                              0.043622          
+  cy_beta                                             -0.231624          
+  cl_beta                                             -0.132669          
+  S_v                                                  0.015299          
   rudder_cf                                                0.45          
  -- crosswind
-  V                                                      11.958          
-  V_crosswind                                           1.83969          
+  V                                                     11.6857          
+  V_crosswind                                           1.79781          
   beta_deg                                              8.84988          
-  phi_deg                                               1.20253          
-  aileron_frac                                         0.047915          
-  ratio                                                 0.55313          
-  rudder_deg                                             14.387          
+  phi_deg                                               1.14397          
+  aileron_frac                                         0.249903          
+  ratio                                                0.538891          
+  rudder_deg                                            13.7688          
   rudder_usable_deg                                          25          
-  fin_alpha_deg                                         7.48637          
-  CL_fin                                               0.050722          
+  fin_alpha_deg                                         7.59266          
+  CL_fin                                               0.061372          
  -- derivatives
-  cn_beta                                              0.057679          
-  cy_beta                                             -0.247615          
-  cl_beta                                             -0.034794          
-  cn_beta_fus                                         -0.015568          
-  cl_beta_wing                                        -0.019263          
-  cy_beta_fus                                         -0.090603          
-  sidewash_factor                                      0.761336          
-  cl_aileron_full                                      0.073581          
-  cn_aileron_full                                     -0.004074          
+  cn_beta                                              0.043622          
+  cy_beta                                             -0.231624          
+  cl_beta                                             -0.132669          
+  cn_beta_fus                                         -0.009318          
+  cl_beta_wing                                         -0.11922          
+  cl_beta_height                                      -0.013341          
+  cl_beta_dihedral                                    -0.105879          
+  cy_beta_fus                                         -0.074261          
+  sidewash_factor                                      0.772146          
+  cl_aileron_full                                      0.075958          
+  cn_aileron_full                                     -0.003286          
+
+======================================================================================
+ 4e2. LATERAL-DIRECTIONAL DYNAMICS (MIL-F-8785C Level 1, Class I)
+======================================================================================
+  dihedral (each panel)                                 5.52661 deg      smallest meeting the spiral requirement
+  Ixx                                                  0.015056 kg.m^2   
+  Izz                                                  0.021299 kg.m^2   
+ -- loiter modes
+  dutch_roll_omega                                      5.64562          
+  dutch_roll_zeta                                      0.123345          
+  dutch_roll_zeta_omega                                0.696361          
+  dutch_roll_period                                      1.1215          
+  roll_tau                                             0.054137          
+  spiral_lambda                                        0.034656          
+  spiral_t2                                             20.0007          
+  spiral_stable                                           False          
+  V                                                     11.4917          
+  category                                                    B          
+  margin_dutch                                         0.541817          
+  margin_spiral                                         3.5e-05          
+  margin_roll                                           24.8604          
+ -- loiter derivatives (per rad)
+  CYb                                                 -0.231624          
+  Clb                                                 -0.132645          
+  Cnb                                                  0.043622          
+  Clb_dihedral                                        -0.105855          
+  CYp                                                 -0.031352          
+  Clp                                                 -0.717622          
+  Cnp                                                 -0.106699          
+  CYr                                                  0.123414          
+  Clr                                                  0.245041          
+  Cnr                                                 -0.064576          
+ -- approach modes
+  dutch_roll_omega                                      5.70097          
+  dutch_roll_zeta                                      0.128403          
+  dutch_roll_zeta_omega                                0.732024          
+  dutch_roll_period                                     1.11133          
+  roll_tau                                             0.053184          
+  spiral_lambda                                        0.020084          
+  spiral_t2                                             34.5132          
+  spiral_stable                                           False          
+  V                                                     11.6857          
+  category                                                    C          
+  margin_dutch                                         0.605043          
+  margin_spiral                                               1          
+  margin_roll                                           17.8026          
+ -- approach derivatives (per rad)
+  CYb                                                 -0.232056          
+  Clb                                                 -0.132682          
+  Cnb                                                  0.043768          
+  Clb_dihedral                                        -0.105855          
+  CYp                                                 -0.031438          
+  Clp                                                 -0.717629          
+  Cnp                                                 -0.102804          
+  CYr                                                  0.123752          
+  Clr                                                  0.237337          
+  Cnr                                                  -0.06898          
 
 ======================================================================================
  4f. LANDING / APPROACH
 ======================================================================================
  -- landing
   crow                                                     None          
-  V_stall_landing_ms                                    9.19843          
-  V_touchdown_ms                                        10.5782          
-  CLmax_landing_wing                                    1.66246          
-  CLmax_landing_trimmed                                 1.57495          
-  roll_grass_m                                          50.8834          
-  roll_pavement_m                                       42.6593          
+  V_stall_landing_ms                                    8.98904          
+  V_touchdown_ms                                        10.3374          
+  CLmax_landing_wing                                    1.60457          
+  CLmax_landing_trimmed                                 1.53296          
+  roll_grass_m                                          50.7834          
+  roll_pavement_m                                       42.4883          
   roll_grass_without_crow_m                                None          
  -- approach + balked landing
-  V                                                      11.958          
-  CL                                                   0.931925          
-  CD                                                    0.13394          
-  D                                                     1.28998          
-  glide_deg                                             8.17876          
-  balked_gradient                                      0.191228          
-  T                                                     3.00634          
+  V                                                     11.6857          
+  CL                                                   0.907043          
+  CD                                                   0.109387          
+  D                                                     1.10698          
+  glide_deg                                             6.87651          
+  balked_gradient                                      0.203187          
+  T                                                     2.97206          
  -- approach trim (forward CG)
-  dCD                                                  0.021998          
-  CL_tail                                             -0.673895          
-  elevator_deg                                         -16.6415          
-  trusted                                                 False          
-  alpha_tail_deg                                       -10.1653          
+  dCD                                                  0.009487          
+  CL_tail                                             -0.519964          
+  elevator_deg                                         0.230568          
+  trusted                                                  True          
+  alpha_tail_deg                                       -8.10318          
  -- mu_grass
-  roll                                                 0.066546          
-  brake                                                0.183903          
-  main                                                 0.069603          
-  nose                                                 0.039029          
+  roll                                                 0.067917          
+  brake                                                0.184731          
+  main                                                 0.070206          
+  nose                                                 0.047313          
   braked                                                   True          
  -- mu_pavement
   roll                                                     0.04          
@@ -457,206 +523,220 @@ Source: conceptual-design/outputs/design_point.json
  4g. STALL-SPEED TRADE STUDY (lightest design at each stall-speed cap)
 ======================================================================================
     cap    V_s    mass   score       S    AR   span status
-    8.5   8.50  0.9420  0.9420  0.1399  5.15  0.849 ok
-    9.0   9.00  0.9212  0.9212  0.1220  5.47  0.817 ok
-    9.5   9.50  0.9044  0.9044  0.1073  5.59  0.774 ok
-   10.0   9.99  0.8923  0.8923  0.0956  5.93  0.753 ok
-   11.0  10.36  0.8866  0.8866  0.0907  6.91  0.792 ok
-   12.0  10.75  0.8870  0.8870  0.0891  7.32  0.807 ok
-   13.0  10.60  0.8855  0.8855  0.0886  7.25  0.801 ok
-   15.0   9.55  0.9079  0.9079  0.1074  4.58  0.701 ok
+    8.5   8.50  0.9525  0.9525  0.1409  6.24  0.938 ok
+    9.0   9.00  0.9348  0.9348  0.1263  7.17  0.952 ok
+    9.5   9.50  0.9263  0.9263  0.1180  8.43  0.998 ok
+   10.0   9.12  0.9323  0.9323  0.1242  7.40  0.959 ok
+   11.0   9.29  0.9288  0.9288  0.1202  8.19  0.993 ok
+   12.0   9.27  0.9288  0.9288  0.1205  8.08  0.987 ok
+   13.0   9.27  0.9288  0.9288  0.1205  8.08  0.987 ok
+   15.0   9.27  0.9288  0.9288  0.1205  8.08  0.987 ok
 
 ======================================================================================
  4h. WHEEL TRADE STUDY (design frozen)
 ======================================================================================
-  Du-Bro 200SL   d  50.8 mm  mass 0.8819 kg  grass mu 0.096  TO 28.7 m  LDG 66.5 m  brake fits False
-  Du-Bro 225SL   d  57.2 mm  mass 0.8913 kg  grass mu 0.087  TO 28.7 m  LDG 50.5 m  brake fits True
-  Du-Bro 250SL   d  63.5 mm  mass 0.8999 kg  grass mu 0.079  TO 28.7 m  LDG 50.7 m  brake fits True
-  Du-Bro 275SL   d  69.8 mm  mass 0.9081 kg  grass mu 0.073  TO 28.6 m  LDG 50.9 m  brake fits True
-  Du-Bro 300SL   d  76.2 mm  mass 0.9152 kg  grass mu 0.067  TO 28.6 m  LDG 50.9 m  brake fits True  <- chosen
+  Du-Bro 200SL   d  50.8 mm  mass 0.9028 kg  grass mu 0.097  TO 33.9 m  LDG 67.7 m  brake fits False
+  Du-Bro 225SL   d  57.2 mm  mass 0.9154 kg  grass mu 0.088  TO 33.7 m  LDG 50.9 m  brake fits True
+  Du-Bro 250SL   d  63.5 mm  mass 0.9239 kg  grass mu 0.080  TO 33.4 m  LDG 50.7 m  brake fits True
+  Du-Bro 275SL   d  69.8 mm  mass 0.9387 kg  grass mu 0.074  TO 33.4 m  LDG 50.8 m  brake fits True
+  Du-Bro 300SL   d  76.2 mm  mass 0.9494 kg  grass mu 0.067  TO 33.2 m  LDG 50.6 m  brake fits True  <- chosen
+
+======================================================================================
+ 4i. TAPER TRADE STUDY (fixed taper, each re-optimized)
+======================================================================================
+  taper 0.35  mass 1.0342  score 1.2590  span 0.911  root/tip 338/118 mm  tip Re 76k  V_s 7.49  stall@ 79%  misses elevator_authority+converged+endurance
+  taper 0.45  mass 0.9928  score 1.2274  span 0.972  root/tip 247/111 mm  tip Re 70k  V_s 7.82  stall@ 62%  ok
+  taper 0.60  mass 0.9378  score 1.2061  span 0.947  root/tip 170/102 mm  tip Re 73k  V_s 8.94  stall@ 71%  ok
+  taper 0.80  mass 0.9376  score 1.2107  span 0.962  root/tip 149/119 mm  tip Re 86k  V_s 9.10  stall@ 38%  ok
+  taper 1.00  mass 0.9462  score 1.2235  span 0.979  root/tip 139/139 mm  tip Re 101k  V_s 9.24  stall@ 4%  ok
 
 ======================================================================================
  4c. TWIST TRADE STUDY (each row re-optimized)
 ======================================================================================
   tip airfoil washout    mass   span  loiter  landing  CLmax  stall@      e  status
-  sd7062          0.0  0.9093  0.781   31.9m    52.1m  1.423    63%  0.970  ok
-  sd7062          2.0  0.9018  0.766   31.3m    54.5m  1.428    54%  0.969  ok
-  sd7062          4.0  0.9155  0.809   32.7m    52.1m  1.431    46%  0.970  ok
-  sd7062          6.0  0.9129  0.798   32.3m    53.6m  1.426    38%  0.970  ok
-  sd7037          0.0  0.9132  0.783   31.9m    54.8m  1.315    62%  0.962  ok
-  sd7037          2.0  0.9075  0.821   32.4m    56.9m  1.320    63%  0.957  ok
-  sd7037          4.0  0.9105  0.806   32.3m    56.3m  1.334    54%  0.959  ok
-  sd7037          6.0  0.9085  0.780   31.6m    57.5m  1.344    46%  0.960  ok
-  e387            0.0  0.9051  0.814   31.6m    58.3m  1.309    62%  0.970  ok
-  e387            2.0  0.9040  0.819   31.8m    58.5m  1.321    54%  0.970  ok
-  e387            4.0  0.8972  0.738   30.1m    57.9m  1.341    54%  0.970  ok
-  e387            6.0  0.9130  0.809   32.2m    55.1m  1.340    46%  0.972  ok
-  s4083           0.0  0.8965  0.769   30.7m    58.5m  1.324    62%  0.961  ok
-  s4083           2.0  0.9157  0.788   32.3m    53.5m  1.354    54%  0.966  ok
-  s4083           4.0  0.9057  0.795   32.0m    56.4m  1.352    54%  0.963  ok
-  s4083           6.0  0.9074  0.805   32.2m    57.1m  1.353    46%  0.963  ok
-  clarky          0.0  0.8950  0.793   31.0m    58.9m  1.350    54%  0.958  ok
-  clarky          2.0  0.9143  0.811   32.6m    53.0m  1.371    54%  0.963  ok
-  clarky          4.0  0.9079  0.823   32.5m    56.2m  1.368    46%  0.961  ok
-  clarky          6.0  0.9142  0.812   32.5m    55.0m  1.374    38%  0.963  ok
-  naca4412        0.0  0.9132  0.798   32.2m    53.8m  1.385    54%  0.966  ok
-  naca4412        2.0  0.9142  0.810   32.6m    53.8m  1.392    54%  0.966  ok
-  naca4412        4.0  0.9122  0.829   32.8m    56.3m  1.390    46%  0.965  ok
-  naca4412        6.0  0.9143  0.812   32.6m    56.8m  1.395    38%  0.966  ok
+  sd7062          0.0  0.9370  0.955   49.5m    50.7m  1.375    71%  0.967  ok
+  sd7062          2.0  0.9354  0.948   49.5m    50.7m  1.391    54%  0.967  ok
+  sd7062          4.0  0.9361  0.953   49.6m    51.4m  1.389    38%  0.967  ok
+  sd7062          6.0  0.9368  0.956   49.5m    52.0m  1.376    29%  0.967  ok
+  sd7037          0.0  0.9337  0.950   49.5m    54.4m  1.290    62%  0.952  ok
+  sd7037          2.0  0.9327  0.941   49.5m    54.4m  1.309    54%  0.952  ok
+  sd7037          4.0  0.9390  0.931   49.5m    52.8m  1.325    54%  0.956  ok
+  sd7037          6.0  0.9348  0.953   49.5m    56.0m  1.317    46%  0.952  ok
+  e387            0.0  1.0321  1.109   51.7m    42.4m  1.316    62%  0.975  ok
+  e387            2.0  0.9395  0.972   49.5m    53.3m  1.312    54%  0.969  ok
+  e387            4.0  0.9456  0.963   49.6m    50.3m  1.323    46%  0.971  ok
+  e387            6.0  0.9411  0.975   49.5m    53.1m  1.313    38%  0.969  ok
+  s4083           0.0  0.9383  0.966   50.0m    52.2m  1.311    63%  0.958  ok
+  s4083           2.0  0.9297  0.944   49.5m    54.1m  1.324    54%  0.957  ok
+  s4083           4.0  0.9333  0.941   49.6m    53.7m  1.336    46%  0.958  ok
+  s4083           6.0  0.9327  0.944   49.5m    55.0m  1.332    38%  0.958  ok
+  clarky          0.0  0.9369  0.958   49.7m    51.6m  1.347    54%  0.957  ok
+  clarky          2.0  0.9328  0.948   49.5m    53.3m  1.355    54%  0.956  ok
+  clarky          4.0  0.9351  0.948   49.5m    53.6m  1.356    46%  0.957  ok
+  clarky          6.0  0.9677  1.107   52.8m    52.3m  1.334    29%  0.954  ok
+  naca4412        0.0  0.9372  0.963   49.7m    53.2m  1.364    54%  0.961  ok
+  naca4412        2.0  0.9350  0.955   49.6m    53.9m  1.373    46%  0.961  ok
+  naca4412        4.0  0.9369  0.943   49.5m    54.3m  1.378    46%  0.962  ok
+  naca4412        6.0  0.9415  0.945   49.5m    53.8m  1.374    38%  0.963  ok
 
 ======================================================================================
  5. AERODYNAMICS
 ======================================================================================
  -- coefficients & speeds
-  CD0                                                   0.04798          
-  K                                                     0.06364          
-  e_inviscid                                             0.9704          
-  CLmax                                                  1.4244          
-  CL_alpha_per_rad                                       4.5958          
-  V_stall_ms                                              9.849          
-  V_max_ms                                                18.37          
+  CD0                                                   0.04722          
+  K                                                     0.05211          
+  e_inviscid                                             0.9667          
+  CLmax                                                  1.3858          
+  CL_alpha_per_rad                                       4.8639          
+  V_stall_ms                                              9.576          
+  V_max_ms                                               21.096          
  -- loiter point
-  V                                                     11.8191          
-  CL                                                   0.954197          
-  CD                                                   0.105186          
-  D                                                    0.989335          
-  P_chem                                                33.4036          
-  P_chem_prop                                           23.7544          
-  P_chem_av                                             9.64912          
-  P_shaft                                               17.6774          
-  eta_prop                                             0.661455          
-  eta_b2s                                               0.74417          
-  rpm                                                   5908.19          
-  I_batt                                                3.00933          
-  duty                                                  0.39945          
-  LD                                                    9.07149          
-  eta_total                                            0.492235          
+  V                                                     11.4917          
+  CL                                                   0.937974          
+  CD                                                   0.092228          
+  D                                                    0.902543          
+  P_chem                                                 29.412          
+  P_chem_prop                                            19.702          
+  P_chem_av                                             9.70999          
+  P_shaft                                               14.4073          
+  eta_prop                                              0.71989          
+  eta_b2s                                              0.731263          
+  rpm                                                   5922.49          
+  I_batt                                                2.72333          
+  duty                                                 0.407268          
+  LD                                                    10.1702          
+  eta_total                                            0.526429          
  -- loiter drag breakdown (CD, referenced to wing area)
-  wing_profile                                          0.02062          
-  htail                                                0.002291          
-  vtail                                                 0.00176          
-  fuselage                                             0.002046          
-  nacelles                                             0.001262          
-  gear                                                 0.022136          
-  leakage                                              0.002506          
-  induced                                              0.052566          
+  wing_profile                                         0.022013          
+  htail                                                0.002592          
+  vtail                                                0.001724          
+  fuselage                                             0.001711          
+  nacelles                                             0.001163          
+  gear                                                 0.020334          
+  leakage                                              0.002477          
+  induced                                              0.040213          
  -- best-rate climb point (at throttle cap)
-  V                                                          12          
-  roc                                                   2.69073          
-  grad_max                                             0.224227          
-  LD                                                    9.13325          
-  eta_total                                            0.503423          
-  P_chem                                                81.1479          
-  I_batt                                                7.31062          
+  V                                                     12.8332          
+  roc                                                   2.68709          
+  grad_max                                             0.228005          
+  LD                                                    10.2207          
+  eta_total                                            0.497783          
+  P_chem                                                82.6583          
+  I_batt                                                7.65355          
  -- best glide
-  V                                                       13.25          
-  LD                                                    9.29724          
-  t                                                     84.2014          
+  V                                                       12.25          
+  LD                                                    10.2638          
+  t                                                     100.543          
 
 ======================================================================================
  6. PERFORMANCE
 ======================================================================================
  -- field / currents
-  takeoff_roll_m                                          28.58          
-  takeoff_roll_pavement_m                                 27.99          
-  landing_roll_m                                          50.88          
-  landing_roll_pavement_m                                 42.66          
-  stall_speed_landing_ms                                  9.198          
+  takeoff_roll_m                                             33          
+  takeoff_roll_pavement_m                                 31.84          
+  landing_roll_m                                          50.78          
+  landing_roll_pavement_m                                 42.49          
+  stall_speed_landing_ms                                  8.989          
   stall_onset_semispan_clean                              0.542          
-  stall_onset_semispan_landing                            0.542          
-  CLmax_trimmed_clean                                    1.3737          
-  static_thrust_N                                         5.306          
-  max_motor_current_A                                     6.033          
-  max_battery_current_A                                   7.664          
+  stall_onset_semispan_landing                            0.625          
+  CLmax_trimmed_clean                                    1.3506          
+  static_thrust_N                                         3.808          
+  max_motor_current_A                                     5.204          
+  max_battery_current_A                                     7.7          
  -- engine-out (one motor failed)
-  V_mc                                                  11.8191          
-  T_one                                                  1.5215          
-  yaw_moment                                             0.2482          
+  V_mc                                                  11.4917          
+  T_one                                                  1.4981          
+  yaw_moment                                             0.2171          
   rudder_cf                                                0.45          
-  rudder_defl_usable                                    23.8318          
-  rudder_deg                                            23.8302          
-  bank_deg                                              -4.3197          
+  rudder_defl_usable                                     23.896          
+  rudder_deg                                            23.8948          
+  bank_deg                                              -4.3292          
   sideslip_deg                                                0          
-  aileron_frac                                          -0.2193          
-  rudder_ratio                                           0.9999          
+  aileron_frac                                          -0.1685          
+  rudder_ratio                                                1          
  -- in-flight thrust (thrust AVAILABLE at the throttle cap vs. level-flight drag)
   point                                         V  T_avail    T/W    drag  excess  eta_p    rpm
-  static (V=0)                               0.00    5.306  0.591       -       -  0.000   7661
-  liftoff 1.1 Vs                            10.83    3.298  0.367   1.048   2.250  0.649   7683
-  V_mc engine-out 1.2 Vs                    11.82    3.043  0.339   0.989   2.054  0.672   7735
-  loiter                                    11.82    3.043  0.339   0.989   2.054  0.672   7735
-  best climb V_y                            12.00    2.995  0.334   0.983   2.013  0.676   7746
-  max level speed                           18.37    1.200  0.134   1.200  -0.000  0.610   8275
-  loiter (thrust REQUIRED, part throttle)   11.82    0.989  0.110   0.989   0.000  0.661   5908
+  static (V=0)                               0.00    3.808  0.415       -       -  0.000   9061
+  liftoff 1.1 Vs                            10.53    3.108  0.339   0.955   2.153  0.599   8826
+  V_mc engine-out 1.2 Vs                    11.49    2.996  0.326   0.903   2.094  0.628   8823
+  loiter                                    11.49    2.996  0.326   0.903   2.094  0.628   8823
+  best climb V_y                            12.83    2.820  0.307   0.898   1.922  0.665   8834
+  max level speed                           21.10    1.475  0.161   1.475  -0.000  0.747   9239
+  loiter (thrust REQUIRED, part throttle)   11.49    0.903  0.098   0.903   0.000  0.720   5922
 
 ======================================================================================
  7. MISSION BATTERY-MASS-FRACTION BUILD-UP
 ======================================================================================
  -- segments
-  takeoff                                              0.000694          
-  climb                                                0.007222          
-  loiter                                               0.096994          
-  avionics                                             0.042301          
-  total                                                 0.14721          
-  t_climb_s                                             44.5976          
-  t_total_s                                             1932.76          
-  eta_b2s_takeoff                                      0.736273          
-  battery_mass_required                                0.134733          
-  energy_required_wh                                    22.5354          
-  endurance_margin                                      1.08363          
-  loiter_max_min                                        32.7102          
-  airborne_max_min                                      34.9229          
+  takeoff                                              0.000669          
+  climb                                                0.006221          
+  loiter                                               0.112116          
+  avionics                                             0.058049          
+  total                                                0.177055          
+  t_climb_s                                             44.6579          
+  t_total_s                                             3120.22          
+  eta_b2s_takeoff                                      0.752288          
+  battery_mass_required                                0.165725          
+  energy_required_wh                                     30.199          
+  endurance_margin                                      1.00136          
+  loiter_max_min                                         49.571          
+  airborne_max_min                                      52.0747          
 
 ======================================================================================
  8. MASS BREAKDOWN
 ======================================================================================
-  avionics_servos                                         0.264 kg        28.8%
-  battery                                                 0.146 kg        16.0%
-  landing_gear                                          0.09103 kg         9.9%
-  wing_shell                                            0.08067 kg         8.8%
-  growth_allowance                                      0.06993 kg         7.6%
-  motors                                                  0.045 kg         4.9%
-  fuselage                                              0.04338 kg         4.7%
-  escs                                                    0.038 kg         4.2%
-  props_spinners                                         0.0339 kg         3.7%
-  wheel_brakes                                            0.031 kg         3.4%
-  nacelles                                              0.02184 kg         2.4%
-  wing_spar                                              0.0171 kg         1.9%
-  power_wiring                                          0.01485 kg         1.6%
-  htail                                                 0.00951 kg         1.0%
-  vtail                                                 0.00901 kg         1.0%
+  avionics_servos                                         0.264 kg        28.2%
+  battery                                               0.16595 kg        17.7%
+  landing_gear                                          0.09032 kg         9.6%
+  wing_shell                                            0.08876 kg         9.5%
+  growth_allowance                                      0.07001 kg         7.5%
+  motors                                                  0.045 kg         4.8%
+  escs                                                    0.038 kg         4.1%
+  fuselage                                              0.03702 kg         4.0%
+  wheel_brakes                                            0.031 kg         3.3%
+  props_spinners                                         0.0276 kg         2.9%
+  nacelles                                              0.02184 kg         2.3%
+  wing_spar                                             0.02016 kg         2.2%
+  power_wiring                                          0.01409 kg         1.5%
+  htail                                                 0.01248 kg         1.3%
+  vtail                                                 0.00978 kg         1.0%
   flap_servos                                                 0 kg         0.0%
   payload                                                     0 kg         0.0%
 
 ======================================================================================
  9. CONSTRAINT MARGINS  (>= 0 satisfied; ~0 = ACTIVE, i.e. this requirement sizes the design)
 ======================================================================================
-  takeoff_roll_grass                                     0.6427          
-  takeoff_roll_pavement                                  0.6267          
-  landing_roll_grass                                      0.364          
-  landing_roll_pavement                                  0.4312          
-  span                                                   0.4609          
-  climb_rate                                             0.0763          
-  climb_gradient                                         1.6907          
-  balked_landing                                         4.7948          
-  motor_current                                          0.3297          
-  battery_current                                        0.7823          
+  takeoff_roll_grass                                     0.5876          
+  takeoff_roll_pavement                                  0.5754          
+  landing_roll_grass                                     0.3652          
+  landing_roll_pavement                                  0.4335          
+  span                                                   0.3644          
+  climb_rate                                             0.0748          
+  climb_gradient                                         1.7361          
+  balked_landing                                         5.1572          
+  motor_current                                          0.4218          
+  battery_current                                        0.6333          
   esc_available                                               0          ACTIVE
-  motor_station                                          0.5947          
-  spar_fits                                              0.4667          
-  tip_reynolds                                           0.1336          
-  roll_helix                                             0.1294          
+  motor_station                                          0.6858          
+  spar_fits                                              0.3299          
+  tip_reynolds                                           0.0475          
+  roll_helix                                             0.1525          
   elevator_authority                                     0.0101          ACTIVE
-  crosswind_rudder                                       0.4469          
-  crosswind_aileron                                      0.9361          
-  engine_out_aileron                                     0.7076          
+  crosswind_rudder                                       0.4611          
+  crosswind_aileron                                      0.6668          
+  engine_out_aileron                                     0.7754          
   cn_beta                                                     1          
+  dutch_roll                                             0.5418          
+  spiral                                                      0          ACTIVE
+  roll_mode                                                   1          
+  short_period                                           0.8549          
+  phugoid                                                0.7382          
   stall_speed                                                 1          
   brake_fits                                                  0          ACTIVE
   nose_gear_fits                                              0          ACTIVE
   prop_data_range                                             0          ACTIVE
   converged                                                   0          ACTIVE
-  endurance                                              0.0836          
+  endurance                                              0.0014          ACTIVE
 
 ======================================================================================
  10. INPUT RATIOS & COEFFICIENTS USED TO CALCULATE THE ABOVE (dimensionless)
@@ -685,7 +765,8 @@ Source: conceptual-design/outputs/design_point.json
   dq_round_strut                                            0.3 -        [RAYMER] Raymer Table 12.5: round strut or wire
   leak_protub_frac                                         0.05 -        [ESTIMATE] Leakage + protuberances (FPV camera, pitot, antennas), Raymer Sec. 12.5 few % of parasite
   re_tip_min                                              70000 -        [DESIGN CHOICE] Wing-tip chord Reynolds number at loiter >= 70k: below the ~7e4 critical Re, laminar separation stops reattaching and section data/stall become unreliable (Lissaman 1983, Annu. Rev. Fluid Mech. 15)
-  wing_taper                                                0.6 -        [DESIGN CHOICE] Raymer Sec. 4.3.4: 0.45 is near-elliptic; 0.6 keeps tip Reynolds number up and tip stall benign
+  wing_taper                                                0.6 -        [DESIGN CHOICE] Starting / screening taper ratio (Raymer Sec. 4.3.4: 0.45 is near-elliptic). The final optimizer stage chooses taper within wing_taper_bounds (5th design variable)
+  wing_taper_bounds                                   [0.35, 1] -        [DESIGN CHOICE] Taper range the optimizer may use (tip chord / root chord); tip Reynolds number and the stall location are the constraints that actually limit it
   tail_cht                                                  0.5 -        [RAYMER] Raymer Table 6.4 homebuilt horizontal tail volume coefficient
   tail_cvt                                                 0.04 -        [RAYMER] Raymer Table 6.4 homebuilt vertical tail volume coefficient
   ar_htail                                                    4 -        [RAYMER] Raymer Table 4.3 horizontal tail aspect ratio 3-5
@@ -719,12 +800,17 @@ Source: conceptual-design/outputs/design_point.json
   prop_solidity                                             0.1 -        [ESTIMATE, MEASURE] Blade area / disk area of the APC E props (for stopped-prop drag). MEASURE from a blade outline
   stopped_prop_dq_per_solidity                              0.8 -        [RAYMER] Raymer Sec. 12.5: stopped (not feathered) propeller D/q = 0.8 * solidity * disk area. Set the ESC to brake the motor (a free-windmilling prop has less drag, but less yaw too)
   fus_ki_sideforce                                          1.5 -        [RAYMER] DATCOM/Raymer Ch.16 wing-body interference factor K_i for fuselage side force, high wing ~1.5
+  endurance_design_margin                                   0.1 -        [DESIGN CHOICE] Team decision 2026-11-24: size the loiter for the endurance requirement + 10% (45 -> 49.5 min) so the design survives a typical miss on the unmeasured inputs (avionics power, build mass, ESC efficiency)
+  short_period_zeta_min                                     0.3 -        [STANDARD] MIL-F-8785C Level 1, Cat B: short-period damping ratio 0.30-2.0 (checked at both CG limits, loiter)
+  short_period_zeta_max                                       2 -        [STANDARD] MIL-F-8785C Level 1, Cat B: short-period damping ratio <= 2.0
+  phugoid_zeta_min                                         0.04 -        [STANDARD] MIL-F-8785C Level 1: phugoid damping ratio >= 0.04
+  dutch_roll_zeta_min                                      0.08 -        [STANDARD] MIL-F-8785C Level 1, Class I, Cat B/C: Dutch-roll damping ratio >= 0.08
   balked_landing_gradient_min                             0.033 -        [STANDARD] 14 CFR 23.77(a) (pre-amdt 64): balked-landing climb gradient >= 3.3% in landing configuration
   fuselage_packing_factor                                     2 -        [DESIGN CHOICE] Bay volume / sum of component volumes (wiring, airflow, access)
   nose_length_ratio                                         0.6 -        [DESIGN CHOICE] Nose fairing length / fuselage equivalent diameter
   max_motor_station_frac                                   0.45 -        [DESIGN CHOICE] Motor station y_eng <= 0.45 b (90% semispan)
   main_wheel                                       Du-Bro 300SL -        [DESIGN CHOICE] Main wheels (data/wheels.csv): 3 in for soft grass - lowest rolling resistance and sinkage, ~10 g/wheel more than 2 in, inside the E/Z brake fit range (see wheel trade table)
-  nose_wheel                                       Du-Bro 300SL -        [DESIGN CHOICE] Nose wheel = main wheel size so it does not dig in on soft grass
+  nose_wheel                                       Du-Bro 250SL -        [DESIGN CHOICE] Team decision 2026-11-24: 2.5 in nose wheel with 3 in mains - the nose wheel sits under the fuselage, so its diameter sets the gear height (74 mm vs 86 mm with a 3 in nose wheel)
   wheel_brake                                  Du-Bro E/Z Brake -        [DESIGN CHOICE] Main-wheel brakes (data/brakes.csv): cable brakes on one micro servo (~+28 g); JP Hobby electric brakes rejected (~200 g)
   wing_constructions                            [printed_lwpla] -        [DESIGN CHOICE] Wing constructions the search may use. Team decision 2026-11-24: print most of the aircraft in LW-PLA, including the wing (only the carbon spar, aluminum gear strap and music-wire nose strut are not printed). Add 'foam_glass' to let the search compare a hot-wire foam core + glass skin wing again
   wing_internal_ratio                                       0.4 -        [ESTIMATE, MEASURE] Printed internal ribs/geodesic web area per wetted area. MEASURE on a printed section
@@ -778,8 +864,15 @@ Source: conceptual-design/outputs/design_point.json
   engine_out_bank_max_deg                                     5 deg      [STANDARD] 14 CFR 23.149: V_MC with not more than 5 deg of bank toward the operating engine
   stall_speed_weight_g_per_ms                                30 g/(m/s)  [DESIGN CHOICE] Team decision 2026-11-24: 1 m/s of (trimmed, landing-config) stall speed is worth 30 g. The optimizer minimizes  mass + this x V_stall  instead of mass alone (mass alone always shrinks the wing to the fastest stall speed any constraint allows). See the stall-speed trade study
   stall_speed_max_ms                                       None m/s      [DESIGN CHOICE] Optional hard cap on stall speed - None in the main search; used by the stall-speed trade study
+  dihedral_max_deg                                            8 deg      [DESIGN CHOICE] Largest dihedral (each panel) the sizing may use; dihedral = smallest that meets the spiral requirement
+  dutch_roll_zeta_omega_min                                0.15 rad/s    [STANDARD] MIL-F-8785C Level 1, Class I, Cat B/C: Dutch-roll zeta x omega_n >= 0.15 rad/s
+  spiral_t2_min_B_s                                          20 s        [STANDARD] MIL-F-8785C Level 1, Cat B (loiter/cruise): unstable spiral time to double amplitude >= 20 s
+  spiral_t2_min_C_s                                          12 s        [STANDARD] MIL-F-8785C Level 1, Cat C (approach/landing): spiral time to double amplitude >= 12 s
+  roll_tau_max_B_s                                          1.4 s        [STANDARD] MIL-F-8785C Level 1, Class I, Cat B: roll-mode time constant <= 1.4 s
+  roll_tau_max_C_s                                            1 s        [STANDARD] MIL-F-8785C Level 1, Class I, Cat C: roll-mode time constant <= 1.0 s
   prop_fuselage_clearance_m                               0.025 m        [DESIGN CHOICE] Prop tip to fuselage side (1 in)
   prop_ground_clearance_m                                  0.05 m        [DESIGN CHOICE] Prop tip to ground on grass (2 in)
+  nose_wheel_clearance_m                                   0.01 m        [DESIGN CHOICE] Gap between the top of the nose wheel and the fuselage bottom (the nose wheel sits directly under the fuselage, so the fuselage must be at least nose-wheel diameter + this above the ground)
   internal_clearance_m                                    0.005 m        [DESIGN CHOICE] Gap around the payload bay contents, per side
   pi_stack_height_m                                        0.03 m        [DESIGN CHOICE] Pi 5 + cooler stacked above the battery tray
   nacelle_extra_len_m                                      0.07 m        [DESIGN CHOICE] Nacelle length beyond motor: ESC + fairing
@@ -806,7 +899,7 @@ Source: conceptual-design/outputs/design_point.json
   lipo_sag_at_rated_v                                       0.4 V        [ESTIMATE, MEASURE] Cell sag at the rated C current -> R_cell = 0.4/(C*Ah). MEASURE with charger IR
   liion_pack_overhead_kg                                   0.02 kg       [ESTIMATE] Li-ion pack leads, XT60, wrap, balance lead
   liion_mass_per_cell_kg                                  0.002 kg       [ESTIMATE] Nickel strip + insulator per cell
-  endurance_min                                              30 min      [REQUIREMENT] Remain airborne >= 30 min with no payload (flown entirely as loiter; takeoff/climb/descent time NOT credited -> conservative)
+  endurance_min                                              45 min      [REQUIREMENT] Remain airborne >= 45 min with no payload (team change Nov 2026, was 30 min; flown entirely as loiter; takeoff/climb/descent time NOT credited -> conservative)
   takeoff_roll_max_pavement_m                                75 m        [REQUIREMENT] Field survey 2026-11-24: takeoff ground roll <= 75 m on the paved strip
   takeoff_roll_max_grass_m                                   80 m        [REQUIREMENT] Field survey 2026-11-24: takeoff ground roll <= 80 m on soft grass
   landing_roll_max_pavement_m                                75 m        [REQUIREMENT] Field survey 2026-11-24: braked landing ground roll <= 75 m on pavement

@@ -86,6 +86,7 @@ class Geometry:
     nose_wheel: object = None
     brake: object = None
     x_qc_clamped: bool = False
+    dihedral_deg: float = 0.0         # each wing panel, from the root (sized for spiral stability)
 
     @property
     def x_bay_center(self):
@@ -154,13 +155,13 @@ def fuselage_bay(battery):
 
 
 def build(S, AR, lt_ratio, wing_secs, motor, prop, battery, sv_engine_out=0.0,
-          washout_deg=0.0, sh_trim=0.0, x_qc=None):
+          washout_deg=0.0, sh_trim=0.0, x_qc=None, taper=None, dihedral_deg=0.0):
     """wing_secs: aerodynamics.WingSections (root/tip airfoil). sv_engine_out: fin
     area the engine-out trim needs (the fin is never below the Raymer tail-volume
     value). sh_trim: stabilizer area from the scissor plot (0 = not sized yet ->
     Raymer value). x_qc: wing root quarter-chord station (None = bay centre)."""
     t_root, t_tip = wing_secs.root.t_c, wing_secs.tip.t_c
-    wing = _surface(S, AR, P.wing_taper, 0.5 * (t_root + t_tip))
+    wing = _surface(S, AR, P.wing_taper if taper is None else taper, 0.5 * (t_root + t_tip))
     wing.t_c = t_root                       # spar depth is set by the root section
     b = wing.b
 
@@ -214,8 +215,9 @@ def build(S, AR, lt_ratio, wing_secs, motor, prop, battery, sv_engine_out=0.0,
     c_eng = wing.c_root * (1 - (1 - wing.taper) * min(2 * y_eng / b, 1.0))
     z_axis_above_fus_bottom = h_o + 0.5 * wing.t_c * c_eng
     mw, nw = main_wheel(), nose_wheel()
-    gear_h = max(mw.d / 2 + 0.02,
-                 prop.D / 2 + P.prop_ground_clearance_m - z_axis_above_fus_bottom)
+    gear_h = max(mw.d / 2 + 0.02,                                     # main wheels beside the fuselage
+                 prop.D / 2 + P.prop_ground_clearance_m - z_axis_above_fus_bottom,
+                 nw.d + P.nose_wheel_clearance_m)                       # nose wheel directly under it
     track = w_o + 2 * gear_h
     main_leg = math.sqrt(2) * gear_h
     nose_strut = gear_h + 0.03
@@ -225,4 +227,4 @@ def build(S, AR, lt_ratio, wing_secs, motor, prop, battery, sv_engine_out=0.0,
                     nac_d, nac_L, nac_S_wet, y_eng, prop.D,
                     gear_h, track, main_leg, nose_strut, gear_h + h_o,
                     sv_vol, sv_engine_out, sh_vol, sh_trim, washout_deg, t_tip,
-                    x_qc, L_nose, mw, nw, wheel_brake(), clamped)
+                    x_qc, L_nose, mw, nw, wheel_brake(), clamped, dihedral_deg)

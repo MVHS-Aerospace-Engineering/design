@@ -139,7 +139,11 @@ d("re_tip_min", 70e3, "-", "DESIGN CHOICE",
   "separation stops reattaching and section data/stall become unreliable (Lissaman 1983, "
   "Annu. Rev. Fluid Mech. 15)")
 d("wing_taper", 0.6, "-", "DESIGN CHOICE",
-  "Raymer Sec. 4.3.4: 0.45 is near-elliptic; 0.6 keeps tip Reynolds number up and tip stall benign")
+  "Starting / screening taper ratio (Raymer Sec. 4.3.4: 0.45 is near-elliptic). The final optimizer stage "
+  "chooses taper within wing_taper_bounds (5th design variable)")
+d("wing_taper_bounds", (0.35, 1.0), "-", "DESIGN CHOICE",
+  "Taper range the optimizer may use (tip chord / root chord); tip Reynolds number and the stall location "
+  "are the constraints that actually limit it")
 d("tail_cht", 0.50, "-", "RAYMER", "Raymer Table 6.4 homebuilt horizontal tail volume coefficient")
 d("tail_cvt", 0.04, "-", "RAYMER", "Raymer Table 6.4 homebuilt vertical tail volume coefficient")
 d("ar_htail", 4.0, "-", "RAYMER", "Raymer Table 4.3 horizontal tail aspect ratio 3-5")
@@ -217,14 +221,35 @@ d("stall_speed_weight_g_per_ms", 30.0, "g/(m/s)", "DESIGN CHOICE",
   "Team decision 2026-11-24: 1 m/s of (trimmed, landing-config) stall speed is worth 30 g. "
   "The optimizer minimizes  mass + this x V_stall  instead of mass alone (mass alone always "
   "shrinks the wing to the fastest stall speed any constraint allows). See the stall-speed trade study")
+d("endurance_design_margin", 0.10, "-", "DESIGN CHOICE",
+  "Team decision 2026-11-24: size the loiter for the endurance requirement + 10% (45 -> 49.5 min) so the "
+  "design survives a typical miss on the unmeasured inputs (avionics power, build mass, ESC efficiency)")
 d("stall_speed_max_ms", None, "m/s", "DESIGN CHOICE",
   "Optional hard cap on stall speed - None in the main search; used by the stall-speed trade study")
+d("dihedral_max_deg", 8.0, "deg", "DESIGN CHOICE",
+  "Largest dihedral (each panel) the sizing may use; dihedral = smallest that meets the spiral requirement")
+d("short_period_zeta_min", 0.30, "-", "STANDARD",
+  "MIL-F-8785C Level 1, Cat B: short-period damping ratio 0.30-2.0 (checked at both CG limits, loiter)")
+d("short_period_zeta_max", 2.0, "-", "STANDARD", "MIL-F-8785C Level 1, Cat B: short-period damping ratio <= 2.0")
+d("phugoid_zeta_min", 0.04, "-", "STANDARD", "MIL-F-8785C Level 1: phugoid damping ratio >= 0.04")
+d("dutch_roll_zeta_min", 0.08, "-", "STANDARD", "MIL-F-8785C Level 1, Class I, Cat B/C: Dutch-roll damping ratio >= 0.08")
+d("dutch_roll_zeta_omega_min", 0.15, "rad/s", "STANDARD",
+  "MIL-F-8785C Level 1, Class I, Cat B/C: Dutch-roll zeta x omega_n >= 0.15 rad/s")
+d("spiral_t2_min_B_s", 20.0, "s", "STANDARD",
+  "MIL-F-8785C Level 1, Cat B (loiter/cruise): unstable spiral time to double amplitude >= 20 s")
+d("spiral_t2_min_C_s", 12.0, "s", "STANDARD",
+  "MIL-F-8785C Level 1, Cat C (approach/landing): spiral time to double amplitude >= 12 s")
+d("roll_tau_max_B_s", 1.4, "s", "STANDARD", "MIL-F-8785C Level 1, Class I, Cat B: roll-mode time constant <= 1.4 s")
+d("roll_tau_max_C_s", 1.0, "s", "STANDARD", "MIL-F-8785C Level 1, Class I, Cat C: roll-mode time constant <= 1.0 s")
 d("balked_landing_gradient_min", 0.033, "-", "STANDARD",
   "14 CFR 23.77(a) (pre-amdt 64): balked-landing climb gradient >= 3.3% in landing configuration")
 
 # ---------------------------------------------------------------- geometry / layout
 d("prop_fuselage_clearance_m", 0.025, "m", "DESIGN CHOICE", "Prop tip to fuselage side (1 in)")
 d("prop_ground_clearance_m", 0.05, "m", "DESIGN CHOICE", "Prop tip to ground on grass (2 in)")
+d("nose_wheel_clearance_m", 0.010, "m", "DESIGN CHOICE",
+  "Gap between the top of the nose wheel and the fuselage bottom (the nose wheel sits directly under the "
+  "fuselage, so the fuselage must be at least nose-wheel diameter + this above the ground)")
 d("internal_clearance_m", 0.005, "m", "DESIGN CHOICE", "Gap around the payload bay contents, per side")
 d("fuselage_packing_factor", 2.0, "-", "DESIGN CHOICE",
   "Bay volume / sum of component volumes (wiring, airflow, access)")
@@ -236,8 +261,9 @@ d("max_motor_station_frac", 0.45, "-", "DESIGN CHOICE", "Motor station y_eng <= 
 d("main_wheel", "Du-Bro 300SL", "-", "DESIGN CHOICE",
   "Main wheels (data/wheels.csv): 3 in for soft grass - lowest rolling resistance and sinkage, "
   "~10 g/wheel more than 2 in, inside the E/Z brake fit range (see wheel trade table)")
-d("nose_wheel", "Du-Bro 300SL", "-", "DESIGN CHOICE",
-  "Nose wheel = main wheel size so it does not dig in on soft grass")
+d("nose_wheel", "Du-Bro 250SL", "-", "DESIGN CHOICE",
+  "Team decision 2026-11-24: 2.5 in nose wheel with 3 in mains - the nose wheel sits under the fuselage, so "
+  "its diameter sets the gear height (74 mm vs 86 mm with a 3 in nose wheel)")
 d("wheel_brake", "Du-Bro E/Z Brake", "-", "DESIGN CHOICE",
   "Main-wheel brakes (data/brakes.csv): cable brakes on one micro servo (~+28 g); JP Hobby "
   "electric brakes rejected (~200 g)")

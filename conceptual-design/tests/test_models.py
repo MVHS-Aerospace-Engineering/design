@@ -148,7 +148,7 @@ def test_sizing_loop_converges_and_balances():
     # loiter BMF from the image equation == loiter energy from the powertrain model
     lo, batt = r.detail["perf"]["loiter"], r.detail["battery"]
     e_lo = b["loiter"] * batt.u_wh_kg * batt.k * r.m          # Wh (propulsion chemical)
-    assert e_lo == pytest.approx(lo["P_chem_prop"] * P.endurance_min / 60, rel=1e-3)
+    assert e_lo == pytest.approx(lo["P_chem_prop"] * P.endurance_min * (1 + P.endurance_design_margin) / 60, rel=1e-3)
 
 
 def test_performance_is_continuous_in_design_variables():
@@ -366,3 +366,39 @@ def test_braked_roll_is_shorter_and_score_counts_stall_speed(converged_design):
     assert p["CLmax_landing_trimmed"] < p["CLmax_landing"]        # forward-CG tail download
     r = converged_design
     assert r.score == pytest.approx(r.m + P.stall_speed_weight_g_per_ms / 1000 * r.vs)
+
+
+# ---------------------------------------------------------------- lateral dynamics + dihedral
+def test_lateral_modes_are_physical(converged_design):
+    import dynamics
+    d = converged_design.detail
+    dy = d["dynamics"]
+    for c in dy["cases"].values():
+        assert c["roll_tau"] > 0 and math.isfinite(c["roll_tau"])          # roll mode converges
+        assert 0 < c["dutch_roll_zeta"] < 1 and c["dutch_roll_omega"] > 0     # oscillatory, damped
+        assert c["derivatives"]["Clp"] < 0 and c["derivatives"]["Cnr"] < 0   # roll and yaw damping
+    assert dy["Izz"] > dy["Ixx"] > 0
+
+
+def test_dihedral_stabilizes_spiral_and_is_sized_minimally(converged_design):
+    import dynamics
+    d = converged_design.detail
+    g, bal = d["geom"], d["balance"]
+    args = (g, d["aero"], d["perf"], d["atm"], converged_design.m, bal["items"], bal["x_cg"],
+            d["lateral"]["rudder_cf"], d["controls"]["aileron"])
+    lam = [dynamics.evaluate_modes(*args, gam)["cases"]["loiter"]["spiral_lambda"] for gam in (0.0, 4.0, 8.0)]
+    assert lam[0] > lam[1] > lam[2]                                          # more dihedral, more stable spiral
+    gam, r = dynamics.size_dihedral(*args)
+    assert 0.0 <= gam <= P.dihedral_max_deg
+    assert min(c["margin_spiral"] for c in r["cases"].values()) >= -1e-3
+    if gam > 0.05:                                                           # minimal: a bit less fails
+        r2 = dynamics.evaluate_modes(*args, gam - 0.3)
+        assert min(c["margin_spiral"] for c in r2["cases"].values()) < 0
+
+
+def test_nose_wheel_clears_the_fuselage(converged_design):
+    g = converged_design.detail["geom"]
+    # fuselage bottom height above the ground = gear height; wheel top = its diameter
+    assert g.gear_h - g.nose_wheel.d >= P.nose_wheel_clearance_m - 1e-9
+    # main wheels sit beside the fuselage
+    assert g.track / 2 - g.main_wheel.w / 2 > g.fus_w / 2

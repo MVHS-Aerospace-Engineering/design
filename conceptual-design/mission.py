@@ -264,7 +264,8 @@ def mission_bmf(perf, battery, p_avionics_w):
     """Segment BMFs from the image equations with CALCULATED inputs."""
     m, U, K = perf["m"], battery.u_wh_kg, battery.k
     to, cl, lo = perf["takeoff"], perf["climb"], perf["loiter"]
-    t_lo_hr = P.endurance_min / 60
+    t_design_min = P.endurance_min * (1 + P.endurance_design_margin)    # requirement + design margin
+    t_lo_hr = t_design_min / 60
     if not math.isfinite(to["s"]) or cl["roc"] <= 0:
         return None
 
@@ -279,7 +280,7 @@ def mission_bmf(perf, battery, p_avionics_w):
     # 3. loiter
     b_lo = bmf_loiter(t_lo_hr, lo["V"] * 3.6, lo["LD"], U, lo["eta_total"], K)
     # 4. avionics over the whole flight
-    t_total_s = to["t"] + t_cl + P.endurance_min * 60 + perf["glide"]["t"]
+    t_total_s = to["t"] + t_cl + t_design_min * 60 + perf["glide"]["t"]
     eta_av = p_avionics_w / lo["P_chem_av"]          # BEC + battery-IR losses
     b_av = bmf_specified_endurance(t_total_s / 3600, p_avionics_w / 1000, m, U, eta_av, K)
 

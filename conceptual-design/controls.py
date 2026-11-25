@@ -14,7 +14,7 @@ Results are interpolated between Reynolds-number buckets so they vary smoothly.
               landing CLmax (lifting line, critical section).
   Flaperons : alternative - full-span surfaces that droop as flaps and still
               meet the roll requirement about the drooped position.
-  Elevator  : (a) trim at landing CLmax, flaps down, forward CG;
+  Elevator  : (a) trim at landing CLmax and on approach (1.3 V_s), flaps down, forward CG;
               (b) takeoff rotation about the main wheels at liftoff speed,
               forward CG. Neutral point from the tail-volume relation plus
               the fuselage (Raymer eq. 16.25, K_fus of Fig. 16.14).
@@ -404,6 +404,12 @@ def tail_and_elevator(geom, aero, perf, pt, m, choice=None, band_frac=None):
     CLt_req_land = (cm_land + CL_land * (h_fwd - h_ac)) / (eta_t * V_H)
     alpha_fus_land = wcfg.alpha_root(CL_land) - i_w
     alpha_t_land = alpha_fus_land - 2 * CL_land / (math.pi * AR) + i_t
+    # (a2) approach trim, flaps down, forward CG: lower CL than (a) so the tail sits at a more
+    #      negative angle, where the trusted up-elevator throw is smallest
+    V_ap = P.approach_speed_ratio * V_sl
+    CL_ap = W / (0.5 * rho * V_ap ** 2 * S)
+    CLt_req_ap = (cm_land + CL_ap * (h_fwd - h_ac)) / (eta_t * V_H)
+    alpha_t_ap = (wcfg.alpha_root(CL_ap) - i_w) - 2 * CL_ap / (math.pi * AR) + i_t
 
     # takeoff, two techniques (forward CG, flaps up, full capped thrust at liftoff):
     #  "rotate": fuselage level on the ground, elevator rotates the nose up about the
@@ -435,7 +441,7 @@ def tail_and_elevator(geom, aero, perf, pt, m, choice=None, band_frac=None):
                   - 2 * (CL_lof - CL_lo) / (math.pi * AR))
     stance_deg = math.degrees(aero.clean.alpha_root(CL_lof) - i_w)
 
-    def tail_cl(cf, alpha_rad):
+    def tail_cl(cf, alpha_rad, re_t=re_t):
         """3-D stabilizer CL with elevator full up: the largest trusted throw,
         interpolated where NeuralFoil's confidence crosses foil_conf_min (continuous,
         so the sizing loop does not jump between 2.5-deg steps)."""
@@ -467,10 +473,15 @@ def tail_and_elevator(geom, aero, perf, pt, m, choice=None, band_frac=None):
         req_to, a_to = (CLt_req_rot, alpha_t_rot) if tech == "rotate" else (CLt_req_st, alpha_t_st)
         for cf in ((choice["elevator_cf"],) if choice else P.elevator_cf_grid):
             cl_land, de_l = tail_cl(cf, alpha_t_land)
+            cl_ap, de_a = tail_cl(cf, alpha_t_ap, rho * V_ap * geom.htail.mac / mu)
             cl_to, de_t = tail_cl(cf, a_to)
-            r_land, r_to = ratio(cl_land, CLt_req_land), ratio(cl_to, req_to)
-            cand = dict(cf=cf, throw=min(de_l, de_t), ratio=min(r_land, r_to), ratio_land=r_land,
-                        ratio_takeoff=r_to, technique=tech)
+            r_land, r_ap, r_to = ratio(cl_land, CLt_req_land), ratio(cl_ap, CLt_req_ap), ratio(cl_to, req_to)
+            # report the trusted up-throw of the case that sizes the tail (lowest ratio); a case that needs
+            # no elevator (ratio > 1 with 0 deg) must not show up as "0 deg of throw"
+            binding = min(((r_land, de_l), (r_ap, de_a), (r_to, de_t)), key=lambda t: t[0])
+            cand = dict(cf=cf, throw=binding[1], ratio=min(r_land, r_ap, r_to), ratio_land=r_land,
+                        ratio_approach=r_ap, ratio_takeoff=r_to, technique=tech,
+                        throw_land=de_l, throw_approach=de_a, throw_takeoff=de_t)
             # smallest elevator that works; otherwise the most capable one
             if cand["ratio"] >= 1.0:
                 if best is None or best["ratio"] < 1.0 or \

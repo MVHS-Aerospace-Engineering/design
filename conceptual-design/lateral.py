@@ -26,7 +26,8 @@ Derivatives (per radian, wing area / span reference):
   fuselage : Cn_beta = -1.3 Vol/(S b) (D/W) (Raymer eq. 16.47);
              CY_beta = -2 K_i S_0/S (DATCOM)
   wing     : Cl_beta of the wing height on the fuselage (DATCOM 5.2.2.1):
-             1.2 sqrt(AR) (z_w/b)(2 D/b); no geometric dihedral
+             1.2 sqrt(AR) (z_w/b)(2 D/b), plus geometric dihedral (sized in
+             dynamics.size_dihedral for spiral stability)
   ailerons : Cl from the strip theory used to size them (controls.py);
              adverse yaw from the induced drag, Cn = -(CL / (pi e AR)) Cl
 Sign convention: body axes, beta > 0 = wind from the right, phi > 0 = right
@@ -160,8 +161,10 @@ class FinSection:
 
 
 # ------------------------------------------------------------------ derivatives
-def body_derivatives(geom):
-    """Fuselage + wing-position derivatives (per rad)."""
+def body_derivatives(geom, dihedral_deg=None):
+    """Fuselage + wing-position + dihedral derivatives (per rad). Dihedral, strip
+    theory for a straight tapered wing: Cl_b = -(a_w G / 6)(1 + 2 lam)/(1 + lam),
+    a_w = 3-D lift slope (DATCOM/Raymer eq. 12.6 with a 2-D slope of 2 pi)."""
     from geometry import fuselage_volume_centroid
     S, b = geom.S, geom.b
     vol, _ = fuselage_volume_centroid(geom)
@@ -169,8 +172,12 @@ def body_derivatives(geom):
     S0 = math.pi / 4 * geom.fus_w * geom.fus_h
     cy_b_fus = -2 * P.fus_ki_sideforce * S0 / S
     z_w = -geom.fus_h / 2                           # high wing: root quarter chord above the centreline
-    cl_b_wing = 1.2 * math.sqrt(geom.AR) * (z_w / b) * (2 * geom.fus_d_eq / b)
-    return dict(cn_beta_fus=cn_b_fus, cy_beta_fus=cy_b_fus, cl_beta_wing=cl_b_wing, fus_volume=vol)
+    cl_b_height = 1.2 * math.sqrt(geom.AR) * (z_w / b) * (2 * geom.fus_d_eq / b)
+    G = math.radians(geom.dihedral_deg if dihedral_deg is None else dihedral_deg)
+    lam = geom.wing.taper
+    cl_b_dih = -(lift_slope_3d(geom.AR, 2 * math.pi) * G / 6) * (1 + 2 * lam) / (1 + lam)
+    return dict(cn_beta_fus=cn_b_fus, cy_beta_fus=cy_b_fus, cl_beta_wing=cl_b_height + cl_b_dih,
+                cl_beta_height=cl_b_height, cl_beta_dihedral=cl_b_dih, fus_volume=vol)
 
 
 def fin_geometry(geom, S_v=None):
@@ -189,7 +196,7 @@ class LateralModel:
     """Linearized fin + body + aileron model at one flight condition, with the
     NeuralFoil fin table for the nonlinear rudder check."""
 
-    def __init__(self, geom, atm, V, CL, rudder_cf, aileron=None, S_v=None, e=0.95):
+    def __init__(self, geom, atm, V, CL, rudder_cf, aileron=None, S_v=None, e=0.95, dihedral_deg=None):
         self.g, self.V, self.CL = geom, V, CL
         self.q = 0.5 * atm.rho * V ** 2
         fg = fin_geometry(geom, S_v)
@@ -206,7 +213,7 @@ class LateralModel:
         self.fin = FinSection(P.tail_airfoil, rudder_cf, re_v)
         self.f = P.rudder_span_frac
         self.cf = rudder_cf
-        self.bd = body_derivatives(geom)
+        self.bd = body_derivatives(geom, dihedral_deg)
         Sv_S = fg["S_v"] / geom.S
         # linear fin side force  CY_fin = Fb beta + Fd delta_r   (beta, delta_r in rad)
         self.Fb = -Sv_S * self.eta * self.k3d * self.fin.a_alpha * self.sig
@@ -396,6 +403,7 @@ def fin_requirements(geom, aero, pt, perf, ctrl, atm, W, rudder_cf=None):
     info = dict(rudder_cf=cf, sv_needed=sv_need, engine_out=eo, crosswind=xw,
                 derivatives=dict(cn_beta=lm.cn_beta, cy_beta=lm.cy_beta, cl_beta=lm.cl_beta,
                                  cn_beta_fus=lm.bd["cn_beta_fus"], cl_beta_wing=lm.bd["cl_beta_wing"],
+                                 cl_beta_height=lm.bd["cl_beta_height"], cl_beta_dihedral=lm.bd["cl_beta_dihedral"],
                                  cy_beta_fus=lm.bd["cy_beta_fus"], sidewash_factor=lm.ksw,
                                  cl_aileron_full=lm.cl_a, cn_aileron_full=lm.cn_a),
                 cons=cons)

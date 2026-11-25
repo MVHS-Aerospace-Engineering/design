@@ -32,6 +32,7 @@ from scipy.optimize import minimize
 
 import requirements  # noqa: F401  (registers requirement parameters)
 from aerodynamics import Aero, WingSections, lift_slope_3d
+import dynamics
 import lateral
 from controls import tail_and_elevator, wing_controls
 from atmosphere import G0, isa
@@ -44,13 +45,14 @@ from propulsion import V_GRID, Powertrain
 from weights import (avionics_power_w, cg_budget, component_stations,
                      design_cruise_speed, gust_load_factor, mass_breakdown)
 
-X_BOUNDS = [(0.04, 0.60), (4.0, 20.0), (1.8, 5.0), (0.0, 6.0)]   # S, AR, tail arm/MAC, washout deg
-X_NAMES = ("S_m2", "AR", "tail_arm_over_mac", "washout_deg")
+X_BOUNDS = [(0.04, 0.60), (4.0, 20.0), (1.8, 5.0), (0.0, 6.0), (0.35, 1.0)]   # S, AR, tail arm/MAC, washout deg, taper
+X_NAMES = ("S_m2", "AR", "tail_arm_over_mac", "washout_deg", "taper")
 CONS_KEYS = ("takeoff_roll_grass", "takeoff_roll_pavement", "landing_roll_grass", "landing_roll_pavement",
              "span", "climb_rate", "climb_gradient", "balked_landing", "motor_current", "battery_current",
              "esc_available", "motor_station", "spar_fits", "tip_reynolds", "roll_helix",
              "elevator_authority", "crosswind_rudder", "crosswind_aileron", "engine_out_aileron",
-             "cn_beta", "stall_speed", "brake_fits", "nose_gear_fits", "prop_data_range", "converged")
+             "cn_beta", "dutch_roll", "spiral", "roll_mode", "short_period", "phugoid", "stall_speed", "brake_fits", "nose_gear_fits",
+             "prop_data_range", "converged")
 N_CONS = len(CONS_KEYS)   # constraints for a continuous battery (+1 endurance for a real pack)
 
 
@@ -65,6 +67,7 @@ class Combo:
     controls: str = "flaps"        # "none" (ailerons only) | "flaps" (+ailerons) | "flaperons"
     tip_airfoil: str = None        # None = same as root (no aerodynamic twist)
     washout: float = 0.0           # deg, used when x has only 3 variables
+    taper: float = None            # used when x has fewer than 5 variables (None = P.wing_taper)
 
     def label(self):
         b = self.battery.name if self.battery is not None else self.family.name + " (continuous)"
@@ -139,12 +142,13 @@ CONTROL_CONFIGS = ("none", "flaps", "flaperons")
 
 
 def evaluate(x, combo, max_iter=100, fast=False):
-    """x = (S, AR, tail arm / MAC[, washout deg]).
+    """x = (S, AR, tail arm / MAC[, washout deg[, taper]]).
     fast=True: screening mode - no control-surface / elevator sizing (ailerons
     only, Raymer tails, rudder-only engine-out, wing over the bay centre, level
     ground stance). Used only to RANK powertrains."""
     S, AR, lt = (float(v) for v in x[:3])
     washout = float(x[3]) if len(x) > 3 else float(combo.washout)
+    taper = float(x[4]) if len(x) > 4 else (combo.taper if combo.taper is not None else P.wing_taper)
     atm = atmosphere()
     secs = WingSections(airfoil(combo.airfoil), airfoil(combo.tip_airfoil or combo.airfoil))
     taf = airfoil(P.tail_airfoil)
@@ -157,12 +161,12 @@ def evaluate(x, combo, max_iter=100, fast=False):
     eo_info, lat, ctrl, tail, bal = {}, None, None, None, None
     ctrl_choice = tail_choice = rudder_cf = None
     flaps_prev, ground_cl = None, None
-    x_qc, band, trim = None, None, None
+    x_qc, band, trim, dihedral, dyn = None, None, None, 0.0, None
     perf = bmf = None
     converged = False
     for it in range(max_iter):
         frozen = it >= FREEZE_IT
-        geom = build(S, AR, lt, secs, motor, prop, batt, sv_eo, washout, sh_trim, x_qc)
+        geom = build(S, AR, lt, secs, motor, prop, batt, sv_eo, washout, sh_trim, x_qc, taper, dihedral)
         aero = Aero(geom, secs, taf, atm, flaps_prev, trim)
         if not fast:
             ctrl = wing_controls(geom, aero, m * G0, combo.controls, ctrl_choice if frozen else None)
@@ -206,6 +210,10 @@ def evaluate(x, combo, max_iter=100, fast=False):
                                        0.8 * geom.L_nose, combo.airfoil, motor, esc, prop)
             bal = cg_budget(geom, items, tail["h_mid"])
             band_new = bal["band_frac_mac"]
+            # lateral-directional dynamics: smallest dihedral meeting the spiral requirement
+            dih_new, dyn = dynamics.size_dihedral(geom, aero, perf, atm, m, items, bal["x_cg"],
+                                                  lat["rudder_cf"], ctrl["aileron"] if ctrl else None)
+            dyn["longitudinal"] = dynamics.longitudinal_modes(geom, aero, perf, tail, items, m, atm)
             x_qc_new = bal["x_qc_target"]
             trim = dict(h=tail["h_cg_fwd"], c_lt=geom.wing.mac / geom.l_t)
         if it == FREEZE_IT - 1:
@@ -237,13 +245,15 @@ def evaluate(x, combo, max_iter=100, fast=False):
         # the area update is steep (slope ~ -3) -> stronger under-relaxation
         w_h = 0.6 * w_r
         sh_trim = sh_new if sh_trim == 0.0 else (1 - w_h) * sh_trim + w_h * sh_new
-        dx = db = 0.0
+        dx = db = ddih = 0.0
         if not fast:
             x_prev = geom.x_qc
             x_qc = (1 - w_r) * x_prev + w_r * x_qc_new
             dx = abs(x_qc_new - x_prev) if not geom.x_qc_clamped else 0.0
             db = abs(band_new - band) if band is not None else 1.0
             band = band_new if band is None else (1 - w_r) * band + w_r * band_new
+            ddih = abs(dih_new - dihedral)
+            dihedral = (1 - w_r) * dihedral + w_r * dih_new
         dcap = abs(cap_new - cap)
         cap = (1 - w_r) * cap + w_r * cap_new
         n_lim = n_new
@@ -253,7 +263,8 @@ def evaluate(x, combo, max_iter=100, fast=False):
             print(f"  it {it:2d} m {m:.5f} dm {dm:.1e} dsv {dsv:.1e} dsh {dsh:.1e} dcap {dcap:.1e} "
                   f"dx {dx:.1e} db {db:.1e} Sv {sv_eo:.5f} Sh {sh_trim:.5f}")
         if (frozen and dm < 1e-4 and de < 1e-3 and dsv < 1e-4 * max(sv_eo, 1e-3)
-                and dsh < 1e-4 * max(sh_trim, 1e-3) and dcap < 1e-5 and dx < 2e-5 and db < 1e-4):
+                and dsh < 1e-4 * max(sh_trim, 1e-3) and dcap < 1e-5 and dx < 2e-5 and db < 1e-4
+                and ddih < 0.02):
             converged = True
             break
 
@@ -281,6 +292,11 @@ def evaluate(x, combo, max_iter=100, fast=False):
         crosswind_aileron=min(lc.get("crosswind_aileron", 0.0), 1.0),
         engine_out_aileron=min(lc.get("engine_out_aileron", 0.0), 1.0),
         cn_beta=min(lc.get("cn_beta", 0.0), 1.0),
+        dutch_roll=min(min(c["margin_dutch"] for c in dyn["cases"].values()), 1.0) if dyn else 0.0,
+        spiral=min(min(c["margin_spiral"] for c in dyn["cases"].values()), 1.0) if dyn else 0.0,
+        roll_mode=min(min(c["margin_roll"] for c in dyn["cases"].values()), 1.0) if dyn else 0.0,
+        short_period=min(min(c["margin"] for c in dyn["longitudinal"]["cases"].values()), 1.0) if dyn else 0.0,
+        phugoid=min(dyn["longitudinal"]["margin_phugoid"], 1.0) if dyn else 0.0,
         stall_speed=(1 - perf["V_s_landing"] / P.stall_speed_max_ms) if P.stall_speed_max_ms else 1.0,
         brake_fits=0.0 if (not geom.brake.active or geom.brake.fits(geom.main_wheel)) else -1.0,
         nose_gear_fits=0.0 if winfo.get("nose_gear_fits", True) else -1.0,
@@ -293,7 +309,7 @@ def evaluate(x, combo, max_iter=100, fast=False):
     detail = dict(geom=geom, aero=aero, pt=pt, perf=perf, bmf=bmf, masses=masses,
                   winfo=winfo, esc=esc, battery=batt, atm=atm, p_av=p_av, V_C=V_C,
                   throttle_cap=cap, engine_out=eo_info, lateral=lat, controls=ctrl, tail=tail,
-                  balance=bal, washout=washout, secs=secs)
+                  balance=bal, washout=washout, secs=secs, dynamics=dyn)
     return Result(True, m, tuple(x), combo, cons, detail, vs=float(perf["V_s_landing"]))
 
 
@@ -336,6 +352,8 @@ def optimize(combo, x0):
     bounds = list(X_BOUNDS[:nx])
     if nx > 3:
         bounds[3] = (0.0, P.washout_max_deg)
+    if nx > 4:
+        bounds[4] = tuple(P.wing_taper_bounds)
     lo = np.array([b[0] for b in bounds]); hi = np.array([b[1] for b in bounds])
     to_z = lambda x: (np.asarray(x) - lo) / (hi - lo)
     to_x = lambda z: lo + np.clip(z, 0, 1) * (hi - lo)
@@ -487,7 +505,7 @@ def run(verbose=True, workers=None):
     for r in resD[:3]:
         for tip in wing_airfoil_names():
             c = replace(r.combo, tip_airfoil=tip)
-            jobsT.append((c, tuple(r.x[:3]) + (1.0,), False))
+            jobsT.append((c, tuple(r.x[:3]) + (1.0, P.wing_taper), False))   # washout AND taper free
     with ProcessPoolExecutor(max_workers=workers) as ex:
         resT = list(ex.map(_opt_job, jobsT))
     final = sorted([r for r in resD + resT if r is not None and r.feasible], key=lambda r: r.score)
@@ -502,7 +520,7 @@ def twist_study(best, workers=None):
     jobs = []
     for tip in wing_airfoil_names():
         for w in washouts:
-            c = replace(best.combo, tip_airfoil=tip, washout=w)
+            c = replace(best.combo, tip_airfoil=tip, washout=w, taper=_taper_of(best))
             jobs.append((c, tuple(best.x[:3]), False))
     with ProcessPoolExecutor(max_workers=workers) as ex:
         res = list(ex.map(_opt_job_full, jobs))
@@ -512,6 +530,30 @@ def twist_study(best, workers=None):
             rows.append(dict(tip=c.tip_airfoil, washout=c.washout, ok=False))
             continue
         rows.append(dict(tip=c.tip_airfoil, washout=c.washout, ok=True, feasible=r.feasible,
+                         misses=[k for k, v in r.cons.items() if v < -1e-4], **r.detail["summary"]))
+    return rows
+
+
+def _taper_of(r):
+    return float(r.x[4]) if len(r.x) > 4 else (r.combo.taper if r.combo.taper is not None else P.wing_taper)
+
+
+TAPERS = (0.35, 0.45, 0.6, 0.8, 1.0)
+
+
+def taper_study(best, workers=None):
+    """Trade study for the winning design: fixed taper ratios, each re-optimized
+    (S, AR, tail arm, washout) with the same parts. Shows why the optimizer's
+    taper wins (tip Reynolds number, stall location, span efficiency)."""
+    jobs = [(replace(best.combo, taper=t), tuple(best.x[:4]), False) for t in TAPERS]
+    with ProcessPoolExecutor(max_workers=workers) as ex:
+        res = list(ex.map(_opt_job_full, jobs))
+    rows = []
+    for (c, _, _), r in zip(jobs, res):
+        if r is None or not r.ok:
+            rows.append(dict(taper=c.taper, ok=False))
+            continue
+        rows.append(dict(taper=c.taper, ok=True, feasible=r.feasible,
                          misses=[k for k, v in r.cons.items() if v < -1e-4], **r.detail["summary"]))
     return rows
 
@@ -561,7 +603,9 @@ def _opt_job(args):
 def _summary(r):
     d = r.detail
     p, g, a = d["perf"], d["geom"], d["aero"]
-    return dict(m=r.m, score=r.score, V_s_landing=r.vs, span=g.b, S=g.S, AR=g.AR,
+    return dict(m=r.m, score=r.score, V_s_landing=r.vs, span=g.b, S=g.S, AR=g.AR, taper_ratio=g.wing.taper,
+                c_root=g.wing.c_root, c_tip=g.wing.c_tip,
+                tip_re=d["atm"].rho * p["loiter"]["V"] * g.wing.c_tip / d["atm"].mu,
                 W_S=r.m * G0 / g.S, V_td=p["V_td"], takeoff_pavement_m=p["takeoff_pavement"]["s"],
                 landing_pavement_m=p["s_landing_pavement"], endurance_margin=d["bmf"]["endurance_margin"],
                 loiter_min=d["bmf"]["loiter_max_min"],

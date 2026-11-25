@@ -140,6 +140,15 @@ def render(j):
         for part in ("engine_out", "crosswind", "derivatives"):
             if la.get(part):
                 block(part, la[part])
+    if j.get("dynamics"):
+        head("4e2. LATERAL-DIRECTIONAL DYNAMICS (MIL-F-8785C Level 1, Class I)")
+        dy = j["dynamics"]
+        kv("dihedral (each panel)", dy["dihedral_deg"], "deg", "smallest meeting the spiral requirement")
+        kv("Ixx", dy["Ixx"], "kg.m^2")
+        kv("Izz", dy["Izz"], "kg.m^2")
+        for name, c in dy["cases"].items():
+            block(f"{name} modes", {k: v for k, v in c.items() if k not in ("eigenvalues", "derivatives")})
+            block(f"{name} derivatives (per rad)", c["derivatives"])
     if j.get("landing"):
         head("4f. LANDING / APPROACH")
         ld = j["landing"]
@@ -168,6 +177,14 @@ def render(j):
                 w(f"  {r['wheel']:14s} d {r['d_mm']:5.1f} mm  mass {r['m']:.4f} kg  grass mu {r['mu_grass']:.3f}  "
                   f"TO {r['takeoff_grass_m']:.1f} m  LDG {r['landing_grass_m']:.1f} m  brake fits {r['brake_fits']}"
                   + ("  <- chosen" if r["chosen"] else ""))
+    if j.get("taper_study"):
+        head("4i. TAPER TRADE STUDY (fixed taper, each re-optimized)")
+        for r in j["taper_study"]:
+            if r.get("ok"):
+                st = "ok" if r["feasible"] else "misses " + "+".join(r["misses"])
+                w(f"  taper {r['taper']:4.2f}  mass {r['m']:.4f}  score {r['score']:.4f}  span {r['span']:.3f}  "
+                  f"root/tip {r['c_root'] * 1000:.0f}/{r['c_tip'] * 1000:.0f} mm  tip Re {r['tip_re'] / 1e3:.0f}k  "
+                  f"V_s {r['V_s_landing']:.2f}  stall@ {r['stall_eta']:.0%}  {st}")
     if j.get("twist_study"):
         head("4c. TWIST TRADE STUDY (each row re-optimized)")
         w(f"  {'tip airfoil':11s} {'washout':>7s} {'mass':>7s} {'span':>6s} {'loiter':>7s} {'landing':>8s} "

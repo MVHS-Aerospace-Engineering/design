@@ -8,7 +8,7 @@ This is where a wide range of configurations are explored and where design conce
 
 ### Requirements & Constraints (these are not engineering descisions)
 
-- The aircraft shall remain airborne for a minimum of 30 minutes with no payload.
+- The aircraft shall remain airborne for a minimum of 45 minutes with no payload (raised from 30 min, Nov 2026).
 - The aircraft shall take off within 75 m on the paved strip and within 80 m on soft grass, and land (with wheel brakes) within the same distances (field survey, Nov 2026; was 250 ft).
 - The aircraft shall support full autonomous and remote-controlled operation.
 

@@ -80,7 +80,8 @@ def _wing_xsecs(j):
         c = g["c_root"] * (1 - (1 - g["taper"]) * eta)
         af = root if tip.name == root.name else root.blend_with_another_airfoil(tip, blend_fraction=eta)
         cs = [p[2] for p in panels if abs(p[0] - y) < 1e-9]
-        xsecs.append(asb.WingXSec(xyz_le=[L["x_quarter_chord"] - 0.25 * c, y, L["z_root_chord_line"]],
+        z_dih = y * np.tan(np.radians(L.get("dihedral_deg", 0.0)))
+        xsecs.append(asb.WingXSec(xyz_le=[L["x_quarter_chord"] - 0.25 * c, y, L["z_root_chord_line"] + z_dih],
                                   chord=c, twist=L["incidence_deg"] - washout * eta, airfoil=af,
                                   control_surfaces=cs))
     return xsecs

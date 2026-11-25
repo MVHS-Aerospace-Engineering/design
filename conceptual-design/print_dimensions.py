@@ -120,7 +120,9 @@ def render(j):
     mm("root chord line z (on top of the fuselage)", wing["z_root_chord_line"])
     deg("incidence (root chord vs fuselage axis)", wing["incidence_deg"], "LE up")
     deg("washout (tip twisted LE-down vs root)", wing["washout_deg"], "linear root->tip")
-    deg("dihedral", wing.get("dihedral_deg", 0.0))
+    deg("dihedral (each panel, from the root)", wing.get("dihedral_deg", 0.0))
+    if wing.get("z_tip_le") is not None:
+        mm("tip chord line z (dihedral raises the tip)", wing["z_tip_le"])
     sub("airfoils")
     txt("root airfoil", wing.get("root_airfoil"), dat(wing.get("root_airfoil")))
     txt("tip airfoil", wing.get("tip_airfoil"), dat(wing.get("tip_airfoil")))

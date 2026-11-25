@@ -1,114 +1,124 @@
 AIRCRAFT PERFORMANCE AND HANDLING
-Source: conceptual-design/outputs/design_point.json   (generated 2026-11-24 21:07)
-Takeoff mass 0.915 kg, span 0.81 m, wing area 0.1157 m^2, wing loading 79 g/dm^2
-sd7062 wing (flaperons), 2 x Cobra C-2204/40 + APC 7x5E, Gens Ace Soaring 3S 2200 20C
+Source: conceptual-design/outputs/design_point.json   (generated 2026-11-25 00:29)
+Takeoff mass 0.936 kg, span 0.95 m, wing area 0.1273 m^2, wing loading 74 g/dm^2
+sd7062 wing (flaperons), 2 x Cobra C-2204/40 + APC 6x6E, 3S1P Molicel P28A (18650)
 Conditions: ISA+15 K at 0 m (hot day - performance is a little better on a standard day). Model predictions - verify in flight.
 
 ======================================================================================
  1. SPEEDS
 ======================================================================================
-  stall, clean (trimmed at forward CG)                 9.85 m/s     (35 km/h)
-  stall, landing configuration                         9.20 m/s     (33 km/h) flaperons drooped
-  stall in a level 30-deg bank (V_s / sqrt(cos))      10.58 m/s     
-  stall in a level 45-deg bank (V_s / sqrt(cos))      11.71 m/s     
-  stall in a level 60-deg bank (V_s / sqrt(cos))      13.93 m/s     
-  liftoff (1.1 V_s)                                   10.83 m/s     
-  approach (1.3 V_s landing)                          11.96 m/s     
-  touchdown (1.15 V_s landing)                        10.58 m/s     
-  minimum control speed, one motor out (V_mc)         11.82 m/s     = 1.2 V_s (14 CFR 23.149)
-  best endurance (loiter)                             11.82 m/s     (43 km/h)
-  best rate of climb (V_y)                            12.00 m/s     
-  best glide (motors off)                             13.25 m/s     
-  maximum level speed (at the throttle cap)           18.37 m/s     (66 km/h)
-  maneuvering speed V_A = V_s sqrt(n_limit)           19.20 m/s     full, abrupt control only below this (14 CFR 23.335)
-  design cruise speed V_C (structure sized here)      16.53 m/s     
+  stall, clean (trimmed at forward CG)                 9.58 m/s     (34 km/h)
+  stall, landing configuration                         8.99 m/s     (32 km/h) flaperons drooped
+  stall in a level 30-deg bank (V_s / sqrt(cos))      10.29 m/s     
+  stall in a level 45-deg bank (V_s / sqrt(cos))      11.39 m/s     
+  stall in a level 60-deg bank (V_s / sqrt(cos))      13.54 m/s     
+  liftoff (1.1 V_s)                                   10.53 m/s     
+  approach (1.3 V_s landing)                          11.69 m/s     
+  touchdown (1.15 V_s landing)                        10.34 m/s     
+  minimum control speed, one motor out (V_mc)         11.49 m/s     = 1.2 V_s (14 CFR 23.149)
+  best endurance (loiter)                             11.49 m/s     (41 km/h)
+  best rate of climb (V_y)                            12.83 m/s     
+  best glide (motors off)                             12.25 m/s     
+  maximum level speed (at the throttle cap)           21.10 m/s     (76 km/h)
+  maneuvering speed V_A = V_s sqrt(n_limit)           18.99 m/s     full, abrupt control only below this (14 CFR 23.335)
+  design cruise speed V_C (structure sized here)      18.99 m/s     
 
 ======================================================================================
  2. ENDURANCE, RANGE, CLIMB, GLIDE
 ======================================================================================
-  loiter time available (after takeoff + climb)       32.71 min     requirement 30 min
-  total airborne time                                 34.92 min     takeoff + climb + loiter + glide down
-  still-air distance flown at loiter speed            23.20 km      (best-range speed is a bit faster; not computed)
-  loiter power drawn from the battery                 33.40 W       incl. avionics; 3.01 A
-  loiter lift-to-drag ratio                            9.07         
-  climb rate (at the throttle cap)                     2.69 m/s     530 ft/min
-  climb gradient (best)                               22.42 %       
-  time to climb to 120 m                              44.60 s       
-  best glide ratio (motors off)                        9.30 : 1     
-  sink rate at best glide                              1.43 m/s     
-  glide time from 120 m                               84.20 s       glide distance 1116 m
+  loiter time available (after takeoff + climb)       49.57 min     requirement 45 min, sized for 49.5 (design margin)
+  total airborne time                                 52.07 min     takeoff + climb + loiter + glide down
+  still-air distance flown at loiter speed            34.18 km      (best-range speed is a bit faster; not computed)
+  loiter power drawn from the battery                 29.41 W       incl. avionics; 2.72 A
+  loiter lift-to-drag ratio                           10.17         
+  climb rate (at the throttle cap)                     2.69 m/s     529 ft/min
+  climb gradient (best)                               22.80 %       
+  time to climb to 120 m                              44.66 s       
+  best glide ratio (motors off)                       10.26 : 1     
+  sink rate at best glide                              1.19 m/s     
+  glide time from 120 m                                 101 s       glide distance 1232 m
 
 ======================================================================================
  3. TAKEOFF AND LANDING
 ======================================================================================
-  takeoff ground roll, soft grass                     28.58 m       limit 80 m
-  takeoff ground roll, pavement                       27.99 m       limit 75 m
-  landing roll, soft grass (braked)                   50.88 m       limit 80 m, incl. 1 s free roll
-  landing roll, pavement (braked)                     42.66 m       limit 75 m
-  takeoff technique                                  stance         nose-up ground stance 2.3 deg
-  approach glide angle, motors idle                    8.18 deg     landing configuration, trimmed
-  go-around (balked landing) climb gradient           19.12 %       minimum 3.3% (14 CFR 23.77)
-  crosswind demonstrated (0.2 V_SO)                    1.84 m/s     rudder 14 of 25 deg trusted, aileron 5%, bank +1.2 deg
-    rough crosswind limit (rudder runs out)            3.33 m/s     linear scaling of the trim - estimate only
+  takeoff ground roll, soft grass                     33.00 m       limit 80 m
+  takeoff ground roll, pavement                       31.84 m       limit 75 m
+  landing roll, soft grass (braked)                   50.78 m       limit 80 m, incl. 1 s free roll
+  landing roll, pavement (braked)                     42.49 m       limit 75 m
+  takeoff technique                                  stance         nose-up ground stance 2.1 deg
+  approach glide angle, motors idle                    6.88 deg     landing configuration, trimmed
+  go-around (balked landing) climb gradient           20.32 %       minimum 3.3% (14 CFR 23.77)
+  crosswind demonstrated (0.2 V_SO)                    1.80 m/s     rudder 14 of 25 deg trusted, aileron 25%, bank +1.1 deg
+    rough crosswind limit (rudder runs out)            3.34 m/s     linear scaling of the trim - estimate only
 
 ======================================================================================
  4. ROLL AND TURNING
 ======================================================================================
-  roll helix pb/2V, full aileron                     0.0791         requirement 0.07 (Gilruth, NACA 755 - 'satisfactory' roll power)
-  steady roll rate at approach speed (12.0 m/s)         134 deg/s   0 -> 30 deg bank in ~0.2 s (roll-mode lag ignored)
-  steady roll rate at loiter speed (11.8 m/s)           132 deg/s   0 -> 30 deg bank in ~0.2 s (roll-mode lag ignored)
-  steady roll rate at max level speed (18.4 m/s)        206 deg/s   0 -> 30 deg bank in ~0.1 s (roll-mode lag ignored)
+  roll helix pb/2V, full aileron                     0.0807         requirement 0.07 (Gilruth, NACA 755 - 'satisfactory' roll power)
+  steady roll rate at approach speed (11.7 m/s)         113 deg/s   0 -> 30 deg bank in ~0.3 s (roll-mode lag ignored)
+  steady roll rate at loiter speed (11.5 m/s)           111 deg/s   0 -> 30 deg bank in ~0.3 s (roll-mode lag ignored)
+  steady roll rate at max level speed (21.1 m/s)        205 deg/s   0 -> 30 deg bank in ~0.1 s (roll-mode lag ignored)
   aileron throw                                       10.00 deg     (flaperons: about the drooped position when landing)
-  level turn at loiter speed, 30-deg bank             24.67 m radius 13 s per 360, load factor 1.15, 1.12x its stall speed (needs more power than loiter)
-  level turn at loiter speed, 45-deg bank             14.24 m radius 8 s per 360, load factor 1.41, 1.01x its stall speed (needs more power than loiter)
+  level turn at loiter speed, 30-deg bank             23.32 m radius 13 s per 360, load factor 1.15, 1.12x its stall speed (needs more power than loiter)
+  level turn at loiter speed, 45-deg bank             13.47 m radius 7 s per 360, load factor 1.41, 1.01x its stall speed (needs more power than loiter)
   steepest level bank at loiter speed before stall      46.02 deg     add speed (or power) before banking harder
-  limit load factor (structure)                        3.80 g       ultimate 5.70 g
+  limit load factor (structure)                        3.93 g       ultimate 5.90 g
 
 ======================================================================================
  5. STABILITY AND HANDLING
 ======================================================================================
-  neutral point                                       33.86 % MAC   incl. the fuselage
-  CG range (balance here)                         21.6-28.9 % MAC   x = 122-132 mm from the nose tip
-  static margin (pitch stability)                  5.0-12.2 % MAC   aft CG = least stable, most responsive in pitch
-  elevator: trusted up-throw / authority              15.00 deg     1.01x what landing trim + takeoff need at the forward CG
-  weathercock stability Cn_beta                      0.0577 /rad    > 0: nose turns into the relative wind (fuselage alone -0.016)
-  effective dihedral Cl_beta                        -0.0348 /rad    < 0: a sideslip rolls the wing level (high wing + fin; no geometric dihedral)
-  adverse yaw / roll from full aileron              -0.0554         Cn/Cl - small; coordinate turns with a little rudder
+  neutral point                                       36.62 % MAC   incl. the fuselage
+  CG range (balance here)                         25.1-31.6 % MAC   x = 122-131 mm from the nose tip
+  static margin (pitch stability)                  5.0-11.6 % MAC   aft CG = least stable, most responsive in pitch
+  elevator: trusted up-throw / authority              25.00 deg     1.01x what landing trim + takeoff need at the forward CG
+  weathercock stability Cn_beta                      0.0436 /rad    > 0: nose turns into the relative wind (fuselage alone -0.009)
+  effective dihedral Cl_beta                          -0.13 /rad    < 0: a sideslip rolls the wing level (high wing + fin + 5.5 deg dihedral)
+  adverse yaw / roll from full aileron              -0.0433         Cn/Cl - small; coordinate turns with a little rudder
+  Dutch roll at loiter (damping / period)        0.12 / 1.12 s         min damping 0.08: yaw-roll wobble dies out
+  spiral at loiter                                   stable         slow divergence the pilot/autopilot corrects; dihedral sized for this
+  roll response time constant at loiter              0.0541 s       time to reach ~63% of the full roll rate
+  Dutch roll at approach (damping / period)      0.13 / 1.11 s         min damping 0.08: yaw-roll wobble dies out
+  spiral at approach                                 stable         slow divergence the pilot/autopilot corrects; dihedral sized for this
+  roll response time constant at approach            0.0532 s       time to reach ~63% of the full roll rate
+  pitch short-period damping, forward CG               0.56         0.3-2.0: pitch settles without overshoot-ringing (12.2 rad/s)
+  pitch short-period damping, aft CG                   0.75         0.3-2.0: pitch settles without overshoot-ringing (9.0 rad/s)
+  phugoid (slow speed/height swap)               5.2 s period         damping 0.070 (min 0.04)
   where the stall starts (fraction of semispan)        0.54         clean; mid-span, not at the tip - roll control remains at the stall
-    ... landing configuration                          0.54         
-  washout (tip twist)                                  1.02 deg     
+    ... landing configuration                          0.62         
+  washout (tip twist)                                  1.12 deg     
 
 ======================================================================================
  6. ONE MOTOR OUT
 ======================================================================================
-  control speed V_mc                                  11.82 m/s     live motor at full (capped) thrust, dead prop stopped
-  bank toward the working motor                        4.32 deg     zero-sideslip technique (max 5 deg allowed)
-  rudder needed / trusted                        23.8 / 23.8 deg     
-  aileron needed                                      21.93 % of throw limit 75%
-  yawing moment to hold                                0.25 N.m     1.52 N thrust + 0.16 N stopped-prop drag
+  control speed V_mc                                  11.49 m/s     live motor at full (capped) thrust, dead prop stopped
+  bank toward the working motor                        4.33 deg     zero-sideslip technique (max 5 deg allowed)
+  rudder needed / trusted                        23.9 / 23.9 deg     
+  aileron needed                                      16.85 % of throw limit 75%
+  yawing moment to hold                                0.22 N.m     1.50 N thrust + 0.11 N stopped-prop drag
   Below V_mc, or if the rudder runs out, reduce the working motor's throttle (the FC can do this
   automatically): with less thrust there is less yaw to hold, and with both motors at idle there is none.
 
 ======================================================================================
  7. POWER SYSTEM
 ======================================================================================
-  throttle cap (set in the FC, both motors)            0.56         max ESC duty in every mode
-  static thrust / weight (at the cap)                  0.59         5.31 N
-  max motor current                                    6.03 A       
-  max battery current                                  7.66 A       
+  throttle cap (set in the FC, both motors)            0.65         max ESC duty in every mode
+  static thrust / weight (at the cap)                  0.41         3.81 N
+  max motor current                                    5.20 A       
+  max battery current                                  7.70 A       
 
 ======================================================================================
  8. WATCH-OUTS
 ======================================================================================
-  1. Approach trim at the FORWARD CG needs -16.6 deg of elevator at a tail angle of -10.2 deg - outside the range NeuralFoil trusts (tail near its negative stall). Balance toward the aft half of the CG range, and check elevator authority on the first approaches.
-  2. 'elevator_authority' is at its limit (margin 1.0%) - it sized the design; a heavier build or measured inputs may push it over.
-  3. At loiter speed (11.8 m/s, only 1.20 x the stall speed) the wing stalls in a level turn steeper than ~46 deg of bank - limit the autopilot's bank angle in loiter or add speed for turns.
-  4. Weathercock stability is modest (Cn_beta 0.058/rad): expect the nose to wander in gusts; this is why the fin is never allowed below the Raymer tail-volume size.
+  1. 'elevator_authority' is at its limit (margin 1.0%) - it sized the design; a heavier build or measured inputs may push it over.
+  2. 'spiral' is at its limit (margin 0.0%) - it sized the design; a heavier build or measured inputs may push it over.
+  3. 'endurance' is at its limit (margin 0.1%) - it sized the design; a heavier build or measured inputs may push it over.
+  4. At loiter speed (11.5 m/s, only 1.20 x the stall speed) the wing stalls in a level turn steeper than ~46 deg of bank - limit the autopilot's bank angle in loiter or add speed for turns.
+  5. Weathercock stability is modest (Cn_beta 0.044/rad): expect the nose to wander in gusts; this is why the fin is never allowed below the Raymer tail-volume size.
 
 ======================================================================================
  9. NOT COMPUTED BY THIS MODEL (check in flight / preliminary design)
 ======================================================================================
-  - Dynamic modes: short-period, phugoid, Dutch roll, spiral, roll-mode time constant
+  - Coupled 6-DOF dynamics (modes are computed separately, linear; Ixz neglected)
   - Control forces / servo torque (hinge moments) and gust response
   - Best-range speed, turn performance with power, ceiling
   - Stall departure behaviour beyond where the stall starts; spin characteristics

@@ -1,214 +1,221 @@
-[B0] 1173 motor/prop/battery-family combinations pass the static check   [    1 s]
-[A ] airframe technology ranking (best screened score = mass + stall-speed worth, kg):   [   33 s]
-       sd7062    printed_lwpla    1.304
-       naca4412  printed_lwpla    1.312
-       clarky    printed_lwpla    1.318
-       s4083     printed_lwpla    1.323
-       sd7037    printed_lwpla    1.328
-       e387      printed_lwpla    1.329
-[B ] screened 3519 designs, 3513 feasible   [  835 s]
-[C ] refined 36 candidate x control-configuration designs (multi-start SLSQP)   [ 4517 s]
-[D ] 39 feasible designs with real catalog batteries   [ 5683 s]
-[T ] twist / tip-airfoil refinement: 18 designs   [ 5808 s]
-[F ] twist trade study (tip airfoil x washout, each re-optimized) ...
-[G ] stall-speed trade study (lightest design at each stall-speed cap) ...
+[--evaluate] re-evaluated the saved design point (no search)
 [H ] wheel trade study ...
 [E ] sensitivity study ...
 
 ==============================================================================
  CONCEPTUAL DESIGN POINT  (min  mass + 30 g per m/s of stall speed, meeting every requirement)
 ==============================================================================
- Objective 1.1912 kg = mass 0.9152 kg + 30 g/(m/s) x V_stall 9.20 m/s (landing config, trimmed at forward CG)
- Takeoff mass 0.915 kg   W/S 77.6 N/m^2   P/W 6.2 W/N (installed shaft)   search 5811 s
+ Objective 1.2057 kg = mass 0.9360 kg + 30 g/(m/s) x V_stall 8.99 m/s (landing config, trimmed at forward CG)
+ Takeoff mass 0.936 kg   W/S 72.1 N/m^2   P/W 5.2 W/N (installed shaft)   search 2 s
  Atmosphere: 0 m, ISA+15 K, rho = 1.1644 kg/m^3
 
  REQUIREMENTS / CONSTRAINTS                         value        limit    margin
-  Endurance (loiter only, not counting climb)       32.7 min      >= 30    +8.4%
-    total airborne time                             34.9 min             
-  Takeoff ground roll (soft grass)                    28.6 m      <= 80   +64.3%
-  Takeoff ground roll (pavement)                      28.0 m      <= 75   +62.7%
-  Landing ground roll (soft grass, braked)            50.9 m      <= 80   +36.4%
-  Landing ground roll (pavement, braked)              42.7 m      <= 75   +43.1%
-  Balked-landing climb gradient                        0.191   >= 0.033  +479.5%
-  Wingspan                                           0.809 m     <= 1.5   +46.1%
-  Climb rate (at throttle cap)                      2.69 m/s    >= 2.50    +7.6%
-  Climb gradient                                       0.224   >= 0.083  +169.1%
-  Motor current (max)                                  6.0 A       <= 9   +33.0%
-  Battery current (max)                                7.7 A      <= 35   +78.2%
-  Spar stress / allowable (ultimate load)               0.53        < 1   +46.7%
-  Tip Reynolds number at loiter                          79k     >= 70k   +13.4%
-  Roll helix pb/2V (approach)                          0.079    >= 0.07   +12.9%
+  Endurance (loiter only, not counting climb)       49.6 min    >= 49.5    +0.1%  ACTIVE
+    (requirement 45 min + 10% design margin)                             
+    total airborne time                             52.1 min             
+  Takeoff ground roll (soft grass)                    33.0 m      <= 80   +58.8%
+  Takeoff ground roll (pavement)                      31.8 m      <= 75   +57.5%
+  Landing ground roll (soft grass, braked)            50.8 m      <= 80   +36.5%
+  Landing ground roll (pavement, braked)              42.5 m      <= 75   +43.3%
+  Balked-landing climb gradient                        0.203   >= 0.033  +515.7%
+  Wingspan                                           0.953 m     <= 1.5   +36.4%
+  Climb rate (at throttle cap)                      2.69 m/s    >= 2.50    +7.5%
+  Climb gradient                                       0.228   >= 0.083  +173.6%
+  Motor current (max)                                  5.2 A       <= 9   +42.2%
+  Battery current (max)                                7.7 A      <= 21   +63.3%
+  Spar stress / allowable (ultimate load)               0.67        < 1   +33.0%
+  Tip Reynolds number at loiter                          73k     >= 70k    +4.8%
+  Roll helix pb/2V (approach)                          0.081    >= 0.07   +15.3%
   Elevator authority (forward CG)                      1.01x       >= 1    +1.0%  ACTIVE
-  Crosswind rudder (0.2 V_SO)                           0.55 <= 1 of usable   +44.7%
-  Crosswind aileron                                       5%     <= 75%   +93.6%
-  Engine-out aileron                                     22%     <= 75%   +70.8%
-  Directional stability Cn_beta                    0.058/rad        > 0  +100.0%
+  Crosswind rudder (0.2 V_SO)                           0.54 <= 1 of usable   +46.1%
+  Crosswind aileron                                      25%     <= 75%   +66.7%
+  Engine-out aileron                                     17%     <= 75%   +77.5%
+  Directional stability Cn_beta                    0.044/rad        > 0  +100.0%
 
  CONFIGURATION
-  Wing   S=0.1157 m^2  b=0.809 m  AR=5.65  taper=0.6  c_root=179 mm  c_tip=107 mm  MAC=146 mm
-         airfoil sd7062 (root t/c 0.140) -> sd7062 at the tip, washout 1.02 deg   construction: printed_lwpla   span efficiency e 0.970
-         spar: carbon tube OD 6.0 mm x 1.00 mm wall  (n_limit 3.80, ultimate 5.70, V_C 16.5 m/s)
-  H-tail S=0.0149 m^2  span=244 mm  tail arm=377 mm  (sized by scissor plot (elevator at forward CG); Raymer tail-volume value 0.0224)
-  Fin    S=0.0141 m^2  height=150 mm  (sized by coupled engine-out trim; volume-coeff value 0.0099, engine-out needs 0.0141)
-  Fuselage L=598 mm  67 x 66 mm section  bay 118 mm
-  Motors at y=+/-148 mm   gear height 62 mm  track 191 mm
+  Wing   S=0.1273 m^2  b=0.953 m  AR=7.14  taper=0.618  c_root=165 mm  c_tip=102 mm  MAC=136 mm
+         airfoil sd7062 (root t/c 0.140) -> sd7062 at the tip, washout 1.12 deg   construction: printed_lwpla   span efficiency e 0.967
+         spar: carbon tube OD 6.0 mm x 1.00 mm wall  (n_limit 3.93, ultimate 5.90, V_C 19.0 m/s)
+  H-tail S=0.0195 m^2  span=279 mm  tail arm=321 mm  (sized by scissor plot (elevator at forward CG); Raymer tail-volume value 0.0270)
+  Fin    S=0.0153 m^2  height=156 mm  (sized by coupled engine-out trim; volume-coeff value 0.0151, engine-out needs 0.0153)
+  Fuselage L=540 mm  67 x 60 mm section  bay 134 mm
+  Motors at y=+/-135 mm   gear height 74 mm  track 214 mm
 
  CONTROL SURFACES  (sized from requirements; NeuralFoil on the deflected sections)
   Configuration: flaperons
-  Flaperons: 34-384 mm from centerline (8%-95% semispan), 25% chord, +/-10 deg -> pb/2V 0.079 (req >= 0.07)
-  Flaperon droop: 34-384 mm (8%-95%), 25% chord, 14 deg for landing -> CLmax 1.424 clean / 1.662 landing, V_stall 9.85 -> 9.20 m/s
-  Elevator: 25% chord, 95% span, 15 deg up; authority 1.01x required (landing trim 1.01, takeoff 1.06)
-  Rudder:   45% chord, 90% height; engine-out needs 23.8 deg of 23.8 trusted, crosswind 14.4 deg
-  Stabilizer 0.0149 m^2 (tail-volume value 0.0224)
-  Neutral point 33.9% MAC (fuselage moves it -1.2%); CG band 21.6%-28.9% MAC (static margin 12.2%-5.0%)
-  Incidence: wing +8.40 deg, stabilizer +1.33 deg (decalage +7.07) relative to the fuselage axis
-  Takeoff: stance, nose-up ground stance 2.3 deg
-  Stall starts at 54% semispan (clean), 54% (landing)
+  Flaperons: 34-453 mm from centerline (7%-95% semispan), 25% chord, +/-10 deg -> pb/2V 0.081 (req >= 0.07)
+  Flaperon droop: 34-453 mm (7%-95%), 25% chord, 14 deg for landing -> CLmax 1.386 clean / 1.605 landing, V_stall 9.58 -> 8.99 m/s
+  Elevator: 25% chord, 95% span, up to 25 deg up trusted (flare 24, approach 0, takeoff 25); authority 1.01x required (landing trim 1.76, approach 1.01, takeoff 1.46)
+  Rudder:   45% chord, 90% height; engine-out needs 23.9 deg of 23.9 trusted, crosswind 13.8 deg
+  Stabilizer 0.0195 m^2 (tail-volume value 0.0270)
+  Neutral point 36.6% MAC (fuselage moves it -1.1%); CG band 25.1%-31.6% MAC (static margin 11.6%-5.0%)
+  Incidence: wing +7.64 deg, stabilizer +2.04 deg (decalage +5.60) relative to the fuselage axis
+  Takeoff: stance, nose-up ground stance 2.1 deg
+  Stall starts at 54% semispan (clean), 62% (landing)
 
  BALANCE  (CG band from the as-built scatter; scissor plot hangs it from the aft limit)
-  as-built CG scatter 1-sigma 2.4 mm; x2 = 4.9 mm, battery slide corrects 1.6 mm, balancing accuracy +/-2.0 mm
-  -> CG band 10.5 mm = 7.2% MAC (was 15% MAC from the fixed 5-20% static-margin range)
-  stability line: aft CG 28.9% MAC = NP 33.9% - 5%;  control line: forward CG 21.6% MAC (elevator 1.01x required)
-  wing placed at x_qc 126 mm so the nominal CG (127 mm, 25.2% MAC) sits mid-band
-  biggest scatter contributors: Hinges / horns / pushrods / fasteners (tail half) (1.23 mm), fuselage shell (0.97 mm), nose gear + wheel (0.89 mm), props + spinners (0.85 mm), horizontal tail (0.66 mm)
+  as-built CG scatter 1-sigma 2.1 mm; x2 = 4.2 mm, battery slide corrects 1.8 mm, balancing accuracy +/-2.0 mm
+  -> CG band 8.9 mm = 6.6% MAC (was 15% MAC from the fixed 5-20% static-margin range)
+  stability line: aft CG 31.6% MAC = NP 36.6% - 5%;  control line: forward CG 25.1% MAC (elevator 1.01x required)
+  wing placed at x_qc 122 mm so the nominal CG (126 mm, 28.3% MAC) sits mid-band
+  biggest scatter contributors: Hinges / horns / pushrods / fasteners (tail half) (1.03 mm), nose gear + wheel (0.77 mm), horizontal tail (0.72 mm), props + spinners (0.70 mm), fuselage shell (0.66 mm)
 
  COUPLED LATERAL-DIRECTIONAL TRIM  (side force + roll + yaw solved together)
-  derivatives /rad: Cn_beta +0.058 (fuselage -0.016), Cl_beta -0.035 (wing height -0.019, no dihedral), CY_beta -0.248, full aileron Cl 0.0736 / adverse Cn -0.0041
+  derivatives /rad: Cn_beta +0.044 (fuselage -0.009), Cl_beta -0.133 (wing height -0.013, dihedral -0.106), CY_beta -0.232, full aileron Cl 0.0760 / adverse Cn -0.0033
   case                             V   bank   slip  aileron  rudder  usable  fin a
-  engine-out (right motor dead)  11.8   -4.3   -0.0     -22%   +23.8    23.8   -0.0
-  crosswind 0.2 V_SO from right  12.0   +1.2   +8.8      +5%   +14.4    25.0   +7.5
-  engine-out: 1.52 N live motor + 0.16 N stopped-prop drag at 11.8 m/s -> yaw 0.248 N.m; slipstream roll 0.069 N.m (+3.4 m/s over the wing). Fin needed 0.0141 m^2 (45% rudder)
+  engine-out (right motor dead)  11.5   -4.3   -0.0     -17%   +23.9    23.9   -0.0
+  crosswind 0.2 V_SO from right  11.7   +1.1   +8.8     +25%   +13.8    25.0   +7.6
+  engine-out: 1.50 N live motor + 0.11 N stopped-prop drag at 11.5 m/s -> yaw 0.217 N.m; slipstream roll 0.063 N.m (+4.5 m/s over the wing). Fin needed 0.0153 m^2 (45% rudder)
+
+ DYNAMIC STABILITY  (linear modes; MIL-F-8785C Level 1, Class I)
+  dihedral 5.53 deg each panel (smallest meeting the spiral requirement); Ixx 15.1, Izz 21.3 g.m^2
+  condition      V  DR zeta  DR wn  zeta.wn DR period  spiral T2  roll tau
+  loiter      11.5    0.123   5.65     0.70     1.12s     20.0 s    0.054s
+  approach    11.7    0.128   5.70     0.73     1.11s     34.5 s    0.053s
+  pitch, forward CG: short period zeta 0.56, wn 12.2 rad/s (static margin 11.6%)
+  pitch, aft CG    : short period zeta 0.75, wn 9.0 rad/s (static margin 5.0%)
+  phugoid: period 5.2 s, zeta 0.070   (short period 0.3-2.0, phugoid >= 0.04)
+  requirements: zeta >= 0.08, zeta.wn >= 0.15 rad/s; spiral T2 >= 20 s (loiter) / 12 s (approach); roll tau <= 1.4 / 1.0 s
 
  LANDING / APPROACH  (stall speeds trimmed at the forward CG; deflected-surface drag included)
-  V_stall landing 9.20 m/s (wing CLmax 1.662, trimmed 1.575); touchdown 10.6 m/s; approach 12.0 m/s
-  approach trim: tail CL -0.674, elevator -16.6 deg, trim drag 220 counts; glide (motors idle) 8.2 deg; balked-landing gradient 0.191
-  wheels: grass rolling mu 0.067 (main 0.070, nose 0.039); braked 0.184 grass / 0.274 pavement
-  braked roll: grass 50.9 m, pavement 42.7 m (after 1 s free roll)
+  V_stall landing 8.99 m/s (wing CLmax 1.605, trimmed 1.533); touchdown 10.3 m/s; approach 11.7 m/s
+  approach trim: tail CL -0.520, elevator +0.2 deg, trim drag 95 counts; glide (motors idle) 6.9 deg; balked-landing gradient 0.203
+  wheels: grass rolling mu 0.068 (main 0.070, nose 0.047); braked 0.185 grass / 0.274 pavement
+  braked roll: grass 50.8 m, pavement 42.5 m (after 1 s free roll)
 
  PROPULSION (selected from catalogs)
-  2 x Cobra C-2204/40   2 x APC 7x5E   2 x Hobbywing Skywalker 20A V2
-  Battery: Gens Ace Soaring 3S 2200 20C  24.4 Wh  146 g  U=167 Wh/kg  K=0.8
-  THROTTLE CAP 0.562 (max ESC duty) - set as the max output on BOTH motor channels in the flight controller so it applies in every mode, incl. manual
-  Static (capped): thrust 5.3 N (T/W 0.59)  6.0 A/motor  7661 rpm
+  2 x Cobra C-2204/40   2 x APC 6x6E   2 x Hobbywing Skywalker 20A V2
+  Battery: 3S1P Molicel P28A (18650)  30.2 Wh  166 g  U=182 Wh/kg  K=0.85
+  THROTTLE CAP 0.651 (max ESC duty) - set as the max output on BOTH motor channels in the flight controller so it applies in every mode, incl. manual
+  Static (capped): thrust 3.8 N (T/W 0.41)  4.4 A/motor  9061 rpm
   Avionics load 8.6 W
 
  IN-FLIGHT THRUST (at the throttle cap; APC data at each airspeed)
   point                                   V m/s T avail N    T/W  drag N  excess  eta_p    rpm  I_mot  I_bat
-  static (V=0)                             0.00     5.306  0.591       -       -  0.000   7661   6.03   7.66
-  liftoff 1.1 Vs                          10.83     3.298  0.367   1.048   2.250  0.649   7683   5.95   7.58
-  V_mc engine-out 1.2 Vs                  11.82     3.043  0.339   0.989   2.054  0.672   7735   5.76   7.36
-  loiter                                  11.82     3.043  0.339   0.989   2.054  0.672   7735   5.76   7.36
-  best climb V_y                          12.00     2.995  0.334   0.983   2.013  0.676   7746   5.72   7.31
-  max level speed                         18.37     1.200  0.134   1.200  -0.000  0.610   8275   3.76   5.10
-  loiter (thrust REQUIRED, part throttle)  11.82     0.989  0.110   0.989   0.000  0.661   5908      -   3.01
+  static (V=0)                             0.00     3.808  0.415       -       -  0.000   9061   4.44   6.70
+  liftoff 1.1 Vs                          10.53     3.108  0.339   0.955   2.153  0.599   8826   5.19   7.69
+  V_mc engine-out 1.2 Vs                  11.49     2.996  0.326   0.903   2.094  0.628   8823   5.20   7.70
+  loiter                                  11.49     2.996  0.326   0.903   2.094  0.628   8823   5.20   7.70
+  best climb V_y                          12.83     2.820  0.307   0.898   1.922  0.665   8834   5.17   7.65
+  max level speed                         21.10     1.475  0.161   1.475  -0.000  0.747   9239   3.87   5.95
+  loiter (thrust REQUIRED, part throttle)  11.49     0.903  0.098   0.903   0.000  0.720   5922      -   2.72
 
  AERODYNAMICS
-  V_stall 9.85 m/s (CLmax 1.424)  V_loiter 11.82 m/s  V_max 18.4 m/s  best glide L/D 9.30
-  Polar fit CD0 0.0480  K 0.0636   inviscid e 0.970
-  Drag at loiter (counts): wing_profile 206, htail 23, vtail 18, fuselage 20, nacelles 13, gear 221, leakage 25, induced 526  = 1052
+  V_stall 9.58 m/s (CLmax 1.386)  V_loiter 11.49 m/s  V_max 21.1 m/s  best glide L/D 10.26
+  Polar fit CD0 0.0472  K 0.0521   inviscid e 0.967
+  Drag at loiter (counts): wing_profile 220, htail 26, vtail 17, fuselage 17, nacelles 12, gear 203, leakage 25, induced 402  = 922
 
  MISSION BMF  (image equations, calculated inputs)
-  takeoff  0.0007   t=4.0 s, eta_b2s=0.736
-  climb    0.0072   120 m at 12.0 m/s, V_v=2.69 m/s, L/D=9.13, eta_total=0.503
-  loiter   0.0970   30 min at 11.82 m/s, L/D=9.07, eta_prop=0.661 x eta_b2s=0.744 = 0.492
-  avionics 0.0423   8.6 W for 32.2 min
-  TOTAL    0.1472   -> needs 135 g of this chemistry; pack is 146 g (margin +8.4%)
+  takeoff  0.0007   t=5.0 s, eta_b2s=0.752
+  climb    0.0062   120 m at 12.8 m/s, V_v=2.69 m/s, L/D=10.22, eta_total=0.498
+  loiter   0.1121   49.5 min at 11.49 m/s, L/D=10.17, eta_prop=0.720 x eta_b2s=0.731 = 0.526
+  avionics 0.0580   8.6 W for 52.0 min
+  TOTAL    0.1771   -> needs 166 g of this chemistry; pack is 166 g (margin +0.1%)
 
  PREVIOUSLY ASSUMED  ->  NOW CALCULATED
-  LD          10.000  ->     9.071 
-  V           15.000  ->    11.819 m/s
-  eta_prop     0.650  ->     0.661 
-  eta_b2s      0.800  ->     0.744 
-  U          150.000  ->   167.260 Wh/kg
-  roc          2.500  ->     2.691 m/s
+  LD          10.000  ->    10.170 
+  V           15.000  ->    11.492 m/s
+  eta_prop     0.650  ->     0.720 
+  eta_b2s      0.800  ->     0.731 
+  U          150.000  ->   182.224 Wh/kg
+  roc          2.500  ->     2.687 m/s
 
  MASS BREAKDOWN
-  avionics_servos      264.0 g   28.8%
-  battery              146.0 g   16.0%
-  landing_gear          91.0 g    9.9%
-  wing_shell            80.7 g    8.8%
-  growth_allowance      69.9 g    7.6%
-  motors                45.0 g    4.9%
-  fuselage              43.4 g    4.7%
-  escs                  38.0 g    4.2%
-  props_spinners        33.9 g    3.7%
-  wheel_brakes          31.0 g    3.4%
-  nacelles              21.8 g    2.4%
-  wing_spar             17.1 g    1.9%
-  power_wiring          14.8 g    1.6%
-  htail                  9.5 g    1.0%
-  vtail                  9.0 g    1.0%
+  avionics_servos      264.0 g   28.2%
+  battery              165.9 g   17.7%
+  landing_gear          90.3 g    9.6%
+  wing_shell            88.8 g    9.5%
+  growth_allowance      70.0 g    7.5%
+  motors                45.0 g    4.8%
+  escs                  38.0 g    4.1%
+  fuselage              37.0 g    4.0%
+  wheel_brakes          31.0 g    3.3%
+  props_spinners        27.6 g    2.9%
+  nacelles              21.8 g    2.3%
+  wing_spar             20.2 g    2.2%
+  power_wiring          14.1 g    1.5%
+  htail                 12.5 g    1.3%
+  vtail                  9.8 g    1.0%
 
  ALTERNATIVES (next-lightest feasible designs)
-  0.907 kg  Cobra C-2204/40 + APC 6x6E | 3S1P Molicel P28A (18650) | sd7062 printed_lwpla | flaperons
-  0.909 kg  Cobra C-2204/32 + APC 6x6E | 3S1P Molicel P28A (18650) | sd7062 printed_lwpla | flaperons
-  0.887 kg  Cobra C-2204/40 + APC 6x4E | Gens Ace Soaring 3S 2200 20C | naca4412 printed_lwpla | flaperons
-  0.889 kg  Cobra C-2204/40 + APC 6x6E | Gens Ace Soaring 3S 2200 20C | naca4412 printed_lwpla | flaperons
-  0.901 kg  Cobra C-2204/40 + APC 6x5.5E | Gens Ace Soaring 3S 2200 20C | naca4412 printed_lwpla | flaperons
+  0.972 kg  Cobra C-2204/40 + APC 6x4E | 3S1P Molicel P28A (18650) | sd7062->s4083 printed_lwpla | flaperons
+  0.990 kg  Cobra C-2204/32 + APC 6x5.5E | 3S1P Molicel P28A (18650) | sd7062 printed_lwpla | flaperons
+  0.933 kg  Cobra C-2204/40 + APC 6x5.5E | 3S1P Molicel P28A (18650) | naca4412 printed_lwpla | flaperons
+  0.977 kg  Cobra C-2204/40 + APC 7x5E | 3S1P Molicel P28A (18650) | sd7062 printed_lwpla | flaperons
+  0.957 kg  Cobra C-2204/32 + APC 6x6E | 3S1P Molicel P28A (18650) | naca4412 printed_lwpla | flaperons
 
  SENSITIVITY (design frozen at the point above; ranked by worst impact on any requirement)
    'MISSES' = the frozen design would miss a requirement -> margin needed / measure it
-  mu_brake_grass           (now 0.2)  0.1:  +0.0 min, TO 29 m, LDG 68 m   0.3:  +0.0 min, TO 29 m, LDG 43 m
-  avionics_power_factor    (now 1)  0.7:  +3.1 min, TO 29 m, LDG 51 m   1.5:  -4.6 min, TO 29 m, LDG 51 m MISSES endurance
-  field_elevation_m        (now 0)  0:  +0.0 min, TO 29 m, LDG 51 m   1500:  -1.8 min, TO 34 m, LDG 58 m
-  weight_growth_allowance  (now 0.1)  0:  +2.3 min, TO 27 m, LDG 48 m   0.2:  -2.4 min, TO 31 m, LDG 54 m
-  eta_esc                  (now 0.95)  0.9:  -1.3 min, TO 29 m, LDG 51 m   0.97:  +0.4 min, TO 29 m, LDG 51 m
-  q_gear                   (now 1.2)  1:  +0.7 min, TO 29 m, LDG 51 m   1.5:  -1.2 min, TO 28 m, LDG 50 m
-  isa_temp_offset_K        (now 15)  0:  +0.6 min, TO 27 m, LDG 49 m   25:  -0.7 min, TO 30 m, LDG 53 m
-  leak_protub_frac         (now 0.05)  0.02:  +0.3 min, TO 29 m, LDG 51 m   0.1:  -0.6 min, TO 29 m, LDG 51 m
-  wing_internal_ratio      (now 0.4)  0.2:  +0.3 min, TO 28 m, LDG 50 m   0.6:  -0.4 min, TO 29 m, LDG 51 m
-  mu_grass_ref             (now 0.1)  0.07:  +0.0 min, TO 28 m, LDG 51 m   0.15:  -0.0 min, TO 29 m, LDG 51 m
-  roughness_k_m            (now 3e-05)  1e-05:  +0.0 min, TO 29 m, LDG 51 m   0.0001:  -0.3 min, TO 29 m, LDG 51 m
-  fus_frames_ratio         (now 0.25)  0.1:  +0.0 min, TO 28 m, LDG 51 m   0.4:  -0.2 min, TO 29 m, LDG 51 m
+  mu_brake_grass           (now 0.2)  0.1:  +0.0 min, TO 33 m, LDG 68 m   0.3:  +0.0 min, TO 33 m, LDG 42 m
+  avionics_power_factor    (now 1)  0.7:  +5.8 min, TO 33 m, LDG 51 m   1.5:  -7.5 min, TO 33 m, LDG 51 m MISSES endurance
+  field_elevation_m        (now 0)  0:  +0.0 min, TO 33 m, LDG 51 m   1500:  -2.9 min, TO 40 m, LDG 58 m MISSES endurance
+  weight_growth_allowance  (now 0.1)  0:  +2.9 min, TO 31 m, LDG 48 m   0.2:  -3.1 min, TO 35 m, LDG 54 m MISSES endurance
+  eta_esc                  (now 0.95)  0.9:  -2.2 min, TO 33 m, LDG 51 m MISSES endurance   0.97:  +0.7 min, TO 33 m, LDG 51 m
+  q_gear                   (now 1.2)  1:  +1.0 min, TO 33 m, LDG 51 m   1.5:  -2.1 min, TO 33 m, LDG 50 m MISSES endurance
+  isa_temp_offset_K        (now 15)  0:  +1.3 min, TO 30 m, LDG 48 m   25:  -1.2 min, TO 35 m, LDG 53 m MISSES endurance
+  mu_grass_ref             (now 0.1)  0.07:  +0.0 min, TO 32 m, LDG 51 m   0.15:  -0.0 min, TO 35 m, LDG 50 m
+  leak_protub_frac         (now 0.05)  0.02:  +0.5 min, TO 33 m, LDG 51 m   0.1:  -0.9 min, TO 33 m, LDG 50 m MISSES endurance
+  wing_internal_ratio      (now 0.4)  0.2:  +0.6 min, TO 33 m, LDG 50 m   0.6:  -0.6 min, TO 33 m, LDG 51 m MISSES endurance
+  fus_frames_ratio         (now 0.25)  0.1:  +0.2 min, TO 33 m, LDG 51 m   0.4:  -0.2 min, TO 33 m, LDG 51 m MISSES endurance
+  cg_balance_tol_m         (now 0.002)  0.001:  +0.1 min, TO 33 m, LDG 51 m   0.004:  -0.2 min, TO 33 m, LDG 51 m MISSES converged+endurance
 
  TWIST TRADE STUDY  (root sd7062; each row re-optimized S, AR, tail arm with the same parts)
    aerodynamic twist = different tip airfoil (lofted root->tip); geometric twist = washout
   tip airfoil washout  mass kg  span m  loiter  landing  CLmax CLmax_L  stall@      e    L/D  status
-  sd7062          0.0   0.9093   0.781   31.9m    52.1m  1.423   1.663    63%  0.970   8.85  ok
-  sd7062          2.0   0.9018   0.766   31.3m    54.5m  1.428   1.652    54%  0.969   8.78  ok
-  sd7062          4.0   0.9155   0.809   32.7m    52.1m  1.431   1.620    46%  0.970   9.06  ok
-  sd7062          6.0   0.9129   0.798   32.3m    53.6m  1.426   1.584    38%  0.970   8.96  ok
-  clarky          0.0   0.8950   0.793   31.0m    58.9m  1.350   1.615    54%  0.958   9.19  ok
-  clarky          2.0   0.9143   0.811   32.6m    53.0m  1.371   1.607    54%  0.963   9.27  ok
-  clarky          4.0   0.9079   0.823   32.5m    56.2m  1.368   1.569    46%  0.961   9.38  ok
-  clarky          6.0   0.9142   0.812   32.5m    55.0m  1.374   1.536    38%  0.963   9.19  ok
-  e387            0.0   0.9051   0.814   31.6m    58.3m  1.309   1.514    62%  0.970   9.24  ok
-  e387            2.0   0.9040   0.819   31.8m    58.5m  1.321   1.527    54%  0.970   9.29  ok
-  e387            4.0   0.8972   0.738   30.1m    57.9m  1.341   1.572    54%  0.970   8.64  ok
-  e387            6.0   0.9130   0.809   32.2m    55.1m  1.340   1.538    46%  0.972   9.15  ok
-  naca4412        0.0   0.9132   0.798   32.2m    53.8m  1.385   1.602    54%  0.966   9.07  ok
-  naca4412        2.0   0.9142   0.810   32.6m    53.8m  1.392   1.603    54%  0.966   9.18  ok
-  naca4412        4.0   0.9122   0.829   32.8m    56.3m  1.390   1.548    46%  0.965   9.34  ok
-  naca4412        6.0   0.9143   0.812   32.6m    56.8m  1.395   1.495    38%  0.966   9.13  ok
-  s4083           0.0   0.8965   0.769   30.7m    58.5m  1.324   1.586    62%  0.961   9.06  ok
-  s4083           2.0   0.9157   0.788   32.3m    53.5m  1.354   1.570    54%  0.966   9.09  ok
-  s4083           4.0   0.9057   0.795   32.0m    56.4m  1.352   1.572    54%  0.963   9.26  ok
-  s4083           6.0   0.9074   0.805   32.2m    57.1m  1.353   1.536    46%  0.963   9.30  ok
-  sd7037          0.0   0.9132   0.783   31.9m    54.8m  1.315   1.548    62%  0.962   9.14  ok
-  sd7037          2.0   0.9075   0.821   32.4m    56.9m  1.320   1.549    63%  0.957   9.53  ok
-  sd7037          4.0   0.9105   0.806   32.3m    56.3m  1.334   1.536    54%  0.959   9.35  ok
-  sd7037          6.0   0.9085   0.780   31.6m    57.5m  1.344   1.502    46%  0.960   9.06  ok
-  (optimizer's free choice: tip sd7062, washout 1.02 deg)
+  sd7062          0.0   0.9370   0.955   49.5m    50.7m  1.375   1.593    71%  0.967  10.17  ok
+  sd7062          2.0   0.9354   0.948   49.5m    50.7m  1.391   1.613    54%  0.967  10.14  ok
+  sd7062          4.0   0.9361   0.953   49.6m    51.4m  1.389   1.582    38%  0.967  10.17  ok
+  sd7062          6.0   0.9368   0.956   49.5m    52.0m  1.376   1.548    29%  0.967  10.16  ok
+  clarky          0.0   0.9369   0.958   49.7m    51.6m  1.347   1.592    54%  0.957  10.36  ok
+  clarky          2.0   0.9328   0.948   49.5m    53.3m  1.355   1.567    54%  0.956  10.31  ok
+  clarky          4.0   0.9351   0.948   49.5m    53.6m  1.356   1.535    46%  0.957  10.29  ok
+  clarky          6.0   0.9677   1.107   52.8m    52.3m  1.334   1.403    29%  0.954  11.22  ok
+  e387            0.0   1.0321   1.109   51.7m    42.4m  1.316   1.524    62%  0.975  10.97  ok
+  e387            2.0   0.9395   0.972   49.5m    53.3m  1.312   1.514    54%  0.969  10.32  ok
+  e387            4.0   0.9456   0.963   49.6m    50.3m  1.323   1.551    46%  0.971  10.26  ok
+  e387            6.0   0.9411   0.975   49.5m    53.1m  1.313   1.506    38%  0.969  10.30  ok
+  naca4412        0.0   0.9372   0.963   49.7m    53.2m  1.364   1.555    54%  0.961  10.29  ok
+  naca4412        2.0   0.9350   0.955   49.6m    53.9m  1.373   1.547    46%  0.961  10.26  ok
+  naca4412        4.0   0.9369   0.943   49.5m    54.3m  1.378   1.503    46%  0.962  10.17  ok
+  naca4412        6.0   0.9415   0.945   49.5m    53.8m  1.374   1.477    38%  0.963  10.13  ok
+  s4083           0.0   0.9383   0.966   50.0m    52.2m  1.311   1.565    63%  0.958  10.53  ok
+  s4083           2.0   0.9297   0.944   49.5m    54.1m  1.324   1.568    54%  0.957  10.44  ok
+  s4083           4.0   0.9333   0.941   49.6m    53.7m  1.336   1.541    46%  0.958  10.38  ok
+  s4083           6.0   0.9327   0.944   49.5m    55.0m  1.332   1.503    38%  0.958  10.37  ok
+  sd7037          0.0   0.9337   0.950   49.5m    54.4m  1.290   1.531    62%  0.952  10.51  ok
+  sd7037          2.0   0.9327   0.941   49.5m    54.4m  1.309   1.536    54%  0.952  10.46  ok
+  sd7037          4.0   0.9390   0.931   49.5m    52.8m  1.325   1.521    54%  0.956  10.30  ok
+  sd7037          6.0   0.9348   0.953   49.5m    56.0m  1.317   1.467    46%  0.952  10.41  ok
+  (optimizer's free choice: tip sd7062, washout 1.12 deg)
 
  STALL-SPEED TRADE STUDY  (lightest design at each stall-speed cap, same parts, re-optimized)
     cap    V_s  mass kg   score    S m2    AR   span W/S g/dm2  V_td  TO grs LDG grs  status
-    8.5   8.50   0.9420  0.9420  0.1399  5.15  0.849      67.3   9.8   24.5m   44.4m  ok
-    9.0   9.00   0.9212  0.9212  0.1220  5.47  0.817      75.5  10.4   27.3m   48.9m  ok
-    9.5   9.50   0.9044  0.9044  0.1073  5.59  0.774      84.3  10.9   30.2m   53.3m  ok
-   10.0   9.99   0.8923  0.8923  0.0956  5.93  0.753      93.4  11.5   33.2m   58.1m  ok
-   11.0  10.36   0.8866  0.8866  0.0907  6.91  0.792      97.8  11.9   36.1m   62.8m  ok
-   12.0  10.75   0.8870  0.8870  0.0891  7.32  0.807      99.6  12.4   36.5m   67.7m  ok
-   13.0  10.60   0.8855  0.8855  0.0886  7.25  0.801      99.9  12.2   36.8m   65.6m  ok
-   15.0   9.55   0.9079  0.9079  0.1074  4.58  0.701      84.5  11.0   28.9m   51.8m  ok
-  chosen: V_s 9.20 m/s, 0.9152 kg (objective weight 30 g per m/s)
+    8.5   8.50   0.9525  0.9525  0.1409  6.24  0.938      67.6   9.8   29.5m   45.7m  ok
+    9.0   9.00   0.9348  0.9348  0.1263  7.17  0.952      74.0  10.4   33.3m   50.9m  ok
+    9.5   9.50   0.9263  0.9263  0.1180  8.43  0.998      78.5  10.9   37.0m   56.3m  ok
+   10.0   9.12   0.9323  0.9323  0.1242  7.40  0.959      75.1  10.5   34.0m   52.1m  ok
+   11.0   9.29   0.9288  0.9288  0.1202  8.19  0.993      77.3  10.7   36.1m   54.3m  ok
+   12.0   9.27   0.9288  0.9288  0.1205  8.08  0.987      77.1  10.7   35.9m   54.0m  ok
+   13.0   9.27   0.9288  0.9288  0.1205  8.08  0.987      77.1  10.7   35.9m   54.0m  ok
+   15.0   9.27   0.9288  0.9288  0.1205  8.08  0.987      77.1  10.7   35.9m   54.0m  ok
+  chosen: V_s 8.99 m/s, 0.9360 kg (objective weight 30 g per m/s)
+
+ TAPER TRADE STUDY  (fixed taper ratio, each re-optimized S, AR, tail arm, washout; same parts)
+  taper  mass kg   score   span    AR root mm tip mm tip Re   V_s stall@      e  loiter  status
+   0.35   1.0342  1.2590  0.911  4.00     338    118    76k  7.49    79%  0.985   45.4m  misses elevator_authority+converged+endurance
+   0.45   0.9928  1.2274  0.972  5.42     247    111    70k  7.82    62%  0.982   49.5m  ok
+   0.60   0.9378  1.2061  0.947  6.97     170    102    73k  8.94    71%  0.969   49.5m  ok
+   0.80   0.9376  1.2107  0.962  7.18     149    119    86k  9.10    38%  0.952   49.5m  ok
+   1.00   0.9462  1.2235  0.979  7.03     139    139   101k  9.24     4%  0.936   49.5m  ok
+  (optimizer's free choice: taper 0.618)
 
  WHEEL TRADE STUDY  (design frozen; same wheel on all three legs)
   wheel           d mm  mass g  gear CD grass mu  TO grass LDG grass  brake
-  Du-Bro 200SL      51   881.9     154c    0.096     28.7m     66.5m     NO
-  Du-Bro 225SL      57   891.3     167c    0.087     28.7m     50.5m   fits
-  Du-Bro 250SL      64   899.9     183c    0.079     28.7m     50.7m   fits
-  Du-Bro 275SL      70   908.1     199c    0.073     28.6m     50.9m   fits
-  Du-Bro 300SL      76   915.2     221c    0.067     28.6m     50.9m   fits  <- chosen
+  Du-Bro 200SL      51   902.8     139c    0.097     33.9m     67.7m     NO
+  Du-Bro 225SL      57   915.4     158c    0.088     33.7m     50.9m   fits
+  Du-Bro 250SL      64   923.9     180c    0.080     33.4m     50.7m   fits
+  Du-Bro 275SL      70   938.7     202c    0.074     33.4m     50.8m   fits
+  Du-Bro 300SL      76   949.4     230c    0.067     33.2m     50.6m   fits  <- chosen
 
  INPUTS TO MEASURE / VERIFY (they replace estimates in parameters.py and data/*.csv)
   - mu_grass_ref = 0.1 -: Soft-grass rolling friction of the REFERENCE wheel below (Raymer Table 17.1 soft turf 0.07, raised for small RC wheels). Other wheels scale by Bekker compaction resistance. MEASURE: tow test (luggage-scale pull / weight) with TWO wheel sizes -> gives mu_grass_ref AND bekker_n

@@ -1,19 +1,19 @@
 PARTS LIST (bill of materials)
-Source: conceptual-design/outputs/design_point.json   (generated 2026-11-24 21:07)
-Design takeoff mass 0.915 kg   Cobra C-2204/40 + APC 7x5E   Gens Ace Soaring 3S 2200 20C
+Source: conceptual-design/outputs/design_point.json   (generated 2026-11-25 00:29)
+Design takeoff mass 0.936 kg   Cobra C-2204/40 + APC 6x6E   3S1P Molicel P28A (18650)
 Masses: datasheet where tagged DATASHEET, otherwise estimates to WEIGH. No prices (catalogs carry none).
 Sizes of stock (spar, strap, wire) are the computed minimums; dimensions for CAD: outputs/dimensions.txt
 
 ====================================================================================================
- PROPULSION   (277.9 g)
+ PROPULSION   (290.6 g)
 ====================================================================================================
   qty  item                                                each g  total g  spec
     2  Cobra C-2204/40                                       22.5     45.0  1570 Kv, 9 A max, 27 mm can
-    2  APC 7x5E                                              11.0     22.0  7 x 5 in (APC E)
+    2  APC 6x6E                                               7.8     15.6  6 x 6 in (APC E)
     2  prop adapter + spinner                                 6.0     12.0  to fit the motor shaft
     2  Hobbywing Skywalker 20A V2                            19.0     38.0  20 A continuous
-    1  Gens Ace Soaring 3S 2200 20C                         146.0    146.0  3S1P LiPo, 24.4 Wh, 74 x 33 x 25 mm
-    1  power wire 16 AWG silicone                            14.8     14.8  0.99 m total (2 conductors per motor, fuselage to nacelle + 0.10 m)
+    1  3S1P Molicel P28A (18650)                            165.9    165.9  3S1P Li-ion, 30.2 Wh, 65 x 56 x 18 mm
+    1  power wire 16 AWG silicone                            14.1     14.1  0.94 m total (2 conductors per motor, fuselage to nacelle + 0.10 m)
 
 ====================================================================================================
  AVIONICS + SERVOS   (264.0 g)
@@ -33,48 +33,49 @@ Sizes of stock (spar, strap, wire) are the computed minimums; dimensions for CAD
     1  Hinges / horns / pushrods / fasteners                 25.0     25.0  
 
 ====================================================================================================
- LANDING GEAR   (85.4 g)
+ LANDING GEAR   (80.1 g)
 ====================================================================================================
   qty  item                                                each g  total g  spec
-    3  Du-Bro 300SL                                          16.8     50.4  76.2 x 23.0 mm, 4 mm axle
+    2  Du-Bro 300SL (main)                                   16.8     33.6  76.2 x 23.0 mm
+    1  Du-Bro 250SL (nose)                                   11.5     11.5  63.5 x 19.8 mm
     2  Du-Bro E/Z Brake                                       8.0     16.0  fits wheels 57-89 mm
     1  brake actuator: micro servo (one for both brakes)     12.0     12.0  drives both brake cables
     1  brake cable / pushrod                                  3.0      3.0  
     1  nose gear hardware (axle bolt, 4 x M3 bolts + nuts     4.0      4.0  
 
 ====================================================================================================
- PRINTED PARTS (PETG)   (36.6 g)
+ PRINTED PARTS (PETG)   (41.2 g)
 ====================================================================================================
   qty  item                                                each g  total g  spec
-    1  main landing gear (one piece, legs at 45 deg)         18.1     18.1  2.94 mm thick x 20 mm wide x 243 mm developed length; print FLAT so the layers run along the legs
-    1  nose leg + wheel fork (one piece)                     12.5     12.5  8.0 mm round leg x 112 mm, fork 8 x 4 mm for the 76 mm wheel; print lying flat
+    1  main landing gear (one piece, legs at 45 deg)         22.6     22.6  3.24 mm thick x 20 mm wide x 275 mm developed length; print FLAT so the layers run along the legs
+    1  nose leg + wheel fork (one piece)                     12.6     12.6  8.0 mm round leg x 124 mm, fork 8 x 4 mm for the 64 mm wheel; print lying flat
     1  nose gear mounting/bearing blocks + steering arm       6.0      6.0  
 
 ====================================================================================================
- OFF-THE-SHELF STRUCTURE   (17.1 g)
+ OFF-THE-SHELF STRUCTURE   (20.2 g)
 ====================================================================================================
   qty  item                                                each g  total g  spec
-    1  Pultruded carbon tube 6x4x1000                        17.1     17.1  cut to 728 mm (main spar)
+    1  Pultruded carbon tube 6x4x1000                        20.2     20.2  cut to 858 mm (main spar)
 
 ====================================================================================================
- PRINTED PARTS (LW-PLA FILAMENT MASS)   (164.4 g)
+ PRINTED PARTS (LW-PLA FILAMENT MASS)   (169.9 g)
 ====================================================================================================
   qty  item                                                each g  total g  spec
-    1  wing (both halves)                                    80.7     80.7  0.45 mm single-wall skin + internal web, sd7062, 809 mm span
-    1  fuselage shell + frames                               43.4     43.4  
-    1  horizontal tail                                        9.5      9.5  
-    1  fin                                                    9.0      9.0  
+    1  wing (both halves)                                    88.8     88.8  0.45 mm single-wall skin + internal web, sd7062, 953 mm span
+    1  fuselage shell + frames                               37.0     37.0  
+    1  horizontal tail                                       12.5     12.5  
+    1  fin                                                    9.8      9.8  
     2  nacelles                                               2.9      5.8  
     2  motor mounts                                           8.0     16.0  
 
 ====================================================================================================
- ALLOWANCE   (69.9 g)
+ ALLOWANCE   (70.0 g)
 ====================================================================================================
   qty  item                                                each g  total g  spec
-    1  glue, paint, connectors, build variation              69.9     69.9  10% of everything except the battery
+    1  glue, paint, connectors, build variation              70.0     70.0  10% of everything except the battery
 
 ====================================================================================================
-  TOTAL 915.3 g   (design takeoff mass 915.2 g, difference +0.1 g)
+  TOTAL 935.9 g   (design takeoff mass 936.0 g, difference -0.1 g)
 
  Sources (full text in the CSV):
   - DATASHEET: gravesrc.com/indc-2204-40-cobra-c-2204-40-brushless-motor-kv-1570 (spec table; Kv from product title)
@@ -92,6 +93,7 @@ Sizes of stock (spar, strap, wire) are the computed minimums; dimensions for CAD
   - ESTIMATE: ESTIMATE (efficiency in parameters.eta_bec)
   - ESTIMATE: 2 aileron + elevator + rudder + nose steering; ESTIMATE - size from hinge moments in preliminary design
   - DATASHEET: Du-Bro 3 in Super Lite treaded EVA (300SL): 76.2 x 23.0 mm, 4 mm axle (motionrc.com DUB300SL); 16.8 g/wheel (frontlinehobbies.com.au listing). WEIGH
+  - DATASHEET: Du-Bro 2-1/2 in Super Lite treaded EVA (250SL): 63.5 x 19.8 mm, 4 mm axle (motionrc.com DUB250SL); 11.5 g/wheel (frontlinehobbies.com.au DBR250SL). WEIGH
   - ESTIMATE: dubro.com E/Z Brake System: cable-pulled mechanical brake, 8 g per assembly, fits Du-Bro wheels 57-89 mm (verify the exact wheel model); servo = same 12 g class as data/components.csv; cable/pushrod mass ESTIMATE. WEIGH
   - ESTIMATE: same 12 g servo class as the other servos
   - DATASHEET (PETG strength/density); thickness sized from the landing load

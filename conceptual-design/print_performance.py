@@ -87,7 +87,8 @@ def render(j):
     # ---------------------------------------------------------------- endurance
     head("2. ENDURANCE, RANGE, CLIMB, GLIDE")
     kv("loiter time available (after takeoff + climb)", bm["loiter_max_min"], "min",
-       f"requirement {P.get('endurance_min', 30):.0f} min")
+       f"requirement {P.get('endurance_min', 30):.0f} min, sized for "
+       f"{P.get('endurance_min', 30) * (1 + P.get('endurance_design_margin', 0.0)):.1f} (design margin)")
     kv("total airborne time", bm["airborne_max_min"], "min", "takeoff + climb + loiter + glide down")
     rng = lo["V"] * bm["loiter_max_min"] * 60 / 1000
     kv("still-air distance flown at loiter speed", rng, "km", "(best-range speed is a bit faster; not computed)")
@@ -167,9 +168,25 @@ def render(j):
         kv("weathercock stability Cn_beta", dv["cn_beta"], "/rad",
            "> 0: nose turns into the relative wind (fuselage alone {:+.3f})".format(dv["cn_beta_fus"]))
         kv("effective dihedral Cl_beta", dv["cl_beta"], "/rad",
-           "< 0: a sideslip rolls the wing level (high wing + fin; no geometric dihedral)")
+           "< 0: a sideslip rolls the wing level (high wing + fin + {:.1f} deg dihedral)".format(
+               j["layout"]["wing"].get("dihedral_deg", 0.0)))
         kv("adverse yaw / roll from full aileron", dv["cn_aileron_full"] / dv["cl_aileron_full"], "",
            "Cn/Cl - small; coordinate turns with a little rudder")
+    dy = j.get("dynamics") or {}
+    for name, c in (dy.get("cases") or {}).items():
+        t2 = "stable" if c["spiral_stable"] else f"doubles in {c['spiral_t2']:.0f} s"
+        kv(f"Dutch roll at {name} (damping / period)", f"{c['dutch_roll_zeta']:.2f} / {c['dutch_roll_period']:.2f} s",
+           "", f"min damping {P.get('dutch_roll_zeta_min', 0.08)}: yaw-roll wobble dies out")
+        kv(f"spiral at {name}", t2, "", "slow divergence the pilot/autopilot corrects; dihedral sized for this")
+        kv(f"roll response time constant at {name}", c["roll_tau"], "s", "time to reach ~63% of the full roll rate")
+    lg = dy.get("longitudinal") or {}
+    for name, c in (lg.get("cases") or {}).items():
+        kv(f"pitch short-period damping, {name}", c["short_period_zeta"], "",
+           f"{P.get('short_period_zeta_min', 0.3)}-{P.get('short_period_zeta_max', 2.0)}: pitch settles without "
+           f"overshoot-ringing ({c['short_period_omega']:.1f} rad/s)")
+    if lg:
+        kv("phugoid (slow speed/height swap)", f"{lg['phugoid_period']:.1f} s period", "",
+           f"damping {lg['phugoid_zeta']:.3f} (min {P.get('phugoid_zeta_min', 0.04)})")
     kv("where the stall starts (fraction of semispan)", pf.get("stall_onset_semispan_clean"), "",
        "clean; mid-span, not at the tip - roll control remains at the stall")
     kv("  ... landing configuration", pf.get("stall_onset_semispan_landing"), "")
@@ -225,7 +242,7 @@ def render(j):
         w("  none")
 
     head("9. NOT COMPUTED BY THIS MODEL (check in flight / preliminary design)")
-    for s_ in ("Dynamic modes: short-period, phugoid, Dutch roll, spiral, roll-mode time constant",
+    for s_ in ("Coupled 6-DOF dynamics (modes are computed separately, linear; Ixz neglected)",
                "Control forces / servo torque (hinge moments) and gust response",
                "Best-range speed, turn performance with power, ceiling",
                "Stall departure behaviour beyond where the stall starts; spin characteristics",

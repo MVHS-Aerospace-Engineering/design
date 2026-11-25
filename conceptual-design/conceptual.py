@@ -85,6 +85,22 @@ def flight_thrust_table(best):
     return rows
 
 
+def print_taper(rows, best):
+    t_now = best.detail["geom"].wing.taper
+    print("\n TAPER TRADE STUDY  (fixed taper ratio, each re-optimized S, AR, tail arm, washout; same parts)")
+    print(f"  {'taper':>5s} {'mass kg':>8s} {'score':>7s} {'span':>6s} {'AR':>5s} {'root mm':>7s} {'tip mm':>6s} "
+          f"{'tip Re':>6s} {'V_s':>5s} {'stall@':>6s} {'e':>6s} {'loiter':>7s}  status")
+    for r in rows:
+        if not r.get("ok"):
+            print(f"  {r['taper']:5.2f}  (did not converge)")
+            continue
+        st = "ok" if r["feasible"] else "misses " + "+".join(r["misses"])
+        print(f"  {r['taper']:5.2f} {r['m']:8.4f} {r['score']:7.4f} {r['span']:6.3f} {r['AR']:5.2f} "
+              f"{r['c_root'] * 1000:7.0f} {r['c_tip'] * 1000:6.0f} {r['tip_re'] / 1e3:5.0f}k {r['V_s_landing']:5.2f} "
+              f"{r['stall_eta']:6.0%} {r['e']:6.3f} {r['loiter_min']:6.1f}m  {st}")
+    print(f"  (optimizer's free choice: taper {t_now:.3f})")
+
+
 def print_twist(rows, best):
     root = best.combo.airfoil
     tip_now = best.combo.tip_airfoil or root
@@ -159,7 +175,8 @@ def print_lateral(best):
     eo, xw, dv = lat["engine_out"], lat["crosswind"], lat["derivatives"]
     print("\n COUPLED LATERAL-DIRECTIONAL TRIM  (side force + roll + yaw solved together)")
     print(f"  derivatives /rad: Cn_beta {dv['cn_beta']:+.3f} (fuselage {dv['cn_beta_fus']:+.3f}), "
-          f"Cl_beta {dv['cl_beta']:+.3f} (wing height {dv['cl_beta_wing']:+.3f}, no dihedral), "
+          f"Cl_beta {dv['cl_beta']:+.3f} (wing height {dv.get('cl_beta_height', 0):+.3f}, "
+          f"dihedral {dv.get('cl_beta_dihedral', 0):+.3f}), "
           f"CY_beta {dv['cy_beta']:+.3f}, full aileron Cl {dv['cl_aileron_full']:.4f} / adverse Cn {dv['cn_aileron_full']:+.4f}")
     print(f"  {'case':28s} {'V':>5s} {'bank':>6s} {'slip':>6s} {'aileron':>8s} {'rudder':>7s} {'usable':>7s} {'fin a':>6s}")
     for name, c in (("engine-out (right motor dead)", eo), ("crosswind 0.2 V_SO from right", xw)):
@@ -171,6 +188,31 @@ def print_lateral(best):
               f"{eo['V']:.1f} m/s -> yaw {eo['yaw_moment']:.3f} N.m; slipstream roll {eo['roll_moment']:.3f} N.m "
               f"(+{eo['slipstream_dV']:.1f} m/s over the wing). Fin needed {lat['sv_needed']:.4f} m^2 "
               f"({lat['rudder_cf']:.0%} rudder)")
+
+
+def print_dynamics(best):
+    dy = best.detail.get("dynamics")
+    if not dy:
+        return
+    print("\n DYNAMIC STABILITY  (linear modes; MIL-F-8785C Level 1, Class I)")
+    print(f"  dihedral {dy['dihedral_deg']:.2f} deg each panel (smallest meeting the spiral requirement); "
+          f"Ixx {dy['Ixx'] * 1e3:.1f}, Izz {dy['Izz'] * 1e3:.1f} g.m^2")
+    print(f"  {'condition':10s} {'V':>5s} {'DR zeta':>8s} {'DR wn':>6s} {'zeta.wn':>8s} {'DR period':>9s} "
+          f"{'spiral T2':>10s} {'roll tau':>9s}")
+    for k, c in dy["cases"].items():
+        t2 = "stable" if c["spiral_stable"] else f"{c['spiral_t2']:.1f} s"
+        print(f"  {k:10s} {c['V']:5.1f} {c['dutch_roll_zeta']:8.3f} {c['dutch_roll_omega']:6.2f} "
+              f"{c['dutch_roll_zeta_omega']:8.2f} {c['dutch_roll_period']:8.2f}s {t2:>10s} {c['roll_tau']:8.3f}s")
+    lg = dy.get("longitudinal")
+    if lg:
+        for k, c in lg["cases"].items():
+            print(f"  pitch, {k:10s}: short period zeta {c['short_period_zeta']:.2f}, wn {c['short_period_omega']:.1f} rad/s "
+                  f"(static margin {c['static_margin']:.1%})")
+        print(f"  phugoid: period {lg['phugoid_period']:.1f} s, zeta {lg['phugoid_zeta']:.3f}   "
+              f"(short period {P.short_period_zeta_min}-{P.short_period_zeta_max}, phugoid >= {P.phugoid_zeta_min})")
+    print(f"  requirements: zeta >= {P.dutch_roll_zeta_min}, zeta.wn >= {P.dutch_roll_zeta_omega_min} rad/s; "
+          f"spiral T2 >= {P.spiral_t2_min_B_s:.0f} s (loiter) / {P.spiral_t2_min_C_s:.0f} s (approach); "
+          f"roll tau <= {P.roll_tau_max_B_s} / {P.roll_tau_max_C_s} s")
 
 
 def print_landing(best):
@@ -241,7 +283,7 @@ def wheel_study(best):
     return rows
 
 
-def report(best, alts, cdiag, sens, runtime, twist=None, wheels_=None, stall=None):
+def report(best, alts, cdiag, sens, runtime, twist=None, wheels_=None, stall=None, taper=None):
     d = best.detail
     g, perf, bmf, ms, batt = d["geom"], d["perf"], d["bmf"], d["masses"], d["battery"]
     lo, cl, to = perf["loiter"], perf["climb"], perf["takeoff"]
@@ -260,7 +302,9 @@ def report(best, alts, cdiag, sens, runtime, twist=None, wheels_=None, stall=Non
 
     print("\n REQUIREMENTS / CONSTRAINTS                         value        limit    margin")
     rows = [
-        ("Endurance (loiter only, not counting climb)", f"{bmf['loiter_max_min']:.1f} min", f">= {P.endurance_min:.0f}", best.cons.get("endurance", 0)),
+        ("Endurance (loiter only, not counting climb)", f"{bmf['loiter_max_min']:.1f} min",
+         f">= {P.endurance_min * (1 + P.endurance_design_margin):.1f}", best.cons.get("endurance", 0)),
+        (f"  (requirement {P.endurance_min:.0f} min + {P.endurance_design_margin:.0%} design margin)", "", "", None),
         ("  total airborne time", f"{bmf['airborne_max_min']:.1f} min", "", None),
         ("Takeoff ground roll (soft grass)", f"{to['s']:.1f} m", f"<= {P.takeoff_roll_max_grass_m:.0f}", best.cons["takeoff_roll_grass"]),
         ("Takeoff ground roll (pavement)", f"{perf['takeoff_pavement']['s']:.1f} m", f"<= {P.takeoff_roll_max_pavement_m:.0f}", best.cons["takeoff_roll_pavement"]),
@@ -287,7 +331,7 @@ def report(best, alts, cdiag, sens, runtime, twist=None, wheels_=None, stall=Non
         print(f"  {name:46s} {val:>11s} {lim:>10s}  {ms_}")
 
     print("\n CONFIGURATION")
-    print(f"  Wing   S={g.S:.4f} m^2  b={g.b:.3f} m  AR={g.AR:.2f}  taper={g.wing.taper}  "
+    print(f"  Wing   S={g.S:.4f} m^2  b={g.b:.3f} m  AR={g.AR:.2f}  taper={g.wing.taper:.3f}  "
           f"c_root={g.wing.c_root * 1000:.0f} mm  c_tip={g.wing.c_tip * 1000:.0f} mm  MAC={g.wing.mac * 1000:.0f} mm")
     tip = best.combo.tip_airfoil or best.combo.airfoil
     print(f"         airfoil {best.combo.airfoil} (root t/c {g.wing.t_c:.3f}) -> {tip} at the tip, washout "
@@ -319,8 +363,10 @@ def report(best, alts, cdiag, sens, runtime, twist=None, wheels_=None, stall=Non
               f"-> CLmax {perf['CLmax']:.3f} clean / {perf['CLmax_landing']:.3f} landing, "
               f"V_stall {perf['V_s']:.2f} -> {perf['V_s_landing']:.2f} m/s")
     el, ru, stb = cj["elevator"], cj["rudder"], cj["stability"]
-    print(f"  Elevator: {el['chord_fraction']:.0%} chord, {el['span_fraction']:.0%} span, {el['throw_deg']:.0f} deg up; "
-          f"authority {el['authority_ratio']:.2f}x required (landing trim {el['ratio_landing_trim']:.2f}, "
+    print(f"  Elevator: {el['chord_fraction']:.0%} chord, {el['span_fraction']:.0%} span, up to {el['throw_deg']:.0f} deg up "
+          f"trusted (flare {el.get('throw_landing_flare_deg', 0):.0f}, approach {el.get('throw_approach_deg', 0):.0f}, "
+          f"takeoff {el.get('throw_takeoff_deg', 0):.0f}); "
+          f"authority {el['authority_ratio']:.2f}x required (landing trim {el['ratio_landing_trim']:.2f}, approach {el.get('ratio_approach_trim', 0):.2f}, "
           f"takeoff {el['ratio_takeoff']:.2f})")
     print(f"  Rudder:   {ru['chord_fraction']:.0%} chord, {ru['span_fraction']:.0%} height; engine-out needs "
           f"{ru['engine_out_deg']:.1f} deg of {ru['throw_usable_deg']:.1f} trusted, crosswind {ru['crosswind_deg']:.1f} deg")
@@ -335,6 +381,7 @@ def report(best, alts, cdiag, sens, runtime, twist=None, wheels_=None, stall=Non
     print(f"  Stall starts at {perf['stall_eta']:.0%} semispan (clean), {perf['stall_eta_landing']:.0%} (landing)")
     print_balance(best)
     print_lateral(best)
+    print_dynamics(best)
     print_landing(best)
 
     print("\n PROPULSION (selected from catalogs)")
@@ -370,7 +417,7 @@ def report(best, alts, cdiag, sens, runtime, twist=None, wheels_=None, stall=Non
     print(f"  takeoff  {bmf['takeoff']:.4f}   t={to['t']:.1f} s, eta_b2s={bmf['eta_b2s_takeoff']:.3f}")
     print(f"  climb    {bmf['climb']:.4f}   {P.climb_altitude_m:.0f} m at {cl['V']:.1f} m/s, V_v={cl['roc']:.2f} m/s, "
           f"L/D={cl['LD']:.2f}, eta_total={cl['eta_total']:.3f}")
-    print(f"  loiter   {bmf['loiter']:.4f}   {P.endurance_min:.0f} min at {lo['V']:.2f} m/s, L/D={lo['LD']:.2f}, "
+    print(f"  loiter   {bmf['loiter']:.4f}   {P.endurance_min * (1 + P.endurance_design_margin):.1f} min at {lo['V']:.2f} m/s, L/D={lo['LD']:.2f}, "
           f"eta_prop={lo['eta_prop']:.3f} x eta_b2s={lo['eta_b2s']:.3f} = {lo['eta_total']:.3f}")
     print(f"  avionics {bmf['avionics']:.4f}   {d['p_av']:.1f} W for {bmf['t_total_s'] / 60:.1f} min")
     print(f"  TOTAL    {bmf['total']:.4f}   -> needs {bmf['battery_mass_required'] * 1000:.0f} g of this chemistry; "
@@ -403,6 +450,8 @@ def report(best, alts, cdiag, sens, runtime, twist=None, wheels_=None, stall=Non
         print_twist(twist, best)
     if stall:
         print_stall(stall, best)
+    if taper:
+        print_taper(taper, best)
     if wheels_:
         print_wheels(wheels_)
 
@@ -496,7 +545,8 @@ def layout(best):
                      "section_shape": "rounded box (superellipse exponent 2.6)"},
         "wing": surf_block(g.wing, x_qc, {
             "z_root_chord_line": r(z_wing), "incidence_deg": _f(tl["wing_incidence_deg"], 2),
-            "washout_deg": _f(d["washout"], 2), "dihedral_deg": 0.0, "root_airfoil": root_af,
+            "washout_deg": _f(d["washout"], 2), "dihedral_deg": _f(g.dihedral_deg, 2),
+            "z_tip_le": r(z_wing + semi * math.tan(math.radians(g.dihedral_deg))), "root_airfoil": root_af,
             "tip_airfoil": tip_af, "y_mac": r(y_mac), "x_le_mac": r(x_qc - 0.25 * g.wing.mac),
             "t_c_root": r(g.wing.t_c),
             "note": "unswept quarter-chord line; incidence puts the fuselage level at loiter; "
@@ -512,7 +562,9 @@ def layout(best):
         "elevator": {"chord_fraction": el["cf"], "span_fraction": P.elevator_span_frac,
                      "hinge_x_root": r(hinge(x_tail, ht.c_root, el["cf"])),
                      "hinge_x_tip": r(hinge(x_tail, ht.c_tip, el["cf"])),
-                     "throw_up_deg": _f(el["throw"], 2), "servo_throw_deg": P.elevator_max_deg},
+                     "throw_up_deg": _f(max(el.get(k, el["throw"]) for k in ("throw_land", "throw_approach",
+                                                                               "throw_takeoff")), 2),
+                     "servo_throw_deg": P.elevator_max_deg},
         "vtail": surf_block(vt, x_tail, {"z_root": r(0.2 * g.fus_h), "height": r(vt.b),
                                          "airfoil": P.tail_airfoil}),
         "rudder": {"chord_fraction": cf_r, "span_fraction": P.rudder_span_frac,
@@ -575,10 +627,16 @@ def controls_json(best):
                         "roll_helix_pb_2V": _f(a["pb2v"], 4), "requirement": P.roll_helix_min,
                         "is_flaperon": ct["config"] == "flaperons"},
            "flaps": None,
-           "elevator": {"chord_fraction": tl["elevator"]["cf"], "throw_deg": tl["elevator"]["throw"],
+           "elevator": {"chord_fraction": tl["elevator"]["cf"],
+                        "throw_deg": _f(max(tl["elevator"].get(k, tl["elevator"]["throw"]) for k in
+                                            ("throw_land", "throw_approach", "throw_takeoff")), 2),
+                        "throw_landing_flare_deg": _f(tl["elevator"].get("throw_land", 0.0), 2),
+                        "throw_approach_deg": _f(tl["elevator"].get("throw_approach", 0.0), 2),
+                        "throw_takeoff_deg": _f(tl["elevator"].get("throw_takeoff", 0.0), 2),
                         "span_fraction": P.elevator_span_frac,
                         "authority_ratio": _f(tl["elevator"]["ratio"], 3),
                         "ratio_landing_trim": _f(tl["elevator"]["ratio_land"], 3),
+                        "ratio_approach_trim": _f(tl["elevator"].get("ratio_approach", 0.0), 3),
                         "ratio_takeoff": _f(tl["elevator"]["ratio_takeoff"], 3)},
            "rudder": {"chord_fraction": lat.get("rudder_cf", eo.get("rudder_cf")),
                       "throw_usable_deg": _f((lat.get("engine_out") or {}).get("rudder_usable_deg",
@@ -632,6 +690,8 @@ def _clean(o):
         return {k: _clean(v) for k, v in o.items() if not callable(v)}
     if isinstance(o, (list, tuple)):
         return [_clean(v) for v in o]
+    if isinstance(o, (complex, np.complexfloating)):
+        return [_f(o.real, 6), _f(o.imag, 6)]
     if isinstance(o, (np.floating, np.integer)):
         return _f(o, 6)
     if isinstance(o, float):
@@ -641,7 +701,7 @@ def _clean(o):
     return str(o)
 
 
-def to_json(best, alts, cdiag, sens, twist=None, wheels_=None, stall=None):
+def to_json(best, alts, cdiag, sens, twist=None, wheels_=None, stall=None, taper=None):
     d = best.detail
     g, perf, bmf = d["geom"], d["perf"], d["bmf"]
     conv = lambda v: (_f(v, 6) if isinstance(v, (float, np.floating, int)) and not isinstance(v, bool) else v)
@@ -656,7 +716,8 @@ def to_json(best, alts, cdiag, sens, twist=None, wheels_=None, stall=None):
         "power_loading_W_N": _f(cdiag["design"][1], 3),
         "selection": {"wing_airfoil": best.combo.airfoil,
                       "wing_tip_airfoil": best.combo.tip_airfoil or best.combo.airfoil,
-                      "wing_washout_deg": _f(d["washout"], 3), "control_config": best.combo.controls,
+                      "wing_washout_deg": _f(d["washout"], 3), "wing_taper": _f(g.wing.taper, 4),
+                      "control_config": best.combo.controls,
                       "tail_airfoil": P.tail_airfoil,
                       "wing_construction": best.combo.construction, "motor": best.combo.motor,
                       "prop": best.combo.prop, "esc": d["esc"].name, "battery": d["battery"].name},
@@ -679,6 +740,7 @@ def to_json(best, alts, cdiag, sens, twist=None, wheels_=None, stall=None):
                   "V_C_ms": _f(d["V_C"], 3)},
         "controls": controls_json(best),
         "twist_study": twist if twist else None,
+        "taper_study": _clean(taper) if taper else None,
         "thrust_in_flight": flight_thrust_table(best),
         "parts": _parts(best),
         "engine_out": {k: _f(v, 4) for k, v in d["engine_out"].items()},
@@ -686,6 +748,7 @@ def to_json(best, alts, cdiag, sens, twist=None, wheels_=None, stall=None):
                       "stall_speed_landing_ms": _f(best.vs, 4),
                       "stall_speed_weight_g_per_ms": P.stall_speed_weight_g_per_ms},
         "lateral": _clean({k: v for k, v in (d.get("lateral") or {}).items() if k != "cons"}),
+        "dynamics": _clean(d.get("dynamics")) if d.get("dynamics") else None,
         "balance": _clean({k: v for k, v in (d.get("balance") or {}).items()}),
         "landing": _clean({"approach": perf["approach"], "crow": perf.get("crow"),
                            "V_stall_landing_ms": perf["V_s_landing"], "V_touchdown_ms": perf["V_td"],
@@ -730,7 +793,8 @@ def _load_design_point():
     batt = {b.name: b for b in real_batteries()}[s["battery"]]
     combo = sizing.Combo(s["wing_airfoil"], s["wing_construction"], s["motor"], s["prop"], battery=batt,
                          controls=s.get("control_config", "flaps"),
-                         tip_airfoil=s.get("wing_tip_airfoil"), washout=s.get("wing_washout_deg", 0.0))
+                         tip_airfoil=s.get("wing_tip_airfoil"), washout=s.get("wing_washout_deg", 0.0),
+                         taper=s.get("wing_taper"))
     x = [j["design_variables"][k] for k in sizing.X_NAMES if k in j["design_variables"]]
     alts = [SimpleNamespace(m=a["mass_kg"], combo=SimpleNamespace(label=(lambda l=a["label"]: l)))
             for a in j.get("alternatives", [])]
@@ -764,12 +828,12 @@ def main(argv):
             if len(alts) == 5:
                 break
     runtime = time.time() - t0
-    twist = stall = None
+    twist = stall = taper = None
     if "--evaluate" in argv:              # keep the previous run's trade studies unless recomputed
         try:
             with open(os.path.join(OUT, "design_point.json")) as f:
                 prev = json.load(f)
-            twist, stall = prev.get("twist_study"), prev.get("stall_study")
+            twist, stall, taper = prev.get("twist_study"), prev.get("stall_study"), prev.get("taper_study")
         except (OSError, ValueError):
             pass
     if "--evaluate" not in argv or "--twist" in argv:
@@ -778,6 +842,9 @@ def main(argv):
     if "--evaluate" not in argv or "--stall" in argv:
         print("[G ] stall-speed trade study (lightest design at each stall-speed cap) ...")
         stall = sizing.stall_study(best)
+    if "--evaluate" not in argv or "--taper" in argv:
+        print("[I ] taper trade study (fixed taper ratios, each re-optimized) ...")
+        taper = sizing.taper_study(best)
     print("[H ] wheel trade study ...")
     wheels_ = wheel_study(best)
     print("[E ] sensitivity study ...")
@@ -786,8 +853,8 @@ def main(argv):
     constraints.plot(cdiag, os.path.join(OUT, "constraint_diagram.png"),
                      f"Constraint diagram - {best.m:.2f} kg, {best.combo.motor} + {best.combo.prop}")
     with open(os.path.join(OUT, "design_point.json"), "w") as f:
-        json.dump(to_json(best, alts, cdiag, sens, twist, wheels_, stall), f, indent=2, default=str)
-    report(best, alts, cdiag, sens, runtime, twist, wheels_, stall)
+        json.dump(to_json(best, alts, cdiag, sens, twist, wheels_, stall, taper), f, indent=2, default=str)
+    report(best, alts, cdiag, sens, runtime, twist, wheels_, stall, taper)
     import print_design
     import print_dimensions
     import print_parts

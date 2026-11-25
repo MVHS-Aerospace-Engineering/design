@@ -4,8 +4,8 @@ engineering decisions - change them only if the requirements change.
 """
 from parameters import P
 
-P.define("endurance_min", 30.0, "min", "REQUIREMENT",
-         "Remain airborne >= 30 min with no payload (flown entirely as loiter; "
+P.define("endurance_min", 45.0, "min", "REQUIREMENT",
+         "Remain airborne >= 45 min with no payload (team change Nov 2026, was 30 min; flown entirely as loiter; "
          "takeoff/climb/descent time NOT credited -> conservative)")
 P.define("takeoff_roll_max_pavement_m", 75.0, "m", "REQUIREMENT",
          "Field survey 2026-11-24: takeoff ground roll <= 75 m on the paved strip")
