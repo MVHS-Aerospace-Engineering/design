@@ -189,6 +189,10 @@ d("htail_sizing", "scissor", "-", "DESIGN CHOICE",
   "'scissor': stabilizer area = smallest meeting static stability at the AFT CG and elevator "
   "control at the FORWARD CG of the computed CG band (Torenbeek/Raymer scissor plot). "
   "'tail_volume': Raymer Table 6.4 c_HT floor + elevator (old behaviour)")
+d("htail_volume_floor", True, "-", "DESIGN CHOICE",
+  "Scissor-plot stabilizer is never smaller than the Raymer tail-volume value (tail_cht). Without it the "
+  "frozen design (c223260) had a 0.0195 m^2 stabilizer at -8.1 deg on approach (forward CG, flaperons "
+  "drooped): NACA 0009 CLmax at Re ~52k, 0 deg of trusted up-elevator. The floor costs ~2 g")
 d("cg_coverage_sigma", 2.0, "-", "DESIGN CHOICE", "CG band covers +/- 2 sigma of the as-built CG scatter (95%)")
 d("battery_slide_m", 0.010, "m", "DESIGN CHOICE",
   "Battery tray travel each way: re-balances the as-built aircraft on the bench")

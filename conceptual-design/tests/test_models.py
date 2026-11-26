@@ -363,7 +363,10 @@ def test_braked_roll_is_shorter_and_score_counts_stall_speed(converged_design):
     p = converged_design.detail["perf"]
     assert p["mu_grass"]["brake"] > p["mu_grass"]["roll"]
     assert p["s_landing"] < p["s_landing_nocrow"] if p["crow"] else True
-    assert p["CLmax_landing_trimmed"] < p["CLmax_landing"]        # forward-CG tail download
+    # trimmed CLmax is below the wing's when the tail carries a download at the forward CG, above it
+    # with an upload (a large stabilizer puts the CG band aft of the wing's aerodynamic centre)
+    tail_load = converged_design.detail["tail"]["CLt_req_landing"]
+    assert (p["CLmax_landing_trimmed"] - p["CLmax_landing"]) * tail_load > 0
     r = converged_design
     assert r.score == pytest.approx(r.m + P.stall_speed_weight_g_per_ms / 1000 * r.vs)
 
@@ -402,3 +405,12 @@ def test_nose_wheel_clears_the_fuselage(converged_design):
     assert g.gear_h - g.nose_wheel.d >= P.nose_wheel_clearance_m - 1e-9
     # main wheels sit beside the fuselage
     assert g.track / 2 - g.main_wheel.w / 2 > g.fus_w / 2
+
+
+def test_stabilizer_never_below_tail_volume_and_tail_not_stalled_on_approach(converged_design):
+    d = converged_design.detail
+    g = d["geom"]
+    assert g.htail.S >= g.sh_volume * (1 - 1e-9)
+    trim = d["perf"]["approach"]["trim"]
+    assert trim is not None and trim["alpha_tail_deg"] > -7.0        # NACA 0009 stalls near -8 deg at Re ~50k
+    assert d["tail"]["elevator"]["throw_approach"] > 0.0              # some up-elevator is trusted on approach

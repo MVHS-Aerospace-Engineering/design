@@ -8,8 +8,8 @@ The fuselage is sized by what it must carry (battery + avionics + battery trim
 slide), the motor station by prop clearance, the gear height by prop ground
 clearance / wheel size. The fin is the larger of the Raymer tail-volume value
 and the coupled engine-out need (lateral.py); the stabilizer comes from the
-scissor plot (controls.tail_and_elevator) or, with P.htail_sizing =
-'tail_volume', the Raymer value. The wing position along the fuselage (x_qc)
+scissor plot (controls.tail_and_elevator), never below the Raymer value while
+P.htail_volume_floor is set, or, with P.htail_sizing = 'tail_volume', the Raymer value. The wing position along the fuselage (x_qc)
 is solved in the sizing loop so the nominal CG sits mid-band (weights.cg_budget).
 """
 import math
@@ -176,7 +176,10 @@ def build(S, AR, lt_ratio, wing_secs, motor, prop, battery, sv_engine_out=0.0,
     l_t = lt_ratio * wing.mac
     sh_vol = P.tail_cht * wing.mac * S / l_t
     if P.htail_sizing == "scissor" and sh_trim > 0:
-        S_h = max(sh_trim, 0.05 * sh_vol)          # (0.05: numerical guard only)
+        # scissor-plot area, floored at the Raymer tail volume (P.htail_volume_floor): without the
+        # floor the scissor plot shrank the stabilizer until it sat at its stall angle on approach
+        floor = sh_vol if P.htail_volume_floor else 0.05 * sh_vol   # (0.05: numerical guard only)
+        S_h = max(sh_trim, floor)
     else:
         S_h = max(sh_vol, sh_trim)
     sv_vol = P.tail_cvt * b * S / l_t
